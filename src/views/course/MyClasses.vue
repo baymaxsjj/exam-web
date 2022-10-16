@@ -1,0 +1,241 @@
+<template>
+    <a-page-header title="班级列表" @back="$router.back"></a-page-header>
+    <div class="class-opera" v-if="isTeacher">
+        <a-button type="primary" shape="round" @click="showAddModal(false)">创建班级</a-button>
+    </div>
+    <ul class="class-list" v-if="list.length!=0">
+        <li v-for="item in list" :key="item.id" class="class-item ebutton-hover" @click="toUserList(item.id)">
+            <span class="class-name">{{item.name}}</span>
+            <div class="class-info-opera" v-if="isTeacher">
+                <a-button @click.stop="showAddModal(true,item)">
+                    <template #icon>
+                        <icon-edit />
+                    </template>
+                </a-button>
+                <a-button status="danger" @click.stop="delClass(item.id)">
+                    <template #icon>
+                        <icon-delete />
+                    </template>
+                </a-button>
+                <a-button type="primary" @click.stop="getClassCode(item,false)">
+                    <template #icon>
+                        <icon-share-alt />
+                    </template>
+                </a-button>
+            </div>
+        </li>
+    </ul>
+    <a-empty v-else />
+    <a-modal simple v-model:visible="addModalVisible" @ok="addClassInfo" :title="isUpdate?'更新班级':'创建班级'">
+        <a-form :model="classInfo">
+            <a-form-item field="name" label="班级名称">
+                <a-input v-model="classInfo.name" placeholder="输入班级名称" />
+            </a-form-item>
+        </a-form>
+    </a-modal>
+    <a-modal body-class="share-code" modal-class="share-code-modal" :modal-style="{overflow: 'hidden',width:'auto'}"
+        simple v-model:visible="codeModalVisible" @ok="addClassInfo" :header="false" :footer="false">
+        <a-spin dot :loading="codeLoading">
+            <div class="course-info">
+                <h1>课程：{{courseStore.courseInfo.name}}</h1>
+                <p>老师：{{courseStore.courseInfo.teacher.nickname}}</p>
+                <p>班级：{{className}}</p>
+            </div>
+            <div class="class-code-info">
+                <qrcode-vue :value="classCode.code" style="width: 150px;height:150px"></qrcode-vue>
+                <h1 class="class-code">班级码：{{classCode.code}}</h1>
+                <p class="class-code-expiry">失效时间:{{classCode.expirationTime}}</p>
+            </div>
+
+            <a-button type="primary" size="large" shape="round" long>分享班级码</a-button>
+        </a-spin>
+
+
+    </a-modal>
+
+
+</template>
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import QrcodeVue from 'qrcode.vue'
+import { getClassListRequest, teaAddClassRequest, teaDelClassRequest, teaGetClassCodeRequest } from '../../apis/course-api';
+import useCourseStore from '../../sotre/course-store';
+import useUserStore from '../../sotre/user-store';
+const isUpdate = ref(false);
+const addModalVisible = ref(false);
+const codeModalVisible = ref(false)
+const codeLoading = ref(true)
+const list = ref([])
+const route = useRoute()
+const router=useRouter()
+const courseStore = useCourseStore()
+const userStore = useUserStore()
+const isTeacher = userStore.userInfo.id == courseStore.courseInfo.userId
+const classInfo = reactive({
+    courseId: 0,
+    name: "",
+    id: 0,
+})
+const classCode = reactive({
+    "code": "",
+    "expirationTime": ""
+})
+const className = ref("")
+const getList = () => {
+    let id = route.params['courseId'];
+    getClassListRequest(id).then(res => {
+        list.value = res.data.data;
+    })
+}
+const showAddModal = (type, data) => {
+    if (data) {
+        classInfo.name = data.name
+        classInfo.id = data.id
+    }
+    isUpdate.value = type
+    addModalVisible.value = true
+}
+const addClassInfo = () => {
+    if (!isUpdate.value) {
+        delete classInfo.id
+    }
+    classInfo.courseId = route.params['courseId'];
+    teaAddClassRequest(classInfo).then(() => {
+        getList();
+    })
+}
+
+const delClass = (id) => {
+    teaDelClassRequest(id).then(() => {
+        getList();
+    })
+}
+const getClassCode = (data, anew) => {
+    codeModalVisible.value = true
+    className.value = data.name
+    codeLoading.value = true
+    classCode.code = ""
+    classCode.expirationTime = ""
+    teaGetClassCodeRequest(data.id, anew).then(res => {
+        Object.assign(classCode, res.data.data)
+        codeLoading.value = false
+    })
+}
+const toUserList=(classId)=>{
+    router.push({
+        name:"ClassUser",
+        params:{
+            courseId:route.params['courseId'],
+            classId
+        }
+    })
+}
+getList()
+</script>
+<style lang="less" scoped>
+.class-list {
+    .class-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 15px;
+
+        margin-top: 5px;
+        transition: all .3s;
+
+        .class-name {
+            color: var(--color-text-1);
+        }
+
+        .class-info-opera {
+            button {
+                margin: 0 5px;
+            }
+        }
+    }
+}
+</style>
+<style lang="less">
+.share-code-modal {
+    position: relative;
+
+    &::before {
+        content: '';
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        // filter: blur(1px);
+        background-image: url(../../assets/img/share-code-bg.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+        animation-name: 动画名称;
+        animation: code-bg-ru 2s;
+    }
+
+    @keyframes code-bg-ru {
+        0% {
+            width: 0%;
+            height: 0%;
+        }
+
+        100% {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .arco-modal-header {
+        display: none;
+    }
+
+    .share-code {
+        width: 200px;
+        background-color: rgba(255, 255, 255, .8);
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 40px !important;
+
+
+        .course-info {
+            margin-bottom: 10px;
+
+            h1 {
+                font-size: 16px;
+            }
+
+            p {
+                color: var(--color-text-2)
+            }
+
+            img {
+                height: 50px;
+                width: 100px;
+            }
+        }
+
+        .class-code-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .class-code {
+                color: rgb(var(--primary-6));
+                font-size: 20px;
+                margin-top: 10px;
+            }
+
+            .class-code-expiry {
+                color: var(--color-text-2);
+                margin: 10px 0;
+            }
+        }
+    }
+}
+</style>

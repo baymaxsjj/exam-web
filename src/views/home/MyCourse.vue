@@ -1,0 +1,298 @@
+<template>
+    <div class="my-course">
+        <a-tabs v-model:active-key="defaultTag" @change="tagChange">
+            <a-tab-pane key="student">
+                <template #title>
+                    <icon-calendar /> 我学的课
+                </template>
+            </a-tab-pane>
+            <a-tab-pane key="teacher">
+                <template #title>
+                    <icon-clock-circle /> 我教的课
+                </template>
+            </a-tab-pane>
+        </a-tabs>
+        <!-- 操作区 -->
+        <div class="course-operation">
+            <a-button type="primary" @click="showAddModal(defaultTag=='student'?0:1)" shape="round">{{ defaultTag=='student'?'添加课程':'创建课程' }}</a-button>
+            <a-radio-group type="button" @change="statusChange" default-value="0">
+                <a-radio value="0">正在学</a-radio>
+                <a-radio value="1">已完结</a-radio>
+            </a-radio-group>
+        </div>
+        <!-- 课程列表 -->
+        <div class="course-list" v-if="loading">
+            <a-skeleton class="course-item" :animation="true" v-for="item of 3" :key="item">
+                <a-space direction="vertical" size="large" style="width:100%">
+                    <a-skeleton-shape class="course-picture" style="width:100%"/>
+                    <a-skeleton-line :rows="2" />
+                </a-space>
+            </a-skeleton>
+        </div>
+        <div v-else-if="courseList.length != 0">
+            <ul class="course-list">
+                <li class="course-item" v-for="item of courseList"  @click="toCourse(item)">
+                    <!-- <router-link :to="'/course/'+item.id"> -->
+                        <div class="course-picture">
+                            <a-image width="100%" height="100%" :src="item.cover" />
+                            <div class="course-opera" v-if="defaultTag=='teacher'">
+                                <span>{{item.status==0?"结课":"开课"}}</span>
+                                <span @click.stop="showAddModal(2,item)">修改</span>
+                                <span>{{item.isPublic==0?"公开":"隐藏"}}</span>
+                            </div>
+                        </div>
+                        <div class="course-info">
+                            <h3 class="title">{{ item.name }}</h3>
+                            <p class="author">{{ item.teacher.nickname }}</p>
+                        </div>
+                    <!-- </router-link> -->
+                </li>
+            </ul>
+            <a-pagination style="justify-content: center;" :total="total" :current="currPage" :page-size="9" />
+        </div>
+        <a-empty v-else />
+        <!-- 邀请码添加课程 -->
+        <a-modal simple v-model:visible="addModalVisible" @ok="courseOk" :title="modalTitle">
+            <a-form :model="stuAddInfo" v-if="defaultTag=='student'">
+                <a-form-item field="name" label="邀请码">
+                    <a-input v-model="stuAddInfo.code" placeholder="输入班级邀请码" />
+                </a-form-item>
+            </a-form>
+            <a-form :model="teaAddInfo" v-else>
+                <a-form-item field="name" label="课程名称">
+                    <a-input v-model="teaAddInfo.name" placeholder="输入课程名称" />
+                </a-form-item>
+                <a-form-item field="name" label="课程简介">
+                    <a-input v-model="teaAddInfo.introduce" placeholder="输入课程简介" />
+                </a-form-item>
+                <a-form-item field="name" label="课程封面">
+                    <a-upload action="/"  list-type="picture-card">
+                    </a-upload>
+                </a-form-item>
+                <a-form-item field="name" label="课程公开">
+                    <a-radio-group type="button" v-model:model-value="teaAddInfo.isPublic" default-value="0">
+                        <a-radio value="0">隐藏</a-radio>
+                        <a-radio value="1">公开</a-radio>
+                    </a-radio-group>
+                </a-form-item>
+                <a-form-item field="name" label="课程状态" v-if="modalType!=1">
+                    <a-radio-group type="button" v-model:model-value="teaAddInfo.status"  default-value="0">
+                        <a-radio value="0">开课</a-radio>
+                        <a-radio value="1">结课</a-radio>
+                    </a-radio-group>
+                </a-form-item>
+            </a-form>
+        </a-modal>
+    </div>
+</template>
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { courseListRequest,stuAddCourseRequest,teaCreateCourseRequest } from '@/apis/course-api.js'
+import useCourseStore from '../../sotre/course-store';
+const route = useRoute()
+const router = useRouter()
+const courseStore=useCourseStore()
+
+
+const modalTitle=ref('');
+//0 加入、1：创建、2：修改
+const modalType=ref(0);
+const addModalVisible = ref(false)
+const stuAddInfo = reactive({
+    code: ""
+})
+const teaAddInfoState={
+        cover:"https://pic.616pic.com/bg_w1180/00/01/57/CetpiQ3xVI.jpg!/both/561x313",
+        id:0,
+        introduce:"",
+        isPublic:"0",
+        name:"",
+        status:"0"
+}
+const teaAddInfo = reactive({...teaAddInfoState})
+//选择标签
+const defaultTag = ref(route.params.role)
+// 是否结课
+const isEnd = ref(0)
+const currPage = ref(1)
+const total = ref(0)
+const loading = ref(false)
+//课程列表
+const courseList = ref([])
+// 确定角色内容
+const checkRole = () => {
+    switch (defaultTag.value) {
+        case 'teacher':
+            defaultTag.value = 'teacher'
+            break;
+        case 'student':
+        default:
+            defaultTag.value = 'student'
+    }
+}
+//标签改变
+const tagChange = () => {
+    checkRole();
+    router.push({
+        name: "MyCourse",
+        params: {
+            role: defaultTag.value
+        }
+    })
+    getCourseList()
+    console.log(defaultTag.value)
+}
+//筛选改变
+const statusChange = (value) => {
+    isEnd.value = value;
+    getCourseList();
+}
+const showAddModal = (type,data) => {
+    //重置状态
+    if(type==0){
+        modalTitle.value="添加课程"
+        modalType.value=0
+        stuAddInfo.code=""
+    }else if(type==1){
+        modalTitle.value="创建课程"
+        modalType.value=1
+        Object.assign(teaAddInfo,teaAddInfoState)
+    }else{
+        modalTitle.value="修改课程"
+        modalType.value=2
+        Object.assign(teaAddInfo,data)
+    }
+    addModalVisible.value = !addModalVisible.value
+
+}
+const getCourseList = () => {
+    loading.value = true
+    courseListRequest(defaultTag.value, currPage.value, isEnd.value)
+        .then(({ data }) => {
+            console.log(data)
+            const result=data.data;
+            courseList.value =result.list
+            currPage.value = result.current
+            total.value = result.total
+            loading.value = false
+        }).catch(err => {
+            loading.value = false
+        })
+}
+const courseOk=()=>{
+    if(modalType.value==0){
+        stuAddCourseRequest(stuAddInfo.code).then(()=>{
+            getCourseList()
+        })
+        return
+    }else if(modalType.value==1){
+        delete teaAddInfo.id
+    }
+    teaCreateCourseRequest(teaAddInfo).then(()=>{
+        getCourseList()
+    })
+}
+const toCourse=(data)=>{
+    courseStore.courseInfo=data
+    router.push({
+        name:'Course',
+        params:{
+            courseId:data.id
+        }
+    })
+}
+checkRole()
+getCourseList()
+
+</script>
+<style lang="less">
+.my-course {
+
+    .course-operation {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+    }
+
+    .course-list {
+        display: flex;
+        flex-wrap: wrap;
+        .course-item {
+            margin: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            min-width: 160px;
+            max-width: 300px;
+            box-sizing: border-box;
+            border: 1px solid var(--color-border-2);
+            .course-picture{
+                img{
+                    transition: all .3s;
+                }
+            }
+            &:hover {
+                .course-picture {
+                    .course-opera {
+                        height: 100%;
+                    }
+                    img{
+                        transform: scale(1.05);
+                        filter: blur(2px);
+                    }
+                }
+
+            }
+
+            .course-picture {
+                height: 150px;
+                position: relative;
+                .course-opera {
+                    position: absolute;
+                    top: 0px;
+                    right: 0px;
+                    height: 0;
+                    left: 0;
+                    bottom: 0;
+                    overflow: hidden;
+                    transition: height .3s;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    box-sizing: border-box;
+                    span{
+                        font-size: 14px;
+                        display: inline-block;
+                        height: 50px;
+                        width: 50px;
+                        text-align: center;
+                        line-height: 50px;
+                        border-radius: 30px;
+                        color: var(--color-text-1);
+                        background-color: #fff;
+                        font-weight: bold;
+                        margin: 0 5px;
+                        &:hover{
+                            background-color: var(--color-fill-2);
+                        }
+                    }
+                }
+            }
+            .course-info{
+                padding: 10px;
+                .title {
+                    margin: 10px 0;
+                    color: var(--color-text-1);
+                }
+
+                .author {
+                    color: var(--color-text-2);
+                }
+            }
+
+           
+        }
+    }
+}
+</style>
