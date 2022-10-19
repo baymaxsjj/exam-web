@@ -1,4 +1,5 @@
 const Home=()=>import("../views/home/Index.vue")
+const Question=()=>import("../views/course/Question.vue")
 const MyClasses=()=>import("../views/course/MyClasses.vue")
 const ClassUser=()=>import("../views/course/ClassUser.vue")
 const courses = [
@@ -7,6 +8,14 @@ const courses = [
         component: Home,
         name:'Course',
         children: [
+            {
+                path:"question",
+                component:Question,
+                name:'Question',
+                meta:{
+                    title:'课程题库'
+                }
+            },
             {
                 path:"classes",
                 component:MyClasses,

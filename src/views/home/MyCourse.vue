@@ -22,7 +22,7 @@
         </div>
         <!-- 课程列表 -->
         <div class="course-list" v-if="loading">
-            <a-skeleton class="course-item" :animation="true" v-for="item of 3" :key="item">
+            <a-skeleton class="course-item" style="flex:1" :animation="true" v-for="item of 3" :key="item">
                 <a-space direction="vertical" size="large" style="width:100%">
                     <a-skeleton-shape class="course-picture" style="width:100%"/>
                     <a-skeleton-line :rows="2" />
@@ -39,6 +39,9 @@
                                 <span>{{item.status==0?"结课":"开课"}}</span>
                                 <span @click.stop="showAddModal(2,item)">修改</span>
                                 <span>{{item.isPublic==0?"公开":"隐藏"}}</span>
+                            </div>
+                            <div class="course-opera" v-else>
+                                <span @click.stop="showAddModal(2,item)">退课</span>
                             </div>
                         </div>
                         <div class="course-info">
@@ -219,6 +222,8 @@ getCourseList()
         display: flex;
         flex-wrap: wrap;
         .course-item {
+            flex-grow:1;
+            flex-shrink:1;
             margin: 10px;
             border-radius: 10px;
             overflow: hidden;
@@ -230,6 +235,8 @@ getCourseList()
             .course-picture{
                 img{
                     transition: all .3s;
+                    width: 100%;
+                    height: 100%;
                 }
             }
             &:hover {
@@ -246,7 +253,7 @@ getCourseList()
             }
 
             .course-picture {
-                height: 150px;
+                height: 160px;
                 position: relative;
                 .course-opera {
                     position: absolute;

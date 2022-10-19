@@ -12,11 +12,14 @@
                         <icon-edit />
                     </template>
                 </a-button>
-                <a-button status="danger" @click.stop="delClass(item.id)">
-                    <template #icon>
-                        <icon-delete />
-                    </template>
-                </a-button>
+                <a-popconfirm content="确认删除班级吗?" @ok="delClass(item.id)">
+                    <a-button status="danger" @click.stop>
+                        <template #icon>
+                            <icon-delete />
+                        </template>
+                    </a-button>
+                </a-popconfirm>
+               
                 <a-button type="primary" @click.stop="getClassCode(item,false)">
                     <template #icon>
                         <icon-share-alt />
@@ -139,8 +142,7 @@ getList()
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 5px 15px;
-
+        height: 26px;
         margin-top: 5px;
         transition: all .3s;
 
@@ -159,7 +161,7 @@ getList()
 <style lang="less">
 .share-code-modal {
     position: relative;
-
+    width: auto!important;
     &::before {
         content: '';
         height: 100%;
@@ -173,7 +175,6 @@ getList()
         background-image: url(../../assets/img/share-code-bg.png);
         background-repeat: no-repeat;
         background-size: contain;
-        animation-name: 动画名称;
         animation: code-bg-ru 2s;
     }
 
