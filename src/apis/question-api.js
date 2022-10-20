@@ -11,8 +11,13 @@ const tagsListRequest=(courseId,parentId='')=>{
 const deleteTagRequest=(tagId)=>{
     return axios.post(`/eapi/tags/delete/${tagId}`)
 }
+// 查询题目列表
+const questionInfoListRequest=(courseId,currentPage,tagId='')=>{
+    return axios.get(`/eapi/question/list/${courseId}?currentPage=${currentPage}&tagId=${tagId}`)
+}
 export {
     updateTagRequest,
     tagsListRequest,
-    deleteTagRequest
+    deleteTagRequest,
+    questionInfoListRequest
 }

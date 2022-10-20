@@ -42,6 +42,13 @@
                     <icon-upload />导入题库
                 </a-button>
             </div>
+            <!-- 题目列表 -->
+            <div>
+                <template v-if="questionList.length!=0">
+                    <QuestionPreview v-for="item of questionList" :question-info="item"/>
+                </template>
+                <a-empty v-else/>
+            </div>
         </div>
     </div>
 </template>
@@ -50,11 +57,33 @@ import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import { ref } from 'vue';
 import { questionType } from '../../utils/question-config.js'
+import { questionInfoListRequest } from '../../apis/question-api';
+import { useRoute } from 'vue-router';
+import QuestionPreview from '../../components/QuestionPreview.vue';
 const courseStore = useCourseStore()
 const navList = ref([])
-const select = (tree) => {
+const route=useRoute();
+const courseId=route.params['courseId']
+const page=ref(1);
+const total=ref(1);
+const questionList=ref([])
+let tagId="";
+const select = (nodeData,tree) => {
     navList.value = tree;
+    tagId=nodeData?.tagId;
+    getQuestList(nodeData.tagId)
+    console.log("获取标签树",nodeData)
 }
+const getQuestList=(tagId="")=>{
+    questionInfoListRequest(courseId,page.value,tagId).then(res=>{
+        const data=res.data.data
+        console.log(data)
+        questionList.value=data.list;
+        total.value=data.total;
+        page.value=data.current
+    })
+}
+getQuestList()
 </script>
 <style lang="less" scoped>
 .question-wrap {
@@ -66,6 +95,12 @@ const select = (tree) => {
         padding-right: 10px;
         margin-right: 10px;
         border-right: 2px solid var(--color-fill-2);
+    }
+    .question-detail{
+        flex: 1;
+        .opearte_area{
+            padding: 10px 0;
+        }
     }
 }
 </style>

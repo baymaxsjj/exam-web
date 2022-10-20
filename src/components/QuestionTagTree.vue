@@ -31,7 +31,7 @@
                 </ADropdown>
             </template>
         </a-tree>
-        <a-modal v-model:visible="visible" @ok="updateTag" :title="isUpdate?'更新分组':'创建分组'">
+        <a-modal v-model:visible="visible" :simple="true" @ok="updateTag" :title="isUpdate?'更新分组':'创建分组'">
             <a-form :model="tagModel">
                 <a-form-item field="name" label="题目分组">
                     <a-input v-model="tagModel.tag" placeholder="输入题目分组" />
@@ -90,7 +90,7 @@ const showTagModel=(type,data)=>{
 const selectTag=(selectedKeys,data)=>{
     const selectTree=[]
     const parentTree=getTagParentList(tagTreeList.value,selectedKeys[0]);
-    emits('select',parentTree)
+    emits('select',data.node,parentTree)
 }
 const updateTag=()=>{
     if(!isUpdate.value){

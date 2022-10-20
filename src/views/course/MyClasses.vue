@@ -162,6 +162,18 @@ getList()
 .share-code-modal {
     position: relative;
     width: auto!important;
+    &::after{
+        content: "为考";
+        position: absolute;
+        top: 0px;
+        right: 50px;
+        font-weight: bold;
+        opacity: .4;
+        font-size: 18px;
+        transform: rotate(35deg);
+        color: rgb(var(--primary-5));   //字体颜色设置为透明
+        animation: logo-scale 2s;
+    }
     &::before {
         content: '';
         height: 100%;
@@ -177,7 +189,15 @@ getList()
         background-size: contain;
         animation: code-bg-ru 2s;
     }
+    @keyframes logo-scale {
+        0% {
+            transform: scale(0) rotate(0);
+        }
 
+        100% {
+            transform: scale(1) rotate(35deg);
+        }
+    }
     @keyframes code-bg-ru {
         0% {
             width: 0%;
