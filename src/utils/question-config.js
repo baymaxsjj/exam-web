@@ -8,7 +8,8 @@ const questionType = [
     itemsConfig: {
       min: 2,
       max: 26,
-      prexType:'letter'
+      prexType:'letter',
+      editMode:'preview'
     },
   },
   {
@@ -19,7 +20,8 @@ const questionType = [
     itemsConfig: {
       min: 2,
       max: 26,
-      prexType:'letter'
+      prexType:'letter',
+      editMode:'preview'
     },
   },
   {
@@ -30,7 +32,8 @@ const questionType = [
     itemsConfig: {
       min: 2,
       max: 2,
-      prexType:'letter'
+      prexType:'letter',
+      editMode:'preview'
     },
   },
   {
@@ -40,7 +43,8 @@ const questionType = [
     value:3,
     itemsConfig: {
       min: 1,
-      prexType:'number'
+      prexType:'number',
+      editMode:'rich'
     },
   },
   {
@@ -51,7 +55,8 @@ const questionType = [
     itemsConfig: {
       min: 1,
       max: 1,
-      prexType:'none'
+      prexType:'none',
+      editMode:'rich'
     },
   },
 ];

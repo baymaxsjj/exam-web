@@ -1,44 +1,100 @@
 <template>
     <div class="">
-        <a-textarea :default-value="props.defaultValue" v-if="props.mode=='simple'"/>
-        <div v-else :id="props.vditorId"></div>
+        <a-textarea v-model:model-value="content" @blur="blur" v-if="props.mode=='simple'" />
+        <div v-else ref="editorRef"></div>
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted, ref, watch, toRaw, onUnmounted, unref } from 'vue';
 import Vditor from 'vditor';
 import 'vditor/dist/index.css';
-const props=defineProps({
-    defaultValue:{
-        type:String,
+
+const props = defineProps({
+    vditorOptions: {
+        type: Object,
+        default: {}
+    },
+    previewOptions:{
+        type: Object,
+        default: {}
+    },
+    modelValue: {
+        type: String,
         default: '',
     },
-    vditorId:{
-        type:String,
-        default: 'vditor',
-    },
-    mode:{
-        type:String,
+    mode: {
+        type: String,
         default: 'simple',
         validator(value) {
             // The value must match one of these strings
-            return ['simple', 'rich'].includes(value)
+            return ['preview', 'simple', 'rich'].includes(value)
         }
     }
 })
-const vditor = ref(null);
-const value=ref("")
-const loadVditor=()=>{
-    vditor.value = new Vditor(props.vditorId, {
-    after: () => {
-      // vditor.value is a instance of Vditor now and thus can be safely used here
-      vditor.value?.setValue(props.defaultValue);
-    },
-  });
-}
+
+
+const emit = defineEmits([
+    'update:modelValue',
+    'blur'
+]);
+
+const contentEditor = ref();
+const editorRef = ref();
+const content = ref(props.modelValue)
+
 onMounted(() => {
+    loadVditor()
+});
+const loadVditor = () => {
+    const options = Object.assign({
+        minHeight: 200,
+        cache: {
+            enable: false,
+        }
+    }, props.vditorOptions)
     if(props.mode=='rich'){
-        loadVditor()
+        contentEditor.value = new Vditor(editorRef.value, {
+        ...options,
+        value:content.value,
+        input(value) {
+            content.value = value;
+        },
+        blur() {
+            blur();
+        }
+    });
+    }else if(props.mode=='preview'){
+        Vditor.preview(editorRef.value,content.value,props.previewOptions)
+    }
+   
+}
+
+watch(
+    () => props.modelValue,
+    (newVal) => {
+        content.value = newVal;
+        if (newVal !== contentEditor.value?.getValue()) {
+            contentEditor.value?.setValue(newVal);
+        }
+
+    }
+);
+watch(
+    () => content.value,
+    (value) => {
+        emit('update:modelValue', value);
+    }
+);
+onUnmounted(() => {
+    const editorInstance = unref(contentEditor);
+    if (!editorInstance) return;
+    try {
+        editorInstance?.destroy?.();
+    } catch (error) {
+        console.log(error);
     }
 });
+const blur = () => {
+    emit('blur', content.value)
+}
 </script>

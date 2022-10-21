@@ -3,7 +3,7 @@ import axios from '../utils/http'
 const updateTagRequest=(tags)=>{
     return axios.post(`/eapi/tags/update`,tags)
 }
-// 查询标签列表
+/// 查询标签列表
 const tagsListRequest=(courseId,parentId='')=>{
     return axios.get(`/eapi/tags/${courseId}/list?parentId=${parentId}`)
 }
@@ -15,9 +15,39 @@ const deleteTagRequest=(tagId)=>{
 const questionInfoListRequest=(courseId,currentPage,tagId='')=>{
     return axios.get(`/eapi/question/list/${courseId}?currentPage=${currentPage}&tagId=${tagId}`)
 }
+// 添加题目
+const addQuestionRequest=(question)=>{
+    return axios.post(`/eapi/question/add`,question)
+}
+// 更新题目
+const updateQuestionRequest=(question)=>{
+    return axios.post(`/eapi/question/update`,question)
+}
+// 删除题目
+const delQuestionRequest=(questionId)=>{
+    return axios.post(`/eapi/question/delete/${questionId}`)
+}
+// 更新题目项
+const updateQuestionItemRequest=(item)=>{
+    return axios.post(`/eapi/question-item/update`,item)
+}
+// 删除题目项
+const delQuestionItemRequest=(itemId)=>{
+    return axios.post(`/eapi/question-item/delete/${itemId}`)
+}
+// 修改/单/多/判 答案
+const updateQuestionCorrectRequest=(itemId)=>{
+    return axios.post(`/eapi/question-item/correct/${itemId}`)
+}
 export {
     updateTagRequest,
     tagsListRequest,
     deleteTagRequest,
-    questionInfoListRequest
+    questionInfoListRequest,
+    addQuestionRequest,
+    updateQuestionRequest,
+    delQuestionRequest,
+    updateQuestionItemRequest,
+    delQuestionItemRequest,
+    updateQuestionCorrectRequest
 }
