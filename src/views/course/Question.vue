@@ -44,8 +44,16 @@
             </div>
             <!-- 题目列表 -->
             <div>
+                <a-radio-group type="button" default-value="display" v-model:model-value="editMode">
+                    <a-radio value="display">展示模式</a-radio>
+                    <a-radio value="answer">作答模式</a-radio>
+                    <a-radio value="answer-display">作答浏览模式</a-radio>
+                    <a-radio value="editor">编辑模式</a-radio>
+                    <a-radio value="create">新建模式</a-radio>
+                </a-radio-group>
                 <template v-if="questionList.length!=0">
-                    <QuestionPreview v-for="item of questionList" :question-info="item"/>
+                    <!-- <QuestionPreview v-for="item of questionList" :question-info="item"/> -->
+                    <QuestionTest :mode="editMode" v-for="(item,index) in questionList" :number="index+1" :question="item" :topic-type="item['type']" :options="item['topicItems']"/>
                 </template>
                 <a-empty v-else/>
             </div>
@@ -60,6 +68,8 @@ import { questionType } from '../../utils/question-config.js'
 import { questionInfoListRequest } from '../../apis/question-api';
 import { useRoute } from 'vue-router';
 import QuestionPreview from '../../components/QuestionPreview.vue';
+import QuestionTest from '../../components/QuestionTest.vue';
+
 const courseStore = useCourseStore()
 const navList = ref([])
 const route=useRoute();
@@ -67,6 +77,8 @@ const courseId=route.params['courseId']
 const page=ref(1);
 const total=ref(1);
 const questionList=ref([])
+
+const editMode=ref('display')
 let tagId="";
 const select = (nodeData,tree) => {
     navList.value = tree;

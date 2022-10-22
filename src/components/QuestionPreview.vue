@@ -18,7 +18,8 @@
             <!-- 类型 -->
             <span class="type-name">({{type.simpleName}})</span>
             <!-- 内容 -->
-            <QuestionEditor @blur="updateQuestion" :mode="editMode.question" v-model:model-value="questionInfo.content" />
+            <QuestionEditor @blur="updateQuestion" :mode="editMode.questionEdit"
+                v-model:model-value="questionInfo.content" />
         </p>
         <!-- 答题/类别 -->
         <div class="question-body">
@@ -39,7 +40,7 @@
                             :class="{'letter-active':item.correct!=null}">{{letterList[index]+(props.mode=='display'?".":"")}}</span>
                         <span class="number"
                             v-if="type.itemsConfig.prexType=='number'">{{props.mode=='display'?(index+1)+".":`第${index+1}空`}}</span>
-                        <QuestionEditor  @blur="updateQuestionItem" :mode="editMode.option"
+                        <QuestionEditor @blur="updateQuestionItem(item)" :mode="editMode.questionItemEdit"
                             v-model:model-value="questionInfo.topicItems[index].content" />
                     </div>
                 </li>
@@ -50,7 +51,8 @@
             <!-- 主观题答题区  非展示模式显示-->
             <span class="subjective" v-if="props.mode!='display'&&type.enumName=='SUBJECTIVE'">
                 <span class="analyis-name">答：</span>
-                <QuestionEditor  @blur="updateQuestionItem" :mode="editMode.option" v-model:model-value="questionInfo.topicItems[0].content" />
+                <QuestionEditor @blur="updateQuestionItem" :mode="editMode.questionItemEdit"
+                    v-model:model-value="questionInfo.topicItems[0].content" />
             </span>
         </div>
         <!-- 答案 展示模式显示 -->
@@ -61,7 +63,7 @@
         <div class="question-footer" v-if="props.mode!='answer'">
             <!-- <span></span> -->
             <span class="analyis-name">解析：</span>
-            <QuestionEditor  @blur="updateAnalysit" v-if="questionInfo.analysis||isEdit" :mode="editMode.analysis"
+            <QuestionEditor @blur="updateAnalysit" v-if="questionInfo.analysis||isEdit" :mode="editMode.questionItemEdit"
                 v-model:model-value="questionInfo.analysis" />
             <span v-else>无</span>
         </div>
@@ -102,33 +104,42 @@ const props = defineProps({
 const questionInfo = reactive(props.questionInfo)
 const type = getQuestionType(questionInfo.type)
 const loading = ref(false)
+if(type.enumName="SUBJECTIVE"){
+    const item=questionInfo['topicItems']
+    if(item.length==0){
+        item.push({
+            correct:""
+        })
+    }
+}
+
 const editMode = computed(() => {
-    let mode = getMode('preview')
+    let defaultEdit='preview'
+    let questionEdit=defaultEdit
+    let questionItemEdit=defaultEdit
     switch (props.mode) {
         case 'simple-editor':
-            mode = getMode('simple')
-            break
+            defaultEdit='simple'
         case 'editor':
-            mode = getMode('rich')
+            defaultEdit='rich'
+            questionEdit=defaultEdit
+            questionItemEdit=defaultEdit
             break
         case 'answer':
-            mode.question = 'preview'
+            questionEdit = 'preview'
             if (type.enumName == 'COMPLETION' || type.enumName == 'SUBJECTIVE') {
-                mode.option = 'rich'
+                questionItemEdit = 'rich'
             } else {
-                mode.option = 'preview'
+                questionItemEdit = 'preview'
             }
             break;
     }
-    return mode;
-})
-const getMode = (mode) => {
+   
     return {
-        question: mode,
-        option: mode,
-        analysis: mode
-    }
-}
+        questionEdit,
+        questionItemEdit
+    };
+})
 const isEdit = computed(() => {
     return ['simple-editor', 'editor',].includes(props.mode)
 })
@@ -142,7 +153,6 @@ const addOption = () => {
     } else {
         Message.info("请完成当前选择后，在添加~")
     }
-
 }
 const delItemOption = (itemId) => {
     delQuestionItemRequest(itemId).then(() => {
@@ -210,18 +220,19 @@ const getCorrect = computed(() => {
     return correct.join('；')
 })
 const updateAnalysit = (value) => {
-    if(isEdit){
+    if (isEdit) {
 
     }
 }
 const updateQuestion = (value) => {
-    if(isEdit){
-        
+    if (isEdit) {
+        updateQuestionRequest(questionInfo)
     }
 }
-const updateQuestionItem = (value) => {
-    if(isEdit){
-        
+const updateQuestionItem = (item) => {
+    if (isEdit) {
+        item['questionId'] = questionInfo.id
+        updateQuestionItemRequest(item)
     }
 }
 </script>
@@ -266,10 +277,12 @@ const updateQuestionItem = (value) => {
         }
 
     }
+
     .subjective {
         color: var(--color-text-3);
     }
-    .question-footer{
+
+    .question-footer {
         background-color: var(--color-fill-2);
         padding: 15px;
         border-radius: 5px;

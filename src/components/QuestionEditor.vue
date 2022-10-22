@@ -1,7 +1,7 @@
 <template>
     <div class="">
         <a-textarea v-model:model-value="content" @blur="blur" v-if="props.mode=='simple'" />
-        <div v-else ref="editorRef"></div>
+        <span v-else ref="editorRef"></span>
     </div>
 </template>
 <script setup>
@@ -85,6 +85,9 @@ watch(
         emit('update:modelValue', value);
     }
 );
+watch(()=>props.mode,(value)=>{
+    loadVditor()
+})
 onUnmounted(() => {
     const editorInstance = unref(contentEditor);
     if (!editorInstance) return;
@@ -98,3 +101,8 @@ const blur = () => {
     emit('blur', content.value)
 }
 </script>
+<style>
+.vditor{
+    margin: 10px 0;
+}
+</style>
