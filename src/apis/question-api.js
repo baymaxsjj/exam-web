@@ -12,7 +12,7 @@ const deleteTagRequest=(tagId)=>{
     return axios.post(`/eapi/tags/delete/${tagId}`)
 }
 // 查询题目列表
-const questionInfoListRequest=(courseId,currentPage,tagId='')=>{
+const questionListRequest=(courseId,currentPage,tagId='')=>{
     return axios.get(`/eapi/question/list/${courseId}?currentPage=${currentPage}&tagId=${tagId}`)
 }
 // 添加题目
@@ -43,7 +43,7 @@ export {
     updateTagRequest,
     tagsListRequest,
     deleteTagRequest,
-    questionInfoListRequest,
+    questionListRequest,
     addQuestionRequest,
     updateQuestionRequest,
     delQuestionRequest,

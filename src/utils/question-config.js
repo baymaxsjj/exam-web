@@ -60,15 +60,40 @@ const questionType = [
     },
   },
 ];
-const getQuestionType=(enumName,isEnum=true)=>{
+const questionVisble=[
+  {
+    name:'自己',
+    value:0,
+    enumName:'self'
+  },
+  {
+    name:'课程',
+    value:1,
+    enumName:'course'
+  },
+  {
+    name:'公开',
+    value:2,
+    enumName:'overt'
+  }
+]
+const getQuestionType=(enumName)=>{
     for(let i=0;i<questionType.length;i++){
         if(questionType[i].enumName==enumName){
             return questionType[i];
         }
     }
 }
+const getQuestionVisble=(enumName)=>{
+  for(let i=0;i<questionVisble.length;i++){
+      if(questionVisble[i].enumName==enumName){
+          return questionVisble[i];
+      }
+  }
+}
 export {
     questionType,
     letterList,
-    getQuestionType
+    getQuestionType,
+    getQuestionVisble
 }

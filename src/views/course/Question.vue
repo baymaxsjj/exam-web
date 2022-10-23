@@ -27,13 +27,13 @@
 
 
                 </a-dropdown>
-                <a-dropdown :popup-max-height="false"  trigger="hover">
+                <a-dropdown :popup-max-height="false" trigger="hover">
                     <a-button type="primary">
                         <icon-plus />
                         创建题目
                     </a-button>
                     <template #content>
-                        <a-doption v-for="item of questionType"><span
+                        <a-doption v-for="item of questionType" @click="saveQuestion(item.enumName)"><span
                                 style="padding: 0 15px;">{{item.simpleName}}</span></a-doption>
 
                     </template>
@@ -42,62 +42,154 @@
                     <icon-upload />导入题库
                 </a-button>
             </div>
+            <!-- 创建/更新区 -->
+            <div v-if="visible">
+                <a-page-header title="返回列表" @back="visible=false">
+                </a-page-header>
+                <QuestionPreview :mode="editMode" :topic-type="questType"/>
+
+            </div>
             <!-- 题目列表 -->
-            <div>
-                <a-radio-group type="button" default-value="display" v-model:model-value="editMode">
-                    <a-radio value="display">展示模式</a-radio>
-                    <a-radio value="answer">作答模式</a-radio>
-                    <a-radio value="answer-display">作答浏览模式</a-radio>
-                    <a-radio value="editor">编辑模式</a-radio>
-                    <a-radio value="create">新建模式</a-radio>
-                </a-radio-group>
-                <template v-if="questionList.length!=0">
-                    <!-- <QuestionPreview v-for="item of questionList" :question-info="item"/> -->
-                    <QuestionTest :mode="editMode" v-for="(item,index) in questionList" :number="index+1" :question="item" :topic-type="item['type']" :options="item['topicItems']"/>
-                </template>
-                <a-empty v-else/>
+            <div v-else>
+                <a-table :columns="columns" :data="questionList" :loading="loading" column-resizable :pagination="{total:total,current:page}">
+                    <template #content="{ record, rowIndex }">
+                        <p class="arco-table-text-ellipsis" v-html="record.content"></p>
+                    </template>
+                    <template #type="{ record, rowIndex }">
+                        <a-tag>{{getQuestionType(record.type).simpleName}}</a-tag>
+                    </template>
+                    <template #difficulty="{ record, rowIndex }">
+                        <a-rate :default-value="record.difficulty/20" readonly allow-half />
+                    </template>
+                    <template #isPublic="{ record, rowIndex }">
+                        <a-tag>{{getQuestionVisble(record.isPublic).name}}</a-tag>
+                    </template>
+                    <template #edit="{ record, rowIndex }">
+                        <a-button status="danger" @click="delQuestion(record.id)" style="margin-right: 10px;">
+                            <template #icon>
+                                <icon-delete />
+                            </template>
+                        </a-button>
+                        <a-button style="margin-right: 10px;">
+                            <template #icon>
+                                <icon-search />
+                            </template>
+                        </a-button>
+                        <a-button type="primary">
+                            <template #icon>
+                                <icon-edit />
+                            </template>
+                        </a-button>
+                    </template>
+                </a-table>
             </div>
         </div>
     </div>
 </template>
 <script setup>
+import { useRoute } from 'vue-router';
+import { ref } from 'vue';
 import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
-import { ref } from 'vue';
-import { questionType } from '../../utils/question-config.js'
-import { questionInfoListRequest } from '../../apis/question-api';
-import { useRoute } from 'vue-router';
+import {questionType, getQuestionType ,getQuestionVisble} from '../../utils/question-config.js'
+import { questionListRequest,delQuestionRequest } from '../../apis/question-api';
 import QuestionPreview from '../../components/QuestionPreview.vue';
-import QuestionTest from '../../components/QuestionTest.vue';
 
 const courseStore = useCourseStore()
 const navList = ref([])
-const route=useRoute();
-const courseId=route.params['courseId']
-const page=ref(1);
-const total=ref(1);
-const questionList=ref([])
+const route = useRoute();
+const courseId = route.params['courseId']
 
-const editMode=ref('display')
-let tagId="";
-const select = (nodeData,tree) => {
+const page = ref(1);
+const total = ref(1);
+
+const loading=ref(false)
+const visible=ref(false)
+
+const questionList = ref([])
+const editMode=ref('create')
+const questType=ref("SIGNAL_CHOICE")
+const quest=ref("")
+
+//选择目录
+const select = (nodeData, tree) => {
     navList.value = tree;
-    tagId=nodeData?.tagId;
+    tagId = nodeData?.tagId;
     getQuestList(nodeData.tagId)
-    console.log("获取标签树",nodeData)
+    console.log("获取标签树", nodeData)
 }
-const getQuestList=(tagId="")=>{
-    questionInfoListRequest(courseId,page.value,tagId).then(res=>{
-        const data=res.data.data
-        console.log(data)
-        questionList.value=data.list;
-        total.value=data.total;
-        page.value=data.current
+// 删除问题
+const delQuestion = (id) => {
+    delQuestionRequest(id).then(res => {
+        getQuestList()
     })
 }
+const getQuestList = (tagId = "") => {
+    loading.value=true
+    questionListRequest(courseId, page.value, tagId).then(res => {
+        const data = res.data.data
+        console.log(data)
+        questionList.value = data.list;
+        total.value = data.total;
+        page.value = data.current
+        loading.value=false
+    })
+}
+const saveQuestion=(type,quest)=>{
+    console.log(type)
+    questType.value=type
+    if(quest){
+        question.value=quest
+    }
+    visible.value=true;
+}
 getQuestList()
+const columns = [
+    {
+        title: '题目',
+        dataIndex: 'content',
+        ellipsis: true,
+        slotName: 'content',
+        // tooltip: true,
+    },
+   
+    {
+        title: '难度',
+        dataIndex: 'difficulty',
+        slotName: 'difficulty',
+        width:160,
+
+
+    },
+    {
+        title: '类别',
+        dataIndex: 'type',
+        slotName: 'type',
+        width:80,
+
+    },
+    {
+        title: '可见度',
+        dataIndex: 'isPublic',
+        slotName: 'isPublic',
+        width:80,
+
+    },
+    {
+        title: '编辑',
+        dataIndex: 'edit',
+        width:170,
+        slotName: 'edit'
+    },
+];
 </script>
 <style lang="less" scoped>
+:deep(.arco-rate-character) {
+    margin: 0;
+    // font-size: 20px;
+    // line-height: 20px;
+}
+
 .question-wrap {
     display: flex;
 
@@ -108,9 +200,11 @@ getQuestList()
         margin-right: 10px;
         border-right: 2px solid var(--color-fill-2);
     }
-    .question-detail{
+
+    .question-detail {
         flex: 1;
-        .opearte_area{
+
+        .opearte_area {
             padding: 10px 0;
         }
     }
