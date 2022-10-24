@@ -19,6 +19,9 @@ const questionListRequest=(courseId,currentPage,tagId='')=>{
 const addQuestionRequest=(question)=>{
     return axios.post(`/eapi/question/add`,question)
 }
+const questionDetailRequest=(questionId)=>{
+    return axios.get(`/eapi/question/detail/${questionId}`)
+}
 // 更新题目
 const updateQuestionRequest=(question)=>{
     return axios.post(`/eapi/question/update`,question)
@@ -45,6 +48,7 @@ export {
     deleteTagRequest,
     questionListRequest,
     addQuestionRequest,
+    questionDetailRequest,
     updateQuestionRequest,
     delQuestionRequest,
     updateQuestionItemRequest,

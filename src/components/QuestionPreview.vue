@@ -2,25 +2,25 @@
     <div class="preview" :class="mode">
         <!-- 题目区 -->
         <div class="question">
-            <a-button v-if="isEdit&&mode!='create'" @click="delQuestion" status="danger">
+            <!-- <a-button v-if="isEdit&&mode!='create'" @click="delQuestion" status="danger">
                 <template #icon>
                     <icon-delete />
                 </template>
-            </a-button>
+            </a-button> -->
             <span class="number" v-if="props.number">{{props.number}}.</span>
             <span class="type-name">({{type.simpleName}})</span>
             <QuestionEditor @blur="saveQuestion('content')" v-model:model-value="question.content"
-                :mode="getEditMode('preview')" />
+                :mode="getEditMode('preview','question')" />
         </div>
         <!-- 作题区 -->
         <ul class="options">
             <li class="option-item" v-for="(item,index) in options" :class="type.enumName">
-                <a-button @click="delOption(item.id)" v-if="isEdit&&mode!='create'&&item.id" status="danger">
+                <a-button @click="delOption(index)" v-if="isEdit" status="danger">
                     <template #icon>
                         <icon-delete />
                     </template>
                 </a-button>
-                <span class="letter" @click="saveCorrect(item)" v-if="type.itemsConfig.prexType=='letter'"
+                <span class="letter" @click="saveCorrect(index)" v-if="type.itemsConfig.prexType=='letter'"
                     :class="{'letter-active':item.correct!=null}">
                     {{letterList[index]}}
                 </span>
@@ -33,10 +33,10 @@
                 <span v-if="(mode=='display'&&(type.enumName=='SUBJECTIVE'||type.enumName=='COMPLETION'))"
                     class="underline"></span>
                 <QuestionEditor @blur="saveOption(item)" v-else v-model:model-value="item.content"
-                    :mode="getEditMode(type.itemsConfig.editMode)" />
+                    :mode="getEditMode(type.itemsConfig.editMode,'option')" />
             </li>
         </ul>
-        <div class="add-option" v-if="isEdit&&type.enumName!='SUBJECTIVE'">
+        <div class="add-option" v-if="isEdit&&type.enumName!='SUBJECTIVE'&&type.enumName!='JUDGMENTAL'">
             <a-button long @click="addOption">添加选项</a-button>
         </div>
         <!-- 答案区 -->
@@ -48,7 +48,7 @@
         <div class="analysis" v-if="mode!='answer'">
             <span class="title">解析：</span>
             <QuestionEditor @blur="saveQuestion('analysis')" v-if="question.analysis||isEdit"
-                v-model:model-value="question.analysis" :mode="getEditMode('preview')" />
+                v-model:model-value="question.analysis" :mode="getEditMode('preview','analysis')" />
             <span v-else>无</span>
         </div>
         <!-- 公开区 -->
@@ -76,7 +76,7 @@
 <script setup>
 import { Message } from '@arco-design/web-vue';
 import { reactive, ref, computed, watch } from 'vue';
-import { delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
+import { addQuestionRequest, delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
 import { getQuestionType, letterList } from '../utils/question-config';
 import QuestionEditor from './QuestionEditor.vue';
 const props = defineProps({
@@ -86,7 +86,10 @@ const props = defineProps({
     question: {
         type: Object,
         default: {
-
+            "content": "",
+            "courseId": "",
+            "difficulty": "",
+            "analysis": "",
         }
     },
     options: {
@@ -113,9 +116,25 @@ watch(() => props.mode, (value) => {
     console.log(value)
     mode.value = value
 })
+//更新课程id /分组id
+watch(() => props.question, (value) => {
+    if(value['courseId']){
+        question['courseId']=value['courseId']
+    }
+    if(value['tagId']){
+        question['tagId']=value['tagId']
+    }
+})
+//更新题目类型
+watch(() => props.topicType, (value) => {
+    console.log(value)
+    type.value = getQuestionType(value)
+    options.splice(0,options.length)
+    init()
+})
 const mode = ref(props.mode)
 //类型
-const type = getQuestionType(props.topicType)
+const type = ref(getQuestionType(props.topicType))
 //题目
 const question = reactive(props.question)
 //选项
@@ -125,13 +144,26 @@ const isEdit = computed(() => {
     return ['editor', 'create'].includes(mode.value)
 })
 //解答区，
-if (type.enumName == "SUBJECTIVE") {
-    if (options.length == 0) {
-        options.push({
-            correct: ""
-        })
+const init = () => {
+    if (type.value.enumName == "SUBJECTIVE") {
+        if (options.length == 0) {
+            options.push({
+                content: ""
+            })
+        }
+    }
+    if (type.value.enumName == "JUDGMENTAL") {
+        if (options.length == 0) {
+            options.push({
+                content: "对"
+            })
+            options.push({
+                content: "错"
+            })
+        }
     }
 }
+init()
 //添加选项
 const addOption = () => {
     if (mode.value == 'create' || options.length == 0 || (options[options.length - 1].id != undefined)) {
@@ -144,9 +176,13 @@ const addOption = () => {
 }
 //获取编辑器模式
 const getEditMode = computed(() => {
-    return (defalutMode) => {
+    return (defalutMode,area) => {
         if (isEdit.value) {
             defalutMode = 'rich'
+        }
+        //判断题不能编辑
+        if(area=='option'&&type.value.enumName=='JUDGMENTAL'){
+            defalutMode = 'preview'
         }
         return defalutMode
     }
@@ -159,7 +195,7 @@ const getCorrect = computed(() => {
     for (let i = 0; i < options.length; i++) {
         if (options[i].correct) {
             // 单、多、判断
-            if (type.itemsConfig.prexType == 'letter') {
+            if (type.value.itemsConfig.prexType == 'letter') {
                 correct.push(letterList[i]);
             } else {
                 correct.push(options[i].content)
@@ -171,20 +207,14 @@ const getCorrect = computed(() => {
     }
     return correct.join('；')
 })
-const getOption = (id) => {
-    for (let i = 0; i < options.length; i++) {
-        if (options[i]['id'] == id) {
-            return i;
-        }
-    }
-}
 //删除选项
-const delOption = (itemId) => {
-    delQuestionItemRequest(itemId).then(() => {
-        const index = getOption(itemId);
-        if (index) {
-            options.splice(index, 1);
-        }
+const delOption = (index) => {
+    if(mode.value=='create'){
+        options.splice(index, 1);
+        return
+    }
+    delQuestionItemRequest(options[index].id).then(() => {
+        options.splice(index, 1);
     })
 }
 // 删除问题
@@ -195,7 +225,18 @@ const delQuestion = () => {
 }
 //创建题目
 const createQuestion = () => {
+    if (question.content && question.content == '') {
+        Message.info('题目不能为空~')
+        return
+    }
+    const params = {
+        ...question,
+        'topicItems': options
+    }
+    params['type'] = props.topicType
+    addQuestionRequest(params).then(res => {
 
+    })
 }
 // 更新题目/jiex 
 const saveQuestion = (info) => {
@@ -233,21 +274,21 @@ const saveOption = (item) => {
     }
 }
 //更改单/多正确选项
-const saveCorrect = (item) => {
+const saveCorrect = (index) => {
     if (isEdit.value && mode.value != 'create') {
-        updateQuestionCorrectRequest(item.id).then(res => {
-            updateCorrect(id)
+        updateQuestionCorrectRequest(options[index].id).then(res => {
+            updateCorrect(index)
         })
     } else if (mode.value == 'create') {
-        updateCorrect(id)
+        updateCorrect(index)
     }
 
 }
-const updateCorrect = (id) => {
+const updateCorrect = (index) => {
     for (let i = 0; i < options.length; i++) {
         const item = options[i];
-        if (item['id'] == id) {
-            if (type.enumName == 'MULTIPLE_CHOICE') {
+        if (i == index) {
+            if (type.value.enumName == 'MULTIPLE_CHOICE') {
                 if (item['correct'] != null) {
                     item['correct'] = null
                 } else {
@@ -257,7 +298,7 @@ const updateCorrect = (id) => {
                 item['correct'] = 1
             }
         } else {
-            if (type.enumName != 'MULTIPLE_CHOICE') {
+            if (type.value.enumName != 'MULTIPLE_CHOICE') {
                 item['correct'] = null
             }
         }

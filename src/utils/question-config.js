@@ -77,19 +77,23 @@ const questionVisble=[
     enumName:'overt'
   }
 ]
+//获取题目类型
 const getQuestionType=(enumName)=>{
     for(let i=0;i<questionType.length;i++){
         if(questionType[i].enumName==enumName){
             return questionType[i];
         }
     }
+    return questionType[0]
 }
+//获取题目可见度
 const getQuestionVisble=(enumName)=>{
   for(let i=0;i<questionVisble.length;i++){
       if(questionVisble[i].enumName==enumName){
           return questionVisble[i];
       }
   }
+  return questionType[0]
 }
 export {
     questionType,

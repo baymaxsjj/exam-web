@@ -1,28 +1,20 @@
 <template>
-    <div style="border: 1px solid #ccc">
-        <Toolbar v-if="props.mode=='rich'" style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig"
-            :mode="mode" />
-        <Editor v-if="props.mode=='rich'" v-model="valueHtml"
-            style="height: 200px; overflow-y: hidden;"
-            @onBlur="handleBlur"
-            @onChange="handChange"
-            :defaultConfig="editorConfig"
-            :mode="mode" @onCreated="handleCreated" />
-        <p v-if="props.mode=='simple'" v-html="valueHtml"></p>
+    <div class="">
+        <a-textarea v-model:model-value="content" @blur="blur" v-if="props.mode=='simple'" />
+        <span v-else ref="editorRef"></span>
     </div>
 </template>
 <script setup>
-import '@wangeditor/editor/dist/css/style.css' // 引入 css
-
-import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import { onMounted, ref, watch, toRaw, onUnmounted, unref, shallowRef } from 'vue';
+import Vditor from 'vditor';
+import 'vditor/dist/index.css';
 
 const props = defineProps({
     vditorOptions: {
         type: Object,
         default: {}
     },
-    previewOptions: {
+    previewOptions:{
         type: Object,
         default: {}
     },
@@ -45,37 +37,72 @@ const emit = defineEmits([
     'update:modelValue',
     'blur'
 ]);
-const handleBlur=(editor)=>{
-    emit('blur',editor)
+
+const contentEditor = shallowRef();
+const editorRef = ref();
+const content = ref(props.modelValue)
+
+onMounted(() => {
+    loadVditor()
+});
+const loadVditor = () => {
+    const options = Object.assign({
+        minHeight: 200,
+        cache: {
+            enable: false,
+        }
+    }, props.vditorOptions)
+    if(props.mode=='rich'){
+        contentEditor.value = new Vditor(editorRef.value, {
+        ...options,
+        value:content.value,
+        input(value) {
+            content.value = value;
+        },
+        blur() {
+            blur();
+        }
+    });
+    }else if(props.mode=='preview'){
+        Vditor.preview(editorRef.value,content.value,props.previewOptions)
+    }
+   
 }
-const handChange=(editor)=>{
-    emit('update:modelValue',valueHtml)
-}
-// 编辑器实例，必须用 shallowRef
-const editorRef = shallowRef()
 
-// 内容 HTML
-const valueHtml = ref(props.modelValue)
+watch(
+    () => props.modelValue,
+    (newVal) => {
+        content.value = newVal;
+        if (newVal !== contentEditor.value?.getValue()) {
+            contentEditor.value?.setValue(newVal);
+        }
 
-
-const toolbarConfig = {}
-const editorConfig = { placeholder: '请输入内容...' }
-
-// 组件销毁时，也及时销毁编辑器
-onBeforeUnmount(() => {
-    const editor = editorRef.value
-    if (editor == null) return
-    editor.destroy()
+    }
+);
+watch(
+    () => content.value,
+    (value) => {
+        emit('update:modelValue', value);
+    }
+);
+watch(()=>props.mode,(value)=>{
+    loadVditor()
 })
-
-const handleCreated = (editor) => {
-    editorRef.value = editor // 记录 editor 实例，重要！
+onUnmounted(() => {
+    const editorInstance = unref(contentEditor);
+    if (!editorInstance) return;
+    try {
+        editorInstance?.destroy?.();
+    } catch (error) {
+        console.log(error);
+    }
+});
+const blur = () => {
+    emit('blur', content.value)
 }
-
-
 </script>
 <style>
-.vditor {
+.vditor{
     margin: 10px 0;
 }
 </style>

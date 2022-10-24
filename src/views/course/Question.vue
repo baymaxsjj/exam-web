@@ -14,7 +14,7 @@
     <div class="question-wrap">
         <QuestionTagTree @select="select" class="tag-tree"></QuestionTagTree>
         <div class="question-detail">
-            <div class="opearte_area">
+            <div class="opearte_area" v-if="isTeacher">
                 <a-dropdown :popup-max-height="false">
                     <a-button type="primary">
                         <icon-plus />
@@ -33,7 +33,7 @@
                         创建题目
                     </a-button>
                     <template #content>
-                        <a-doption v-for="item of questionType" @click="saveQuestion(item.enumName)"><span
+                        <a-doption v-for="item of questionType" @click="createQuestion(item.enumName)"><span
                                 style="padding: 0 15px;">{{item.simpleName}}</span></a-doption>
 
                     </template>
@@ -44,13 +44,13 @@
             </div>
             <!-- 创建/更新区 -->
             <div v-if="visible">
-                <a-page-header title="返回列表" @back="visible=false">
+                <a-page-header title="返回列表" @back="back">
                 </a-page-header>
-                <QuestionPreview :mode="editMode" :topic-type="questType"/>
+                <QuestionPreview :mode="editMode" :question="questionInfo" :options="questionInfo['topicItems']" :topic-type="questionInfo['type']"/>
 
             </div>
             <!-- 题目列表 -->
-            <div v-else>
+            <div   v-show="!visible">
                 <a-table :columns="columns" :data="questionList" :loading="loading" column-resizable :pagination="{total:total,current:page}">
                     <template #content="{ record, rowIndex }">
                         <p class="arco-table-text-ellipsis" v-html="record.content"></p>
@@ -59,23 +59,23 @@
                         <a-tag>{{getQuestionType(record.type).simpleName}}</a-tag>
                     </template>
                     <template #difficulty="{ record, rowIndex }">
-                        <a-rate :default-value="record.difficulty/20" readonly allow-half />
+                        <a-rate :default-value="record.difficulty" readonly allow-half />
                     </template>
                     <template #isPublic="{ record, rowIndex }">
                         <a-tag>{{getQuestionVisble(record.isPublic).name}}</a-tag>
                     </template>
                     <template #edit="{ record, rowIndex }">
-                        <a-button status="danger" @click="delQuestion(record.id)" style="margin-right: 10px;">
+                        <a-button status="danger" v-if="isTeacher" @click="delQuestion(record.id)" style="margin-right: 10px;">
                             <template #icon>
                                 <icon-delete />
                             </template>
                         </a-button>
-                        <a-button style="margin-right: 10px;">
+                        <a-button style="margin-right: 10px;" @click="seeQuestion(record.id,true)">
                             <template #icon>
                                 <icon-search />
                             </template>
                         </a-button>
-                        <a-button type="primary">
+                        <a-button type="primary" v-if="isTeacher" @click="seeQuestion(record.id,false)">
                             <template #icon>
                                 <icon-edit />
                             </template>
@@ -88,18 +88,19 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import {questionType, getQuestionType ,getQuestionVisble} from '../../utils/question-config.js'
-import { questionListRequest,delQuestionRequest } from '../../apis/question-api';
+import { questionListRequest,delQuestionRequest,questionDetailRequest } from '../../apis/question-api';
 import QuestionPreview from '../../components/QuestionPreview.vue';
 
 const courseStore = useCourseStore()
+const isTeacher=courseStore.isTeacher
 const navList = ref([])
 const route = useRoute();
 const courseId = route.params['courseId']
-
+const currTagId=ref('');
 const page = ref(1);
 const total = ref(1);
 
@@ -108,14 +109,15 @@ const visible=ref(false)
 
 const questionList = ref([])
 const editMode=ref('create')
-const questType=ref("SIGNAL_CHOICE")
-const quest=ref("")
+const questionInfo=ref({
+
+})
 
 //选择目录
 const select = (nodeData, tree) => {
     navList.value = tree;
-    tagId = nodeData?.tagId;
-    getQuestList(nodeData.tagId)
+    currTagId.value=nodeData?.id
+    getQuestList(currTagId.value)
     console.log("获取标签树", nodeData)
 }
 // 删除问题
@@ -123,6 +125,10 @@ const delQuestion = (id) => {
     delQuestionRequest(id).then(res => {
         getQuestList()
     })
+}
+const back=()=>{
+    visible.value=false
+    getQuestList(currTagId.value)
 }
 const getQuestList = (tagId = "") => {
     loading.value=true
@@ -135,13 +141,27 @@ const getQuestList = (tagId = "") => {
         loading.value=false
     })
 }
-const saveQuestion=(type,quest)=>{
+const createQuestion=(type)=>{
     console.log(type)
-    questType.value=type
-    if(quest){
-        question.value=quest
-    }
+    editMode.value='create'
+    questionInfo.value={}
+    questionInfo.value['type']=type
+    questionInfo.value['courseId']=courseId
+    questionInfo.value['tagId']=currTagId.value
     visible.value=true;
+}
+//查看题目
+const seeQuestion=(questionId,isPreview=false)=>{
+    questionDetailRequest(questionId).then(res=>{
+        questionInfo.value=res.data.data
+        if(isPreview){
+            editMode.value='display'
+        }else{
+            editMode.value='editor'
+        }
+        visible.value=true;
+    })
+   
 }
 getQuestList()
 const columns = [
