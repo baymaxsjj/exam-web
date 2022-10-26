@@ -15,7 +15,7 @@
         <!-- 作题区 -->
         <ul class="options">
             <li class="option-item" v-for="(item,index) in options" :class="type.enumName">
-                <a-button @click="delOption(index)" v-if="isEdit" status="danger">
+                <a-button @click="delOption(index)" v-if="isEdit&&type.enumName!='JUDGMENTAL'" status="danger">
                     <template #icon>
                         <icon-delete />
                     </template>
@@ -136,9 +136,11 @@ const mode = ref(props.mode)
 //类型
 const type = ref(getQuestionType(props.topicType))
 //题目
-const question = reactive(props.question)
+const question = reactive({
+    ...props.question
+})
 //选项
-const options = reactive(props.options)
+const options = reactive([...props.options])
 
 const isEdit = computed(() => {
     return ['editor', 'create'].includes(mode.value)
@@ -247,13 +249,16 @@ const saveQuestion = (info) => {
         id: question.id,
         courseId: question.courseId
     }
-
+    console.log(question[info])
+    console.log(props.question[info])
     // 内容没有更改不更新
-    // if(question[info]==props.question[info]){
-    //     return
-    // }
+    if((question[info]==null)){
+        return
+    }
+
     console.log(question[info])
     params[info] = question[info]
+    
     updateQuestionRequest(params).then(res => [
     ])
 }
@@ -394,7 +399,7 @@ const updateCorrect = (index) => {
     .analysis,
     .correct {
         margin: 10px;
-        background-color: var(--color-fill-2);
+        background-color: var(--color-fill-1);
         padding: 15px;
         border-radius: 5px;
         display: flex;
@@ -417,6 +422,9 @@ const updateCorrect = (index) => {
     .options {
         .option-item {
             display: block;
+        }
+        .JUDGMENTAL{
+            display: flex;
         }
     }
 }

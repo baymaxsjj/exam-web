@@ -70,13 +70,18 @@ const getCourseList = () => {
             url: `/course/${id}/work`
         },
         {
+            name: "考试",
+            icon: "icon-at",
+            url: `/course/${id}/exam`
+        },
+        {
             name: "题库",
             icon: "icon-bookmark",
             url: `/course/${id}/question`
         },
         {
             name: "班级",
-            icon: "icon-bookmark",
+            icon: "icon-command",
             url: `/course/${id}/classes`
         },
 
