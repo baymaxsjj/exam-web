@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia' 
-import { getCourseInfoRequest } from '../apis/course-api'
+import { getCourseInfoRequest,getClassListRequest } from '../apis/course-api'
 import useUserStore from './user-store';
 const useCourseStore = defineStore({ 
     id: 'course', 
@@ -10,6 +10,51 @@ const useCourseStore = defineStore({
         isTeacher(){
             const userStore=useUserStore()
             return userStore.userInfo['id']==this.courseInfo['userId']
+        },
+        menu(){
+            const id=this.courseInfo['id'];
+            return [
+                {
+                    name: "课堂",
+                    icon: "icon-apps",
+                    url: `/course/${id}/classroom`,
+                    visble:true
+                },
+                {
+                    name: "作业",
+                    icon: "icon-select-all",
+                    url: `/course/${id}/work`,
+                    visble:true
+                },
+                {
+                    name: "考试",
+                    icon: "icon-at",
+                    url: `/course/${id}/exam/manage`,
+                    visble:this.isTeacher
+                },
+                {
+                    name: "试卷",
+                    icon: "icon-at",
+                    url: `/course/${id}/exam/paper/manage`,
+                    visble:this.isTeacher
+                },
+                {
+                    name: "题库",
+                    icon: "icon-bookmark",
+                    url: `/course/${id}/question`,
+                    visble:true
+                },
+                {
+                    name: "班级",
+                    icon: "icon-command",
+                    url: `/course/${id}/classes`,
+                    visble:true
+                },
+        
+            ]
+        },
+        getClassList(){
+            return this.classList
         }
     },
     actions:{
@@ -19,7 +64,7 @@ const useCourseStore = defineStore({
                 this.courseInfo=resp.data.data
                 console.log(this.courseInfo)
             }
-        }
+        },
     },
    
 }) 

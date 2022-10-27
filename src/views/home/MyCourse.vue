@@ -232,6 +232,8 @@ getCourseList()
             max-width: 300px;
             box-sizing: border-box;
             border: 1px solid var(--color-border-2);
+            transition: all .3s;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             .course-picture{
                 img{
                     transition: all .3s;
@@ -240,6 +242,7 @@ getCourseList()
                 }
             }
             &:hover {
+                box-shadow:0 0 20px rgba(0, 0, 0, 0.1);
                 .course-picture {
                     .course-opera {
                         height: 100%;

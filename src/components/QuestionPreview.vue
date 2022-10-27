@@ -344,7 +344,7 @@ const updateCorrect = (index) => {
 
             &:hover {
                 .letter {
-                    border: 2px solid rgb(var(--primary-5));
+                    border: 1px solid rgb(var(--primary-5));
                 }
             }
 
@@ -354,13 +354,18 @@ const updateCorrect = (index) => {
         .SUBJECTIVE {
             display: block;
         }
+        .MULTIPLE_CHOICE{
+            .letter{
+                border-radius:10px
+            }
+        }
 
         .letter {
             display: inline-block;
             height: 35px;
             width: 35px;
             text-align: center;
-            border: 2px solid var(--color-fill-3);
+            border: 1px solid var(--color-fill-3);
             border-radius: 50%;
             line-height: 35px;
             transition: all .3s;
@@ -368,7 +373,7 @@ const updateCorrect = (index) => {
         }
 
         .letter-active {
-            border: 2px solid rgb(var(--primary-6));
+            border: 1px solid rgb(var(--primary-6));
             background-color: rgb(var(--primary-1));
             color: rgb(var(--primary-6));
         }

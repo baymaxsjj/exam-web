@@ -1,62 +1,55 @@
 <template>
-    <a-page-header title="班级列表" @back="$router.back"></a-page-header>
-    <div class="class-opera" v-if="isTeacher">
-        <a-button type="primary" shape="round" @click="showAddModal(false)">创建班级</a-button>
-    </div>
-    <ul class="class-list" v-if="list.length!=0">
-        <li v-for="item in list" :key="item.id" class="class-item ebutton-hover" @click="toUserList(item.id)">
-            <span class="class-name">{{item.name}}</span>
-            <div class="class-info-opera" v-if="isTeacher">
-                <a-button @click.stop="showAddModal(true,item)">
+    <a-page-header title="班级列表" @back="$router.back">
+        <template #extra v-if="isTeacher">
+            <a-button type="primary" @click="showAddModal(false)">创建班级</a-button>
+        </template>
+    </a-page-header>
+    <a-table :bordered="false" :columns="columns" :data="list">
+        <template #edit="{record}" v-if="isTeacher">
+            <a-button @click.stop="showAddModal(true, record)">
                     <template #icon>
                         <icon-edit />
                     </template>
                 </a-button>
-                <a-popconfirm content="确认删除班级吗?" @ok="delClass(item.id)">
+                <a-popconfirm content="确认删除班级吗?" @ok="delClass(record.id)">
                     <a-button status="danger" @click.stop>
                         <template #icon>
                             <icon-delete />
                         </template>
                     </a-button>
                 </a-popconfirm>
-               
-                <a-button type="primary" @click.stop="getClassCode(item,false)">
+
+                <a-button type="primary" @click.stop="getClassCode(record, false)">
                     <template #icon>
                         <icon-share-alt />
                     </template>
                 </a-button>
-            </div>
-        </li>
-    </ul>
-    <a-empty v-else />
-    <a-modal simple v-model:visible="addModalVisible" @ok="addClassInfo" :title="isUpdate?'更新班级':'创建班级'">
+        </template>
+    </a-table>
+    <a-modal simple v-model:visible="addModalVisible" @ok="addClassInfo" :title="isUpdate ? '更新班级' : '创建班级'">
         <a-form :model="classInfo">
             <a-form-item field="name" label="班级名称">
                 <a-input v-model="classInfo.name" placeholder="输入班级名称" />
             </a-form-item>
         </a-form>
     </a-modal>
-    <a-modal body-class="share-code" modal-class="share-code-modal" :modal-style="{overflow: 'hidden',width:'auto'}"
+    <a-modal body-class="share-code" modal-class="share-code-modal" :modal-style="{ overflow: 'hidden', width: 'auto' }"
         simple v-model:visible="codeModalVisible" @ok="addClassInfo" :header="false" :footer="false">
         <a-spin dot :loading="codeLoading">
             <div class="course-info">
-                <h1>课程：{{courseStore.courseInfo.name}}</h1>
-                <p>老师：{{courseStore.courseInfo.teacher.nickname}}</p>
-                <p>班级：{{className}}</p>
+                <h1>课程：{{ courseStore.courseInfo.name }}</h1>
+                <p>老师：{{ courseStore.courseInfo.teacher.nickname }}</p>
+                <p>班级：{{ className }}</p>
             </div>
             <div class="class-code-info">
                 <qrcode-vue :value="classCode.code" style="width: 150px;height:150px"></qrcode-vue>
-                <h1 class="class-code">班级码：{{classCode.code}}</h1>
-                <p class="class-code-expiry">失效时间:{{classCode.expirationTime}}</p>
+                <h1 class="class-code">班级码：{{ classCode.code }}</h1>
+                <p class="class-code-expiry">失效时间:{{ classCode.expirationTime }}</p>
             </div>
 
             <a-button type="primary" size="large" shape="round" long>分享班级码</a-button>
         </a-spin>
-
-
     </a-modal>
-
-
 </template>
 <script setup>
 import { reactive, ref } from 'vue';
@@ -71,7 +64,7 @@ const codeModalVisible = ref(false)
 const codeLoading = ref(true)
 const list = ref([])
 const route = useRoute()
-const router=useRouter()
+const router = useRouter()
 const courseStore = useCourseStore()
 const userStore = useUserStore()
 const isTeacher = userStore.userInfo.id == courseStore.courseInfo.userId
@@ -125,18 +118,37 @@ const getClassCode = (data, anew) => {
         codeLoading.value = false
     })
 }
-const toUserList=(classId)=>{
+const toUserList = (classId) => {
     router.push({
-        name:"ClassUser",
-        params:{
-            courseId:route.params['courseId'],
+        name: "ClassUser",
+        params: {
+            courseId: route.params['courseId'],
             classId
         }
     })
 }
 getList()
+const columns=[
+{
+        title: '班级',
+        dataIndex: 'name',
+        ellipsis: true,
+        slotName: 'name',
+    },
+
+    {
+        title: '操作',
+        dataIndex: 'edit',
+        slotName: 'edit',
+    },
+]
 </script>
 <style lang="less" scoped>
+.class-header {
+    display: flex;
+    align-items: center;
+}
+
 .class-list {
     .class-item {
         display: flex;
@@ -161,8 +173,9 @@ getList()
 <style lang="less">
 .share-code-modal {
     position: relative;
-    width: auto!important;
-    &::after{
+    width: auto !important;
+
+    &::after {
         content: "为考";
         position: absolute;
         top: 0px;
@@ -171,9 +184,10 @@ getList()
         opacity: .4;
         font-size: 18px;
         transform: rotate(35deg);
-        color: rgb(var(--primary-5));   //字体颜色设置为透明
+        color: rgb(var(--primary-5)); //字体颜色设置为透明
         animation: logo-scale 2s;
     }
+
     &::before {
         content: '';
         height: 100%;
@@ -189,6 +203,7 @@ getList()
         background-size: contain;
         animation: code-bg-ru 2s;
     }
+
     @keyframes logo-scale {
         0% {
             transform: scale(0) rotate(0);
@@ -198,6 +213,7 @@ getList()
             transform: scale(1) rotate(35deg);
         }
     }
+
     @keyframes code-bg-ru {
         0% {
             width: 0%;

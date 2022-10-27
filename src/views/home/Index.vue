@@ -7,14 +7,16 @@
         <div class="home-function">
             <!-- 侧边栏 -->
             <a-menu class="home-list home-list-info" mode="pop" show-collapse-button breakpoint="xl">
-                <router-link :to="item.url" v-for="item of navList" :key="item.url">
-                    <a-menu-item>
-                        <template #icon>
-                            <component v-if="item.icon" :is="item.icon"></component>
-                        </template>
-                        {{ item.name }}
-                    </a-menu-item>
-                </router-link>
+                <template v-for="item of navList" :key="item.url">
+                    <router-link :to="item.url" v-if="item.visble">
+                        <a-menu-item >
+                            <template #icon>
+                                <component v-if="item.icon" :is="item.icon"></component>
+                            </template>
+                            {{ item.name }}
+                        </a-menu-item>
+                    </router-link>
+                </template>
             </a-menu>
             <!-- 课程 -->
             <div class="home-content home-common">
@@ -29,73 +31,48 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import useCourseStore from '../../sotre/course-store';
 const route = useRoute()
 const homeList = [
     {
         name: "我的课程",
         icon: "icon-apps",
-        url: "/home/course/student"
+        url: "/home/course/student",
+        visble:true
     },
     {
         name: "我的作业",
         icon: "icon-select-all",
-        url: "/home/work"
+        url: "/home/work",
+        visble:true
     },
     {
         name: "我的考试",
         icon: "icon-bookmark",
-        url: "/home/exam"
+        url: "/home/exam",
+        visble:true
     },
     {
         name: "我的笔记",
         icon: "icon-storage",
-        url: "/home/note"
+        url: "/home/note",
+        visble:true
     }, {
         name: "消息",
         icon: "icon-notification",
-        url: "/home/message"
+        url: "/home/message",
+        visble:true
     },
 ]
-const getCourseList = () => {
-    const id=route.params['courseId'];
-    return [
-        {
-            name: "课堂",
-            icon: "icon-apps",
-            url: `/course/${id}/classroom`
-        },
-        {
-            name: "作业",
-            icon: "icon-select-all",
-            url: `/course/${id}/work`
-        },
-        {
-            name: "考试",
-            icon: "icon-at",
-            url: `/course/${id}/exam`
-        },
-        {
-            name: "题库",
-            icon: "icon-bookmark",
-            url: `/course/${id}/question`
-        },
-        {
-            name: "班级",
-            icon: "icon-command",
-            url: `/course/${id}/classes`
-        },
-
-    ]
-}
 const navList = ref([]);
 let path = route.path;
-
+const courseStore=useCourseStore()
 const checkNav = () => {
     if (path.startsWith("/home")) {
         navList.value = homeList;
     } else {
         console.log()
-        navList.value = getCourseList();
+        navList.value = courseStore.menu;
     }
 }
 checkNav();
@@ -112,7 +89,12 @@ watch(() => route.path, (newpath, old) => {
     height: 32px;
     border-radius: 50%;
 }
-
+:deep(.arco-page-header){
+    position: sticky;
+    top: -20px;
+    background-color: #fff;
+    z-index: 1;
+}
 :deep(.arco-menu) {
     margin: 0 10px;
     background-color: var(--color-menu-light-bg);

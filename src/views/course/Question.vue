@@ -1,21 +1,18 @@
 <template>
-    <a-breadcrumb>
-        <a-breadcrumb-item>
-            <icon-lark-color style="margin-right: 8px;" />{{ courseStore.courseInfo.name }}
-        </a-breadcrumb-item>
-        <template v-for="item of navList">
-            <a-breadcrumb-item v-if="item.id != ''">{{ item.name }}</a-breadcrumb-item>
-        </template>
-    </a-breadcrumb>
 
-    <div class="question-wrap">
-        <div>
-            <a-page-header title="题库中心" @back="$router.back">
-            </a-page-header>
-            <QuestionTagTree @select="select" class="tag-tree"></QuestionTagTree>
-        </div>
-        <div class="question-detail">
-            <div class="opearte_area" v-if="isTeacher">
+    <a-page-header v-if="!props.selectMode" title="题库中心" @back="$router.back">
+        <template #breadcrumb>
+            <a-breadcrumb>
+                <a-breadcrumb-item>
+                    <icon-lark-color style="margin-right: 8px;" />{{ courseStore.courseInfo.name }}
+                </a-breadcrumb-item>
+                <template v-for="item of navList">
+                    <a-breadcrumb-item v-if="item.id != ''">{{ item.name }}</a-breadcrumb-item>
+                </template>
+            </a-breadcrumb>
+        </template>
+        <template #extra>
+            <div class="opearte_area" v-if="isTeacher && !props.selectMode">
                 <a-dropdown :popup-max-height="false" trigger="hover">
                     <a-button status="info">
                         <template #icon>
@@ -52,6 +49,11 @@
                     导入题库
                 </a-button>
             </div>
+        </template>
+    </a-page-header>
+    <div class="question-wrap">
+        <QuestionTagTree @select="select" class="tag-tree"></QuestionTagTree>
+        <div class="question-detail">
             <!-- 创建/更新区 -->
             <div v-if="visible">
                 <a-page-header title="返回列表" @back="back">
@@ -62,8 +64,9 @@
             </div>
             <!-- 题目列表 -->
             <div v-show="!visible">
-                <a-table :columns="columns" :data="questionList" :loading="loading" column-resizable
-                    :pagination="{ total: total, current: page }" @page-change="pageChange">
+                <a-table :columns="columns" @selection-change="selectRow" :data="questionList" row-key="id"
+                    :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" :loading="loading"
+                    column-resizable :pagination="{ total: total, current: page }" @page-change="pageChange">
                     <template #content="{ record, rowIndex }">
                         <p class="arco-table-text-ellipsis" v-html="record.content"></p>
                     </template>
@@ -101,13 +104,33 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router';
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import { questionType, getQuestionType, getQuestionVisble } from '../../utils/question-config.js'
 import { questionListRequest, delQuestionRequest, questionDetailRequest } from '../../apis/question-api';
 import QuestionPreview from '../../components/QuestionPreview.vue';
 
+const props = defineProps({
+    selectMode: {
+        type: Boolean,
+        defalut: false
+    },
+    selectKes: {
+        type: Array,
+        default: () => []
+    }
+})
+const emit = defineEmits([
+    'update:selectKes',
+    'select',
+]);
+const selectedKeys = ref(props.selectKes);
+const rowSelection = reactive({
+    type: 'checkbox',
+    showCheckedAll: true,
+    onlyCurrent: false,
+});
 const courseStore = useCourseStore()
 const isTeacher = courseStore.isTeacher
 const navList = ref([])
@@ -125,6 +148,13 @@ const editMode = ref('create')
 const questionInfo = ref({
 
 })
+watch(() => props.selectKes, (keys) => {
+    selectedKeys.value = keys;
+})
+const selectRow = (data) => {
+    console.log(data)
+    emit('update:selectKes', data)
+}
 
 //选择目录
 const select = (nodeData, tree) => {
@@ -206,20 +236,24 @@ const columns = [
         width: 80,
 
     },
-    {
+
+];
+if (!props.selectMode) {
+    columns.push({
         title: '可见度',
         dataIndex: 'isPublic',
         slotName: 'isPublic',
         width: 80,
 
-    },
-    {
+    })
+    columns.push({
         title: '编辑',
         dataIndex: 'edit',
         width: 170,
         slotName: 'edit'
     },
-];
+    )
+}
 </script>
 <style lang="less" scoped>
 :deep(.arco-rate-character) {
@@ -227,28 +261,18 @@ const columns = [
     // font-size: 20px;
     // line-height: 20px;
 }
-
-:deep(.arco-page-header) {
-    padding: 8px 0;
-    // font-size: 20px;
-    // line-height: 20px;
-}
-
-
 .question-wrap {
     display: flex;
-
     .tag-tree {
+        position: sticky;
+        top: 60px;
         width: 240px;
-        min-height: 600px;
         padding-right: 10px;
         margin-right: 10px;
         border-right: 2px solid var(--color-fill-2);
     }
-
     .question-detail {
         flex: 1;
-
         .opearte_area {
             padding: 10px 0;
         }
