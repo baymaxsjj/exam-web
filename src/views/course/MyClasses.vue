@@ -1,36 +1,35 @@
 <template>
-    <a-page-header title="班级列表" @back="$router.back">
+    <a-page-header title="班级列表" @back="$router.back" v-if="!props.selectMode">
         <template #extra v-if="isTeacher">
             <a-button type="primary" @click="showAddModal(false)">创建班级</a-button>
         </template>
     </a-page-header>
-    <a-table :bordered="false" :columns="columns" :data="list">
-        <template #edit="{record}" v-if="isTeacher">
-            <a-button @click.stop="showAddModal(true, record)">
+    <a-table :bordered="false" :columns="columns" @row-click="toUserListPage" :data="list" row-key="id" :row-selection="rowSelection"
+        @selection-change="selectChange">
+        <template #edit="{ record }" v-if="isTeacher">
+            <a-button @click.stop="showAddModal(true, record)" style="margin-right: 10px;">
+                <template #icon>
+                    <icon-edit />
+                </template>
+            </a-button>
+            <a-popconfirm content="确认删除班级吗?" @ok="delClass(record.id)">
+                <a-button status="danger" @click.stop style="margin-right: 10px;">
                     <template #icon>
-                        <icon-edit />
+                        <icon-delete />
                     </template>
                 </a-button>
-                <a-popconfirm content="确认删除班级吗?" @ok="delClass(record.id)">
-                    <a-button status="danger" @click.stop>
-                        <template #icon>
-                            <icon-delete />
-                        </template>
-                    </a-button>
-                </a-popconfirm>
+            </a-popconfirm>
 
-                <a-button type="primary" @click.stop="getClassCode(record, false)">
-                    <template #icon>
-                        <icon-share-alt />
-                    </template>
-                </a-button>
+            <a-button type="primary" @click.stop="getClassCode(record, false)">
+                <template #icon>
+                    <icon-share-alt />
+                </template>
+            </a-button>
         </template>
     </a-table>
     <a-modal simple v-model:visible="addModalVisible" @ok="addClassInfo" :title="isUpdate ? '更新班级' : '创建班级'">
         <a-form :model="classInfo">
-            <a-form-item field="name" label="班级名称">
-                <a-input v-model="classInfo.name" placeholder="输入班级名称" />
-            </a-form-item>
+            <a-input v-model="classInfo.name" placeholder="输入班级名称" />
         </a-form>
     </a-modal>
     <a-modal body-class="share-code" modal-class="share-code-modal" :modal-style="{ overflow: 'hidden', width: 'auto' }"
@@ -52,12 +51,37 @@
     </a-modal>
 </template>
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import QrcodeVue from 'qrcode.vue'
 import { getClassListRequest, teaAddClassRequest, teaDelClassRequest, teaGetClassCodeRequest } from '../../apis/course-api';
 import useCourseStore from '../../sotre/course-store';
-import useUserStore from '../../sotre/user-store';
+const props = defineProps({
+    selectMode: {
+        type: Boolean,
+        defalut: false
+    },
+    selectKey: {
+        type: Array,
+        defalut: ()=>[]
+    }
+})
+const emit = defineEmits(['update:selectKey'])
+const selectKey = ref([])
+watch(() => props.selectKey, (key) => {
+    selectKey.value = key
+})
+let rowSelection = null;
+if (props.selectMode) {
+    rowSelection = {
+        type: 'checkbox'
+    }
+}
+const selectChange = (data) => {
+    console.log(data)
+    emit('update:selectKey', data)
+}
+
 const isUpdate = ref(false);
 const addModalVisible = ref(false);
 const codeModalVisible = ref(false)
@@ -66,8 +90,8 @@ const list = ref([])
 const route = useRoute()
 const router = useRouter()
 const courseStore = useCourseStore()
-const userStore = useUserStore()
-const isTeacher = userStore.userInfo.id == courseStore.courseInfo.userId
+const isTeacher = courseStore.isTeacher
+const courseId = route.params['courseId'];
 const classInfo = reactive({
     courseId: 0,
     name: "",
@@ -79,7 +103,7 @@ const classCode = reactive({
 })
 const className = ref("")
 const getList = () => {
-    let id = route.params['courseId'];
+    let id = courseId;
     getClassListRequest(id).then(res => {
         list.value = res.data.data;
     })
@@ -96,7 +120,7 @@ const addClassInfo = () => {
     if (!isUpdate.value) {
         delete classInfo.id
     }
-    classInfo.courseId = route.params['courseId'];
+    classInfo.courseId = courseId;
     teaAddClassRequest(classInfo).then(() => {
         getList();
     })
@@ -118,30 +142,32 @@ const getClassCode = (data, anew) => {
         codeLoading.value = false
     })
 }
-const toUserList = (classId) => {
+const toUserListPage = (record) => {
     router.push({
         name: "ClassUser",
         params: {
-            courseId: route.params['courseId'],
-            classId
+            classId:record.id
         }
     })
 }
 getList()
-const columns=[
-{
+const columns = [
+    {
         title: '班级',
         dataIndex: 'name',
         ellipsis: true,
         slotName: 'name',
     },
-
-    {
-        title: '操作',
-        dataIndex: 'edit',
-        slotName: 'edit',
-    },
 ]
+if (!props.selectMode && isTeacher) {
+    columns.push(
+        {
+            title: '操作',
+            dataIndex: 'edit',
+            slotName: 'edit',
+            width: 160
+        },)
+}
 </script>
 <style lang="less" scoped>
 .class-header {

@@ -6,14 +6,15 @@
             </template>
         </a-page-header>
         <div class="manage">
-            <a-table v-model:selected-keys="selectKey" :row-selection="rowSelection" @selection-change="selectChange" row-key="id" :columns="columns" :data="examList" page-position="bottom">
+            <a-table v-model:selected-keys="selectKey" :row-selection="rowSelection" @selection-change="selectChange"
+                row-key="id" :columns="columns" :data="examList" page-position="bottom">
                 <template #edit="{ record }">
                     <a-button status="danger" @click="delExamPaper(record.id)" style="margin-right: 10px;">
                         <template #icon>
                             <icon-delete />
                         </template>
                     </a-button>
-                    <a-button style="margin-right: 10px;" @click="paperPreview(record.id)">
+                    <a-button style="margin-right: 10px;" @click="paperPreview(record.id,record.title)">
                         <template #icon>
                             <icon-search />
                         </template>
@@ -34,20 +35,28 @@ import ExamPaper from './ExamPaper.vue';
 import { getExamPaperListRequest, delExamPaperRequest } from '../../apis/exam-api.js'
 import { useRoute, useRouter } from 'vue-router';
 import { ref, watch } from 'vue';
-const props=defineProps({
-    selectMode:{
-        type:Boolean,
-        defalut:false
+const props = defineProps({
+    selectMode: {
+        type: Boolean,
+        defalut: false
     },
-    selectKey:{
-        type:String,
-        defalut:''
+    selectKey: {
+        type: Array,
+        defalut: ()=>[]
     }
 })
+const emit = defineEmits(['update:selectKey'])
+const selectKey = ref([])
+watch(() => props.selectKey, (key) => {
+    selectKey.value = key
+})
 const rowSelection = {
-    type: props.selectMode ?'radio':'checkbox'
+    type: props.selectMode ? 'radio' : 'checkbox'
 };
-const emit=defineEmits(['update:selectKey'])
+const selectChange = (data) => {
+    console.log(data)
+    emit('update:selectKey', data)
+}
 
 const route = useRoute();
 const router = useRouter();
@@ -57,15 +66,9 @@ const examList = ref([])
 const currpage = ref(1);
 const total = ref(1)
 const pageSize = ref(10)
-const selectKey=ref([])
 //为创建考试提供试卷的组件
-const selectChange=(data)=>{
-    console.log(data)
-    emit('update:selectKey',data)
-}
-watch(()=>props.selectKey,(key)=>{
-    selectKey.value=key
-})
+
+
 // 获取试卷列表
 const getExamPaperList = () => {
     getExamPaperListRequest(courseId, currpage.value, pageSize.value).then(res => {
@@ -80,11 +83,14 @@ const delExamPaper = (id) => {
         getExamPaperList()
     })
 }
-const paperPreview = (examId) => {
+const paperPreview = (examId,title) => {
     router.push({
         name: 'ExamPaperPreView',
         params: {
             examId
+        },
+        query:{
+            title
         }
     })
 }
@@ -115,22 +121,23 @@ const columns = [
         dataIndex: 'introduce',
         slotName: 'introduce',
     },
-    {
+];
+if (!props.selectMode) {
+    columns.push({
         title: '创建时间',
         dataIndex: 'createdAt',
         slotName: 'createdAt',
     },
-    {
-        title: '修改时间',
-        dataIndex: 'updatedAt',
-        slotName: 'updatedAt',
-    },
-    {
-        title: '编辑',
-        slotName: 'edit',
-    },
-
-];
+        {
+            title: '修改时间',
+            dataIndex: 'updatedAt',
+            slotName: 'updatedAt',
+        },
+        {
+            title: '编辑',
+            slotName: 'edit',
+        })
+}
 </script>
 <style lang="less" scoped>
 :deep(.arco-modal-body) {

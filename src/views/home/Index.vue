@@ -105,7 +105,6 @@ watch(() => route.path, (newpath, old) => {
 :deep(.arco-menu-collapsed) {
     padding: 0;
 }
-
 .home-wrap {
     height: 100vh;
     display: flex;

@@ -9,6 +9,7 @@ specifiers:
   '@wangeditor/editor': ^5.1.22
   '@wangeditor/editor-for-vue': ^5.1.12
   axios: ^0.27.2
+  dayjs: ^1.11.6
   less: ^4.1.2
   less-loader: ^11.0.0
   pinia: ^2.0.22
@@ -26,6 +27,7 @@ dependencies:
   '@wangeditor/editor': 5.1.22
   '@wangeditor/editor-for-vue': 5.1.12_wrllzy32b3ic46yjdgf3mkhqlq
   axios: 0.27.2
+  dayjs: 1.11.6
   pinia: 2.0.23_vue@3.2.41
   pinia-plugin-persistedstate: 2.3.0_pinia@2.0.23
   qrcode.vue: 3.3.3_vue@3.2.41
@@ -56,7 +58,7 @@ packages:
       b-tween: 0.3.3
       b-validate: 1.4.3
       compute-scroll-into-view: 1.0.17
-      dayjs: 1.11.5
+      dayjs: 1.11.6
       number-precision: 1.6.0
       resize-observer-polyfill: 1.5.1
       scroll-into-view-if-needed: 2.2.29
@@ -731,8 +733,8 @@ packages:
       type: 1.2.0
     dev: false
 
-  /dayjs/1.11.5:
-    resolution: {integrity: sha512-CAdX5Q3YW3Gclyo5Vpqkgpj8fSdLQcRuzfX6mC6Phy0nfJ0eGYOeS7m4mt2plDWLAtA4TqTakvbboHvUxfe4iA==}
+  /dayjs/1.11.6:
+    resolution: {integrity: sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==}
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}

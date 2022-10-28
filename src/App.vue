@@ -25,6 +25,9 @@ import HeaderNav from './components/HeaderNav.vue';
 .arco-page-header-wrapper {
   padding-left:0px!important;
 }
+.arco-modal-simple .arco-modal-body {
+  overflow: hidden;
+}
 
 @media only screen and (max-width: 600px) {
   .arco-modal-simple{

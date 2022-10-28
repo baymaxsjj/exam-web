@@ -4,7 +4,7 @@
             <!-- logo -->
             <div style="height: 100%;display:flex;">
                 <div class="header-logo">
-                    <img src="../assets/logo.png" />
+                    <icon-lark-color style="font-size: 30px;"/>
                 </div>
                 <!-- 导航区 -->
                 <ul class="header-nav">
@@ -97,11 +97,9 @@ a {
         justify-content: space-between;
 
         .header-logo {
-            img {
-                display: inline-block;
-                height: 40px;
-                margin: 16px 20px;
-            }
+           display: flex;
+           align-items: center;
+           margin-right: 20px;
         }
 
         .header-nav {

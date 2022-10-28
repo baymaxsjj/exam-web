@@ -79,9 +79,6 @@ if (examId) {
 
 </script>
 <style lang="less" scoped>
-:deep(.arco-modal-body) {
-    overflow: hidden;
-}
 
 .operate {
     display: flex;

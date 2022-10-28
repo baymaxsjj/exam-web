@@ -245,14 +245,12 @@ if (!props.selectMode) {
         slotName: 'isPublic',
         width: 80,
 
-    })
-    columns.push({
+    }, {
         title: '编辑',
         dataIndex: 'edit',
         width: 170,
         slotName: 'edit'
-    },
-    )
+    },)
 }
 </script>
 <style lang="less" scoped>
@@ -261,8 +259,10 @@ if (!props.selectMode) {
     // font-size: 20px;
     // line-height: 20px;
 }
+
 .question-wrap {
     display: flex;
+
     .tag-tree {
         position: sticky;
         top: 60px;
@@ -271,8 +271,10 @@ if (!props.selectMode) {
         margin-right: 10px;
         border-right: 2px solid var(--color-fill-2);
     }
+
     .question-detail {
         flex: 1;
+
         .opearte_area {
             padding: 10px 0;
         }
