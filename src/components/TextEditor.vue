@@ -1,18 +1,17 @@
 <template>
-    <div style="border: 1px solid #ccc" v-if="props.mode=='rich'">
-        <Toolbar  style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig"
+    <div style="border: 1px solid #ccc" v-if="props.mode == 'rich'">
+        <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig"
             :mode="mode" />
         <Editor style="height: 150px; overflow-y: hidden;" v-model="valueHtml" :defaultConfig="editorConfig"
-            :mode="mode" @onCreated="handleCreated" @onChange="handleChange" @onBlur="blur"/>
+            :mode="mode" @onCreated="handleCreated" @onChange="handleChange" @onBlur="blur" />
     </div>
-    <span v-else v-html="props.modelValue"></span>
+    <div class="wysiwyg" style="flex:1" v-html="props.modelValue" v-else></div>
 </template>
 <script setup>
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 
 import { onBeforeUnmount, ref, shallowRef, onMounted, computed } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-
 const props = defineProps({
     vditorOptions: {
         type: Object,
@@ -39,10 +38,10 @@ const emit = defineEmits([
     'update:modelValue',
     'blur'
 ]);
-
+console.log('文本编辑模式')
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef()
-const getHtml=computed(()=>{
+const getHtml = computed(() => {
     console.log(editorRef.value?.getHtml())
     return editorRef.value?.getHtml()
 })
@@ -70,6 +69,7 @@ const blur = () => {
 }
 </script>
 <style>
+@import '../assets/styles/wysiwyg.css';
 .vditor {
     margin: 10px 0;
 }

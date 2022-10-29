@@ -30,7 +30,7 @@ const useCourseStore = defineStore({
                     name: "考试",
                     icon: "icon-at",
                     url: `/course/${id}/exam/manage`,
-                    visble:this.isTeacher
+                    visble:true
                 },
                 {
                     name: "试卷",

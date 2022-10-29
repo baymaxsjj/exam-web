@@ -58,7 +58,7 @@
             <div v-if="visible">
                 <a-page-header title="返回列表" @back="back">
                 </a-page-header>
-                <QuestionPreview :mode="editMode" :question="questionInfo" :options="questionInfo['topicItems']"
+                <QuestionEditView :mode="editMode" :question="questionInfo" :options="questionInfo['topicItems']"
                     :topic-type="questionInfo['type']" />
 
             </div>
@@ -109,7 +109,7 @@ import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import { questionType, getQuestionType, getQuestionVisble } from '../../utils/question-config.js'
 import { questionListRequest, delQuestionRequest, questionDetailRequest } from '../../apis/question-api';
-import QuestionPreview from '../../components/QuestionPreview.vue';
+import QuestionEditView from '../../components/QuestionEditView.vue';
 
 const props = defineProps({
     selectMode: {

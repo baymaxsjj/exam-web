@@ -4,7 +4,7 @@
             <a-button type="primary" @click="showAddModal(false)">创建班级</a-button>
         </template>
     </a-page-header>
-    <a-table :bordered="false" :columns="columns" @row-click="toUserListPage" :data="list" row-key="id" :row-selection="rowSelection"
+    <a-table :bordered="false" :columns="columns" v-model:selected-keys="selectKey" @row-click="toUserListPage" :data="list" row-key="id" :row-selection="rowSelection"
         @selection-change="selectChange">
         <template #edit="{ record }" v-if="isTeacher">
             <a-button @click.stop="showAddModal(true, record)" style="margin-right: 10px;">
@@ -143,6 +143,9 @@ const getClassCode = (data, anew) => {
     })
 }
 const toUserListPage = (record) => {
+    if(props.selectMode){
+        return
+    }
     router.push({
         name: "ClassUser",
         params: {

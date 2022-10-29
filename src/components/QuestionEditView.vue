@@ -7,9 +7,11 @@
                     <icon-delete />
                 </template>
             </a-button> -->
-            <span class="number" v-if="props.number">{{props.number}}.</span>
-            <span class="type-name">({{type.simpleName}})</span>
-            <QuestionEditor @blur="saveQuestion('content')" v-model:model-value="question.content"
+            <div class="question-info">
+                <span class="number" v-if="props.number">{{props.number}}.</span>
+                <span class="type-name">({{type.simpleName}})</span>
+            </div>
+            <TextEditor @blur="saveQuestion('content')" v-model:model-value="question.content"
                 :mode="getEditMode('preview','question')" />
         </div>
         <!-- 作题区 -->
@@ -32,7 +34,7 @@
                 </span>
                 <span v-if="(mode=='display'&&(type.enumName=='SUBJECTIVE'||type.enumName=='COMPLETION'))"
                     class="underline"></span>
-                <QuestionEditor @blur="saveOption(item)" v-else v-model:model-value="item.content"
+                <TextEditor @blur="saveOption(item)" v-else v-model:model-value="item.content"
                     :mode="getEditMode(type.itemsConfig.editMode,'option')" />
             </li>
         </ul>
@@ -42,12 +44,12 @@
         <!-- 答案区 -->
         <div class="correct" v-if="!isEdit&&mode!='answer'">
             <span class="title">答案：</span>
-            <QuestionEditor mode="preview" :model-value="getCorrect" />
+            <TextEditor mode="preview" :model-value="getCorrect" />
         </div>
         <!-- 解析区 -->
         <div class="analysis" v-if="mode!='answer'">
             <span class="title">解析：</span>
-            <QuestionEditor @blur="saveQuestion('analysis')" v-if="question.analysis||isEdit"
+            <TextEditor @blur="saveQuestion('analysis')" v-if="question.analysis||isEdit"
                 v-model:model-value="question.analysis" :mode="getEditMode('preview','analysis')" />
             <span v-else>无</span>
         </div>
@@ -78,7 +80,7 @@ import { Message } from '@arco-design/web-vue';
 import { reactive, ref, computed, watch } from 'vue';
 import { addQuestionRequest, delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
 import { getQuestionType, letterList } from '../utils/question-config';
-import QuestionEditor from './QuestionEditor.vue';
+import TextEditor from './TextEditor.vue';
 const props = defineProps({
     number: Number,
     //题目类型
@@ -318,16 +320,21 @@ const updateCorrect = (index) => {
     .question {
         margin: 5px 0;
         display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-
+        .question-info{
+            display: flex;
+            margin-right: 5px;
+            line-height: 25px;
+            height: 25px;
+            align-items: center;
+        }
         .number {
             color: var(--color-text-2);
         }
 
         .type-name {
             color: var(--color-text-3);
-            margin: 0 5px;
+            white-space: nowrap;
+
         }
 
 

@@ -7,7 +7,7 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {getExamPaperQuestionRequest} from '../../apis/exam-api';
-import QuestionPreview from '../../components/QuestionPreview.vue';
+import QuestionPreview from '../../components/QuestionEditView.vue';
 const route=useRoute()
 const examId=route.params['examId']
 const title=route.query["title"]
