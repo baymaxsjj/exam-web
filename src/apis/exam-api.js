@@ -35,6 +35,10 @@ const getExamInfoListRequest=(courseId,status=0,page=1,pageSize=10)=>{
 const getExamInfoDetailRequest=(examInfoId)=>{
     return axios.get(`/eapi/exam-info/detail/${examInfoId}`)
 }
+/**---------------------开始考试啦~相关-----------------------------*/
+const examStartRequest=(examInfoId)=>{
+    return axios.get(`/eapi//exam-info/start/${examInfoId}`)
+}
 export{
     updateExamPaperRequest,
     delExamPaperRequest,
@@ -46,4 +50,6 @@ export{
     delExamInfoRequest,
     getExamInfoListRequest,
     getExamInfoDetailRequest,
+
+    examStartRequest
 }

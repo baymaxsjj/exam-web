@@ -8,8 +8,17 @@ const ExamPaperManger=()=>import("../views/exam/ExamPaperManger.vue")
 const ExamPaperPreView=()=>import("../views/exam/ExamPaperPreView.vue")
 
 const ExamManage=()=>import("../views/exam/ExamManage.vue")
-
+const ExamStart=()=>import("../views/exam/ExamStart.vue")
 const courses = [
+    {
+        path:"/exam/:examInfoId(\\d+)/start",
+        component:ExamStart,
+        name:'ExamStart',
+        meta:{
+            title:'考试',
+            header:false
+        }
+    },
     {
         path: '/course/:courseId(\\d+)',
         component: Home,

@@ -35,7 +35,7 @@
                     批阅
                 </a-button>
             </div>
-            <ExamInfoButton v-else :item="item" style="width: 150px;"></ExamInfoButton>
+            <ExamInfoButton v-else :item="item"></ExamInfoButton>
         </li>
     </ul>
     <a-empty v-else></a-empty>

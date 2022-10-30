@@ -16,8 +16,6 @@ getExamPaperQuestionRequest(examId).then(res=>{
     list.value=res.data.data
 })
 </script>
+
 <style lang="less" scoped>
-.page-header{
-   
-}
 </style>

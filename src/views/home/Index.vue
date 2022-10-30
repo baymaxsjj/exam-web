@@ -106,6 +106,8 @@ watch(() => route.path, (newpath, old) => {
     padding: 0;
 }
 .home-wrap {
+    padding-top: 72px;
+    box-sizing: border-box;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -142,7 +144,6 @@ watch(() => route.path, (newpath, old) => {
         transition: all .3s;
         height: 100%;
         box-sizing: border-box;
-
         .home-list-info {
             overflow-y: auto;
         }

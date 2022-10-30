@@ -120,6 +120,7 @@ watch(() => props.mode, (value) => {
 })
 //更新课程id /分组id
 watch(() => props.question, (value) => {
+    Object.assign(question,value)
     if(value['courseId']){
         question['courseId']=value['courseId']
     }
