@@ -1,79 +1,58 @@
 <template>
-    <div class="preview" :class="mode">
+    <BasePreview :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
         <!-- 题目区 -->
-        <div class="question">
-            <!-- <a-button v-if="isEdit&&mode!='create'" @click="delQuestion" status="danger">
+        <template #question>
+            <TextEditor @blur="saveQuestion('content')" v-model:model-value="question.content" />
+        </template>
+        <!-- 作题区 -->
+        <template #option="{ index }">
+            <a-button @click="delOption(index)" status="danger" style="margin-right: 5px;">
                 <template #icon>
                     <icon-delete />
                 </template>
-            </a-button> -->
-            <div class="question-info">
-                <span class="number" v-if="props.number">{{props.number}}.</span>
-                <span class="type-name">({{type.simpleName}})</span>
-            </div>
-            <TextEditor @blur="saveQuestion('content')" v-model:model-value="question.content"
-                :mode="getEditMode('preview','question')" />
-        </div>
-        <!-- 作题区 -->
-        <ul class="options">
-            <li class="option-item" v-for="(item,index) in options" :class="type.enumName">
-                <a-button @click="delOption(index)" v-if="isEdit&&type.enumName!='JUDGMENTAL'" status="danger">
-                    <template #icon>
-                        <icon-delete />
-                    </template>
-                </a-button>
-                <span class="letter" @click="saveCorrect(index)" v-if="type.itemsConfig.prexType=='letter'"
-                    :class="{'letter-active':item.correct!=null}">
-                    {{letterList[index]}}
-                </span>
-                <span class="number" v-if="type.itemsConfig.prexType=='number'">
-                    第{{index+1}}空：
-                </span>
-                <span class="number" v-if="type.enumName=='SUBJECTIVE'">
-                    答：
-                </span>
-                <span v-if="(mode=='display'&&(type.enumName=='SUBJECTIVE'||type.enumName=='COMPLETION'))"
-                    class="underline"></span>
-                <TextEditor @blur="saveOption(item)" v-else v-model:model-value="item.content"
-                    :mode="getEditMode(type.itemsConfig.editMode,'option')" />
-            </li>
-        </ul>
-        <div class="add-option" v-if="isEdit&&type.enumName!='SUBJECTIVE'&&type.enumName!='JUDGMENTAL'">
+            </a-button>
+            <a-button class="letter" @click="saveCorrect(index)">
+                选择
+            </a-button>
+            <TextEditor @blur="saveOption(options[index])" v-model:model-value="options[index].content" />
+        </template>
+        <template #body v-if="type.enumName != 'SUBJECTIVE' && type.enumName != 'JUDGMENTAL'">
             <a-button long @click="addOption">添加选项</a-button>
-        </div>
+        </template>
+        <template #subject="{ option }">
+            <TextEditor mode="preview" @blur="saveOption(options[0])" v-model:model-value="options[0].content" />
+        </template>
         <!-- 答案区 -->
-        <div class="correct" v-if="!isEdit&&mode!='answer'">
-            <span class="title">答案：</span>
-            <TextEditor mode="preview" :model-value="getCorrect" />
-        </div>
+        <template #correct>
+            <TextEditor mode="preview" :model-value="question.correct" />
+        </template>
         <!-- 解析区 -->
-        <div class="analysis" v-if="mode!='answer'">
-            <span class="title">解析：</span>
-            <TextEditor @blur="saveQuestion('analysis')" v-if="question.analysis||isEdit"
-                v-model:model-value="question.analysis" :mode="getEditMode('preview','analysis')" />
-            <span v-else>无</span>
-        </div>
-        <!-- 公开区 -->
-        <div class="public" v-if="isEdit">
-            <span class="title">可见状态：</span>
-            <a-radio-group type="button" @change="saveQuestion('isPublic')" default-value="self"
-                v-model:model-value="question.isPublic">
-                <a-radio value="self">自己</a-radio>
-                <a-radio value="course">课程</a-radio>
-                <a-radio value="overt">公开</a-radio>
-            </a-radio-group>
-        </div>
-        <div class="public" v-if="isEdit">
-            <span class="title">难易程度：</span>
-            <a-rate v-model:model-value="question['difficulty']" @change="saveQuestion('difficulty')"
-                :default-value="2.5" allow-half />
-        </div>
+        <template #analysis>
+            <TextEditor @blur="saveQuestion('analysis')" v-model:model-value="question.analysis" />
+        </template>
+        <template #difficulty>
+            <a-rate v-model:model-value="question['difficulty']" @change="saveQuestion('difficulty')" />
+        </template>
 
         <!-- 保存区 -->
-        <div class="create-save" v-if="mode=='create'">
-            <a-button long type="primary" size="large" @click="createQuestion">保存</a-button>
-        </div>
-    </div>
+        <template #footer>
+            <div class="public">
+                <span class="title">可见状态：</span>
+                <a-radio-group type="button" @change="saveQuestion('isPublic')" default-value="self"
+                    v-model:model-value="question.isPublic">
+                    <a-radio value="self">自己</a-radio>
+                    <a-radio value="course">课程</a-radio>
+                    <a-radio value="overt">公开</a-radio>
+                </a-radio-group>
+            </div>
+            <div class="public">
+                <span class="title">题目分值：</span>
+                <a-input-number :style="{ width: '170px' }" v-model="question.score" @blur="saveQuestion('score')"
+                    placeholder="输入分值" :default-value="5" mode="button" class="input-demo" />
+            </div>
+            <a-button v-if="isCreate" long type="primary" size="large" @click="createQuestion">保存</a-button>
+        </template>
+    </BasePreview>
 </template>
 <script setup>
 import { Message } from '@arco-design/web-vue';
@@ -81,9 +60,8 @@ import { reactive, ref, computed, watch } from 'vue';
 import { addQuestionRequest, delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
 import { getQuestionType, letterList } from '../utils/question-config';
 import TextEditor from './TextEditor.vue';
+import BasePreview from './BasePreview.vue';
 const props = defineProps({
-    number: Number,
-    //题目类型
     topicType: String,
     question: {
         type: Object,
@@ -98,136 +76,57 @@ const props = defineProps({
         type: Array,
         default: []
     },
-    myOptions: {
-        type: Array,
-        default: []
-    },
-    mode: {
-        type: String,
-        default: 'editor',
-        validator(value) {
-            // The value must match one of these strings
-            return ['display', 'answer', 'answer-display', 'editor', 'create'].includes(value)
-        }
-    }
 })
-const emit = defineEmits(
-    ['delete']
-)
-watch(() => props.mode, (value) => {
-    console.log(value)
-    mode.value = value
-})
-//更新课程id /分组id
-watch(() => props.question, (value) => {
-    Object.assign(question,value)
-    if(value['courseId']){
-        question['courseId']=value['courseId']
-    }
-    if(value['tagId']){
-        question['tagId']=value['tagId']
-    }
-})
-//更新题目类型
-watch(() => props.topicType, (value) => {
-    console.log(value)
-    type.value = getQuestionType(value)
-    options.splice(0,options.length)
-    init()
-})
-const mode = ref(props.mode)
 //类型
 const type = ref(getQuestionType(props.topicType))
 //题目
-const question = reactive({
-    ...props.question
-})
+const question = reactive(props.question)
+const isCreate = question.id == undefined
 //选项
-const options = reactive([...props.options])
-
-const isEdit = computed(() => {
-    return ['editor', 'create'].includes(mode.value)
+const options = ref(props.options)
+watch(() => props.options, (value) => {
+    options.value = value
+    init()
 })
 //解答区，
 const init = () => {
     if (type.value.enumName == "SUBJECTIVE") {
-        if (options.length == 0) {
-            options.push({
+        if (options.value.length == 0) {
+            options.value.push({
                 content: ""
             })
         }
     }
     if (type.value.enumName == "JUDGMENTAL") {
-        if (options.length == 0) {
-            options.push({
+        if (options.value.length == 0) {
+            options.value.push({
                 content: "对"
             })
-            options.push({
+            options.value.push({
                 content: "错"
             })
         }
     }
 }
-init()
 //添加选项
 const addOption = () => {
-    if (mode.value == 'create' || options.length == 0 || (options[options.length - 1].id != undefined)) {
-        options.push({
+    if (question['id'] == undefined || options.value.length == 0 || (options.value[options.value.length - 1].id != undefined)) {
+        options.value.push({
             "content": "",
         })
     } else {
         Message.info("请完成当前选择后，在添加~")
     }
 }
-//获取编辑器模式
-const getEditMode = computed(() => {
-    return (defalutMode,area) => {
-        if (isEdit.value) {
-            defalutMode = 'rich'
-        }
-        //判断题不能编辑
-        if(area=='option'&&type.value.enumName=='JUDGMENTAL'){
-            defalutMode = 'preview'
-        }
-        return defalutMode
-    }
-})
 
-
-//获取答案内容
-const getCorrect = computed(() => {
-    const correct = []
-    for (let i = 0; i < options.length; i++) {
-        if (options[i].correct) {
-            // 单、多、判断
-            if (type.value.itemsConfig.prexType == 'letter') {
-                correct.push(letterList[i]);
-            } else {
-                correct.push(options[i].content)
-            }
-        }
-    }
-    if (correct.length == 0) {
-        correct.push('无')
-    }
-    return correct.join('；')
-})
 //删除选项
 const delOption = (index) => {
-    if(mode.value=='create'){
-        options.splice(index, 1);
-        return
-    }
-    delQuestionItemRequest(options[index].id).then(() => {
-        options.splice(index, 1);
+
+    delQuestionItemRequest(options.value[index].id).then(() => {
+        options.value.splice(index, 1);
     })
 }
-// 删除问题
-const delQuestion = () => {
-    delQuestionRequest(question.id).then(res => {
-        emit('delete', question.id)
-    })
-}
+
 //创建题目
 const createQuestion = () => {
     if (question.content && question.content == '') {
@@ -236,7 +135,7 @@ const createQuestion = () => {
     }
     const params = {
         ...question,
-        'topicItems': options
+        'topicItems': options.value
     }
     params['type'] = props.topicType
     addQuestionRequest(params).then(res => {
@@ -245,7 +144,7 @@ const createQuestion = () => {
 }
 // 更新题目/jiex 
 const saveQuestion = (info) => {
-    if (mode.value == 'create') {
+    if (isCreate) {
         return
     }
     const params = {
@@ -255,46 +154,49 @@ const saveQuestion = (info) => {
     console.log(question[info])
     console.log(props.question[info])
     // 内容没有更改不更新
-    if((question[info]==null)){
+    if ((question[info] == null)) {
         return
     }
 
     console.log(question[info])
     params[info] = question[info]
-    
+
     updateQuestionRequest(params).then(res => [
     ])
 }
 // 添加/修改选项
 const saveOption = (item) => {
-    if (isEdit.value && mode.value != 'create') {
-        //编辑下修改答案
-        item['questionId'] = question.id
-        updateQuestionItemRequest(item).then(res => {
-            //添加选项会返回id
-            const data = res.data.data
-            if (data) {
-                item.id = data
-            }
-        })
-    } else {
-        //保存答案
+    if (isCreate) {
+        return
     }
+    //编辑下修改答案
+    item['questionId'] = question.id
+    updateQuestionItemRequest(item).then(res => {
+        //添加选项会返回id
+        const data = res.data.data
+        if (data) {
+            item.id = data
+        }
+    })
+
 }
 //更改单/多正确选项
 const saveCorrect = (index) => {
-    if (isEdit.value && mode.value != 'create') {
-        updateQuestionCorrectRequest(options[index].id).then(res => {
-            updateCorrect(index)
-        })
-    } else if (mode.value == 'create') {
+    if (isCreate) {
         updateCorrect(index)
+        return
     }
+    updateQuestionCorrectRequest(options.value[index].id).then(res => {
+        updateCorrect(index)
+    })
 
 }
 const updateCorrect = (index) => {
-    for (let i = 0; i < options.length; i++) {
-        const item = options[i];
+    if (isCreate) {
+        return
+    }
+    for (let i = 0; i < options.value.length; i++) {
+        const item = options.value[i];
         if (i == index) {
             if (type.value.enumName == 'MULTIPLE_CHOICE') {
                 if (item['correct'] != null) {
@@ -314,141 +216,25 @@ const updateCorrect = (index) => {
 }
 </script>
 <style lang="less" scoped>
-.preview {
-    padding: 10px;
-
-
-    .question {
-        margin: 5px 0;
-        display: flex;
-        .question-info{
-            display: flex;
-            margin-right: 5px;
-            line-height: 25px;
-            height: 25px;
-            align-items: center;
-        }
-        .number {
-            color: var(--color-text-2);
-        }
-
-        .type-name {
-            color: var(--color-text-3);
-            white-space: nowrap;
-
-        }
-
-
-    }
-
-    .options {
-        margin: 10px;
-
-        .option-item {
-            margin: 10px 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-
-            &:hover {
-                .letter {
-                    border: 1px solid rgb(var(--primary-5));
-                }
-            }
-
-        }
-
-        .COMPLETION,
-        .SUBJECTIVE {
-            display: block;
-        }
-        .MULTIPLE_CHOICE{
-            .letter{
-                border-radius:10px
-            }
-        }
-
-        .letter {
-            display: inline-block;
-            height: 35px;
-            width: 35px;
-            text-align: center;
-            border: 1px solid var(--color-fill-3);
-            border-radius: 50%;
-            line-height: 35px;
-            transition: all .3s;
-            margin: 0 5px;
-        }
-
-        .letter-active {
-            border: 1px solid rgb(var(--primary-6));
-            background-color: rgb(var(--primary-1));
-            color: rgb(var(--primary-6));
-        }
-
-        .number {
-            margin: 10px 0;
-            color: var(--color-text-3);
-        }
-
-        .underline {
-            display: block;
-            border-bottom: 1.5px solid var(--color-text-4);
-            flex: 1;
-            height: 15px;
-        }
-    }
-
-    .public {
-        display: flex;
-        align-items: center;
-        margin: 10px;
-
-        .title {
-            color: var(--color-text-3);
-        }
-    }
-
-    .analysis,
-    .correct {
-        margin: 10px;
-        background-color: var(--color-fill-1);
-        padding: 15px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-
-        .title {
-            color: var(--color-text-3);
-        }
-    }
+:deep(.option-item) {
+    flex-wrap: wrap;
 }
 
-// 编辑模式下，编辑器和序号换行显示
-.editor,
-.create {
-    .question {
-        display: block;
-    }
-
-    .options {
-        .option-item {
-            display: block;
-        }
-        .JUDGMENTAL{
-            display: flex;
-        }
-    }
+:deep(.option-item:hover) {
+    background-color: #fff !important;
 }
 
-.display {
-    .options {
+:deep(.question-info .info) {
+    float: none!important;
+}
 
-        .COMPLETION,
-        .SUBJECTIVE {
-            display: flex;
-        }
+.public {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+
+    .title {
+        color: var(--color-text-3);
     }
 }
 </style>

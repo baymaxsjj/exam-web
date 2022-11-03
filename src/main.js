@@ -6,6 +6,7 @@ import App from "./App.vue";
 // FIXME: 按需加载
 // import '@arco-design/web-vue/dist/arco.css';
 import "@arco-themes/vue-mgo-blog/index.less";
+
 //去除默认样式
 import "./assets/styles/reset.css";
 // 路由

@@ -32,7 +32,7 @@
                     </template>
                 </a-button>
                 <a-button type="primary">
-                    批阅
+                    控制台
                 </a-button>
             </div>
             <ExamInfoButton v-else :item="item"></ExamInfoButton>

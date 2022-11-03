@@ -72,7 +72,8 @@ const save = () => {
 }
 if (examId) {
     getExamPaperDetailRequest(examId).then(res => {
-        form.value = res.data.data['exam'];
+        console.log(res.data.data)
+        form.value = res.data.data['examPaper'];
         questionKey.value = res.data.data['questions'];
     })
 }

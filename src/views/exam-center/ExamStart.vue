@@ -15,21 +15,28 @@
                 <p class="school-name">学校</p>
             </div>
             <div class="common-style">
-                <p class="question-count">题目数量：{{ getQuestion.length }}</p>
+                <p class="question-count">题目数量：{{ questionList.length }}</p>
                 <p class="exam-stat-time">开始时间：{{ examInfo.startTime }}</p>
                 <p class="exam-end-time">结束时间：{{ examInfo.endTime }}</p>
             </div>
         </div>
         <div class="exam-list">
             <div v-if="!isPreview">
-                <a-spin dot :loading="loading" v-if="getQuestion.length != 0" style="width: 100%;min-height: 200px;">
-                    <QuestionEditView :number="currQuestIndex + 1" :topic-type="getQuestion[currQuestIndex].type" :question="getQuestion[currQuestIndex]" :options="options"
-                        mode="answer">
-                    </QuestionEditView>
-                    <div style="display:flex;justify-content: space-around;">
-                        <a-button>上一题</a-button>
-                        <a-button>下一题</a-button>
-                    </div>
+                <div style="display:flex;justify-content: space-around;">
+                    <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
+                    </a-button>
+                    <a-button long type="primary" :disabled="currQuestIndex == questionList.length - 1"
+                        @click="switchQuestion(currQuestIndex + 1)">下一题</a-button>
+                </div>
+                <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
+                    <BasePreview :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
+                        :question="questionList[currQuestIndex]" :options="questionList[currQuestIndex]['option']">
+                        <template #option="{ index, type }">
+                            <TextEditor v-if="type.enumName=='COMPLETION'" @blur="saveOption(questionList[currQuestIndex]['option'][index])"
+                                v-model:model-value="questionList[currQuestIndex]['option'][index].content" />
+                        </template>
+                    </BasePreview>
+
                 </a-spin>
                 <a-empty v-else></a-empty>
             </div>
@@ -38,9 +45,11 @@
             <div v-for="(item, key) of questionInfo" :key="key" class="common-style">
                 <h5>{{ getQuestionType(key).simpleName }}</h5>
                 <ul class="number-wrap">
-                    <li class="number-item" @click="switchQuestion(getNumber(key,index))" :class="{ 'number-active': (currQuestIndex+1) ==getNumber(key,index) }" v-for="(info, index) of item">{{
-                            getNumber(key,index) 
-                    }}</li>
+                    <li class="number-item" @click="switchQuestion(getNumber(key, index) - 1)"
+                        :class="{ 'number-active': (currQuestIndex + 1) == getNumber(key, index) }"
+                        v-for="(info, index) of item">{{
+        getNumber(key, index)
+                        }}</li>
                 </ul>
             </div>
 
@@ -49,12 +58,13 @@
 </template>
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import QuestionEditView from '../../components/QuestionEditView.vue';
-import { examStartRequest } from '../../apis/exam-api';
+import BasePreview from '../../components/BasePreview.vue';
+import { examStartRequest, examQuestionOptionRequest } from '../../apis/exam-center-api';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { getQuestionType } from '../../utils/question-config';
 import useUserStore from '../../sotre/user-store';
+import TextEditor from '../../components/TextEditor.vue';
 const userStore = useUserStore()
 const route = useRoute()
 const examInfoId = route.params['examInfoId']
@@ -65,6 +75,7 @@ let temNumber = 0
 const isPreview = ref(false)
 //题目信息
 const questionInfo = ref({})
+const questionList = ref([])
 const options = ref([])
 //考试信息
 const examInfo = ref({})
@@ -75,16 +86,18 @@ examStartRequest(examInfoId).then(res => {
     questionInfo.value = data['questionList']
     examInfo.value = data['examInfo']
     interval = setInterval(statrCountDown(), 1000)
+    getQuestionList()
+    console.log(questionList.value[currQuestIndex.value])
+    //加载第一天选项
+    switchQuestion(0)
 })
-const getQuestion = computed(() => {
-    const list = []
+
+const getQuestionList = () => {
     Object.keys(questionInfo.value).forEach(key => {
         console.log(questionInfo.value[key])
-        list.push(...questionInfo.value[key])
+        questionList.value.push(...questionInfo.value[key])
     })
-    console.log(list)
-    return list;
-})
+}
 const statrCountDown = () => {
     const diffTime = dayjs(examInfo.value.endTime).diff(dayjs(), 'second');
     const hour = parseInt(diffTime / 3600)
@@ -94,7 +107,7 @@ const statrCountDown = () => {
     return statrCountDown
 }
 const getNumber = computed(() => {
-    return (key,index) => {
+    return (key, index) => {
         let length = 0;
         for (const tKey in questionInfo.value) {
             if (tKey != key) {
@@ -103,12 +116,25 @@ const getNumber = computed(() => {
                 break;
             }
         }
-        return length+index+1;
+        return length + index + 1;
     }
 })
-const switchQuestion=(index)=>{
-    currQuestIndex.value=index-1
+const switchQuestion = (index) => {
+    //预览模式滚动到改题目
+    if (isPreview.value) {
+
+    } else {
+        loading.value = true
+        //获取题目项
+        examQuestionOptionRequest(examInfoId, questionList.value[index].id).then(res => {
+            questionList.value[index]['option'] = res.data.data;
+            console.log(questionList.value[index])
+            currQuestIndex.value = index
+            loading.value = false
+        })
+    }
 }
+
 onMounted(() => {
     clearInterval(interval)
 })
@@ -169,6 +195,8 @@ onMounted(() => {
             text-align: center;
             font-size: 20px;
             line-height: 30px;
+            position: relative;
+            z-index: 1;
         }
 
         .exam-count-down {
@@ -226,7 +254,8 @@ onMounted(() => {
                     border: 2px solid rgba(var(--primary-4));
                 }
             }
-            .number-active{
+
+            .number-active {
                 border: 2px solid rgba(var(--primary-6));
                 background-color: rgba(var(--primary-4));
                 color: #fff;

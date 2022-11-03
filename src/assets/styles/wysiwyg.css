@@ -25,6 +25,7 @@
 }
 .wysiwyg img {
   vertical-align: text-bottom;
+  max-width: 100%;
 }
 .wysiwyg ins {
   background-color: lime;

@@ -58,8 +58,10 @@
             <div v-if="visible">
                 <a-page-header title="返回列表" @back="back">
                 </a-page-header>
-                <QuestionEditView :mode="editMode" :question="questionInfo" :options="questionInfo['topicItems']"
-                    :topic-type="questionInfo['type']" />
+                <BasePreview v-if="editMode=='display'" :showArea="true" :question="questionInfo"
+                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"></BasePreview>
+                <QuestionEditView v-else :question="questionInfo"
+                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"/>
 
             </div>
             <!-- 题目列表 -->
@@ -68,7 +70,7 @@
                     :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" :loading="loading"
                     column-resizable :pagination="{ total: total, current: page }" @page-change="pageChange">
                     <template #content="{ record, rowIndex }">
-                        <p class="arco-table-text-ellipsis" v-html="record.content"></p>
+                        <BaseEditor :initialValue="record.content.substring(0,250)"></BaseEditor>
                     </template>
                     <template #type="{ record, rowIndex }">
                         <a-tag>{{ getQuestionType(record.type).simpleName }}</a-tag>
@@ -110,7 +112,8 @@ import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import { questionType, getQuestionType, getQuestionVisble } from '../../utils/question-config.js'
 import { questionListRequest, delQuestionRequest, questionDetailRequest } from '../../apis/question-api';
 import QuestionEditView from '../../components/QuestionEditView.vue';
-
+import BasePreview from '../../components/BasePreview.vue';
+import BaseEditor from '../../components/BaseEditor.vue';
 const props = defineProps({
     selectMode: {
         type: Boolean,
@@ -144,7 +147,7 @@ const loading = ref(false)
 const visible = ref(false)
 
 const questionList = ref([])
-const editMode = ref('create')
+const editMode = ref('editor')
 const questionInfo = ref({
 
 })
@@ -187,11 +190,12 @@ const getQuestList = () => {
 }
 const createQuestion = (type) => {
     console.log(type)
-    editMode.value = 'create'
+    editMode.value = 'editor'
     questionInfo.value = {}
     questionInfo.value['type'] = type
     questionInfo.value['courseId'] = courseId
     questionInfo.value['tagId'] = currTagId.value
+    questionInfo.value['topicItems']=[{content:''}]
     visible.value = true;
 }
 //查看题目
