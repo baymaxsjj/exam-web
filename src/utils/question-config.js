@@ -59,6 +59,31 @@ const questionType = [
       editMode:'rich'
     },
   },
+  {
+    name: "文件题",
+    simpleName:"文件题",
+    enumName: "FILE",
+    value:5,
+    itemsConfig: {
+      min: 1,
+      max: 10,
+      prexType:'none',
+      editMode:'none'
+    },
+  },
+  {
+    name: "代码题",
+    simpleName:"代码题",
+    enumName: "CODE",
+    value:6,
+    itemsConfig: {
+      min: 1,
+      max: 10,
+      prexType:'none',
+      editMode:'none'
+    },
+  },
+  
 ];
 const questionVisble=[
   {

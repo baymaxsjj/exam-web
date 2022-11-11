@@ -29,13 +29,13 @@
                         @click="switchQuestion(currQuestIndex + 1)">下一题</a-button>
                 </div>
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
-                    <BasePreview :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
+                    <BaseQuestionPreview @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
                         :question="questionList[currQuestIndex]" :options="questionList[currQuestIndex]['option']">
                         <template #option="{ index, type }">
-                            <TextEditor v-if="type.enumName=='COMPLETION'" @blur="saveOption(questionList[currQuestIndex]['option'][index])"
+                            <TextEditor v-if="type.enumName=='COMPLETION'" @blur="saveAnswer(questionList[currQuestIndex]['option'][index])"
                                 v-model:model-value="questionList[currQuestIndex]['option'][index].content" />
                         </template>
-                    </BasePreview>
+                    </BaseQuestionPreview>
 
                 </a-spin>
                 <a-empty v-else></a-empty>
@@ -58,7 +58,7 @@
 </template>
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import BasePreview from '../../components/BasePreview.vue';
+import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
 import { examStartRequest, examQuestionOptionRequest } from '../../apis/exam-center-api';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
@@ -85,7 +85,7 @@ examStartRequest(examInfoId).then(res => {
     const data = res.data.data
     questionInfo.value = data['questionList']
     examInfo.value = data['examInfo']
-    interval = setInterval(statrCountDown(), 1000)
+    interval = setInterval(statrCountDown(data['systemTime']), 1000)
     getQuestionList()
     console.log(questionList.value[currQuestIndex.value])
     //加载第一天选项
@@ -98,8 +98,8 @@ const getQuestionList = () => {
         questionList.value.push(...questionInfo.value[key])
     })
 }
-const statrCountDown = () => {
-    const diffTime = dayjs(examInfo.value.endTime).diff(dayjs(), 'second');
+const statrCountDown = (sysTime) => {
+    const diffTime = dayjs(examInfo.value.endTime).diff(dayjs(sysTime), 'second');
     const hour = parseInt(diffTime / 3600)
     const minute = parseInt(diffTime / 60 % 60)
     const second = diffTime % 60
@@ -127,14 +127,16 @@ const switchQuestion = (index) => {
         loading.value = true
         //获取题目项
         examQuestionOptionRequest(examInfoId, questionList.value[index].id).then(res => {
-            questionList.value[index]['option'] = res.data.data;
+            questionList.value[index]['option'] = res.data.data['options'];
             console.log(questionList.value[index])
             currQuestIndex.value = index
             loading.value = false
         })
     }
 }
+const saveAnswer=(option)=>{
 
+}
 onMounted(() => {
     clearInterval(interval)
 })
@@ -231,8 +233,7 @@ onMounted(() => {
         height: 100%;
         padding: 10px;
         padding-top: 0;
-        overflow-y: auto;
-
+        overflow-y:auto;
         .number-wrap {
             margin: 10px 0;
             display: flex;

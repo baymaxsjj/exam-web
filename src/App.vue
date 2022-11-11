@@ -43,6 +43,24 @@ watch(()=>route.name,()=>{
 .arco-modal-simple .arco-modal-body {
   overflow: hidden;
 }
+div::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width : 5px;  /* 高宽分别对应横竖滚动条的尺寸 */
+  height: 1px;
+}
+div::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 10px;
+  box-shadow   : inset 0 0 5px rgba(219, 219, 219, 0.5);
+  background   : #d6d6d6;
+}
+div::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  box-shadow   : inset 0 0 5px rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  background   : #ffffff;
+}
+
 @media only screen and (max-width: 600px) {
   .arco-modal-simple{
     width: 100%!important;

@@ -7,44 +7,62 @@
                 <span class="type-name"> ({{ type.simpleName }} {{ question.score }}分)：</span>
            </div>
             <slot name="question">
-                <BaseEditor :initialValue="question.content"></BaseEditor>
+                <BaseTextPreview :initialValue="question.content"></BaseTextPreview>
             </slot>
         </div>
         <!-- 作题区 -->
         <ul class="options">
-            <template v-if="type.enumName != 'SUBJECTIVE'">
+            <template v-if="['SIGNAL_CHOICE','MULTIPLE_CHOICE','JUDGMENTAL','COMPLETION'].includes(type.enumName)">
                 <li class="option-item" v-for="(item, index) in options" :class="type.enumName"
                     @click="optionClick(item)">
                     <span class="letter" v-if="type.itemsConfig.prexType == 'letter'"
-                        :class="{ 'letter-active': item.correct != null }">
+                        :class="{ 'letter-active': item.answer != null }">
                         {{ letterList[index] }}
                     </span>
                     <span class="number" v-if="type.itemsConfig.prexType == 'number'">
                         第{{ index + 1 }}空：
                     </span>
                     <slot name="option" :option="item" :index="index" :type="type">
-                        <BaseEditor :initialValue="item.content"></BaseEditor>
+                        <BaseTextPreview v-if="type.enumName=='COMPLETION'" :initialValue="item.answer"></BaseTextPreview>
+                        <BaseTextPreview v-else :initialValue="item.content"></BaseTextPreview>
+                    </slot>
+                </li>
+                <li>
+                    <slot name="option_footer">
+                        
                     </slot>
                 </li>
             </template>
-            <li v-else>
+            <li v-if="type.enumName=='SUBJECTIVE'">
                 <span class="number">答：</span>
                 <slot name="subject" :option="options[0]">
-                    <BaseEditor :initial-value="options[0].content"></BaseEditor>
+                    <BaseTextPreview :initial-value="options[0].answer"></BaseTextPreview>
+                </slot>
+            </li>
+            <li v-if="type.enumName=='FILE'">
+                <slot name="file" :option="options[0]">
+                    <a-button>下载</a-button>
+                    <a-button>预览</a-button>
+                </slot>
+            </li>
+            <li v-if="type.enumName=='CODE'">
+                <slot name="code" :option="options[0]">
+                    <a-button>下载</a-button>
+                    <a-button>预览</a-button>
                 </slot>
             </li>
         </ul>
         <slot name="body"></slot>
         <!-- 答案区 -->
-        <div class="correct" v-if="showArea.correct">
+        <div class="answer" v-if="showArea.answer">
             <span class="title">答案：</span>
-            <BaseEditor :initialValue="getCorrect"></BaseEditor>
+            <BaseTextPreview :initialValue="getCorrect"></BaseTextPreview>
         </div>
         <!-- 解析区 -->
         <div class="analysis" v-if="showArea.analysis">
             <span class="title">解析：</span>
             <slot name="analysis">
-                <BaseEditor :initialValue="question.analysis"></BaseEditor>
+                <BaseTextPreview :initialValue="question.analysis"></BaseTextPreview>
             </slot>
         </div>
         <!-- 难易程度  -->
@@ -62,7 +80,7 @@
 <script setup>
 import { reactive, ref, computed, watch } from 'vue';
 import { getQuestionType, letterList } from '../utils/question-config';
-import BaseEditor from './BaseEditor.vue'
+import BaseTextPreview from './BaseTextPreview.vue'
 // 该组件只提供题目预览，课通过插槽修改默认内容
 const props = defineProps({
     number: Number,
@@ -95,13 +113,13 @@ const emit = defineEmits(
 )
 const showArea = computed(() => {
     const def = {
-        correct: false,
+        answer: false,
         analysis: false,
         difficulty: false
     }
     if(typeof props.showArea=='boolean'){
         Object.keys(def).forEach(key=>{
-            def[key]=true
+            def[key]=props.showArea
         })
     }
     return def
@@ -129,21 +147,21 @@ const optionClick = (item) => {
 }
 //获取答案内容
 const getCorrect = computed(() => {
-    const correct = []
+    const answer = []
     for (let i = 0; i < options.value.length; i++) {
-        if (options.value[i].correct) {
+        if (options.value[i].answer) {
             // 单、多、判断
             if (type.value.itemsConfig.prexType == 'letter') {
-                correct.push(letterList[i]);
+                answer.push(letterList[i]);
             } else {
-                correct.push(options.value[i].content)
+                answer.push(options.value[i].content)
             }
         }
     }
-    if (correct.length == 0) {
-        correct.push('无')
+    if (answer.length == 0) {
+        answer.push('无')
     }
-    return correct.join('；')
+    return answer.join('；')
 })
 </script>
 <style lang="less" scoped>
@@ -177,10 +195,9 @@ const getCorrect = computed(() => {
         .option-item {
             padding: 10px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
             border-radius: 10px;
             transition: all .5s;
+            overflow: hidden;
 
             &:hover {
                 .letter {
@@ -204,7 +221,6 @@ const getCorrect = computed(() => {
         }
 
         .letter {
-            display: inline-block;
             height: 35px;
             width: 35px;
             text-align: center;
@@ -213,6 +229,7 @@ const getCorrect = computed(() => {
             line-height: 35px;
             transition: all .3s;
             margin: 0 5px;
+            float: left;
         }
 
         .letter-active {
@@ -245,7 +262,7 @@ const getCorrect = computed(() => {
     }
 
     .analysis,
-    .correct {
+    .answer {
         margin: 10px;
         background-color: var(--color-fill-1);
         padding: 15px;

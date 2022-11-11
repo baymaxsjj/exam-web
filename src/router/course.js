@@ -2,6 +2,7 @@ const Home=()=>import("../views/home/Index.vue")
 const Question=()=>import("../views/course/Question.vue")
 const MyClasses=()=>import("../views/course/MyClasses.vue")
 const ClassUser=()=>import("../views/course/ClassUser.vue")
+const BatchImportQuestion=()=>import("../views/course/BatchImportQuestion.vue")
 
 const ExamPaper=()=>import("../views/exam/ExamPaper.vue")
 const ExamPaperManger=()=>import("../views/exam/ExamPaperManger.vue")
@@ -52,6 +53,14 @@ const courses = [
                 name:'Question',
                 meta:{
                     title:'课程题库'
+                }
+            },
+            {
+                path:"question/tagId(\\d+)/batch-import",
+                component:BatchImportQuestion,
+                name:'BatchImportQuestion',
+                meta:{
+                    title:'批量导入题库'
                 }
             },
             {

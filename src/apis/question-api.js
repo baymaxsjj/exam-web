@@ -30,6 +30,16 @@ const updateQuestionRequest=(question)=>{
 const delQuestionRequest=(questionId)=>{
     return axios.post(`/eapi/question/delete/${questionId}`)
 }
+//批量导入题目
+const batchQuestionRequest=(tagId)=>{
+    return axios.post(`/eapi/question/batchAdd/${tagId}`)
+}
+// 解析题目文本
+const analyzeQuestionTextRequest=(questionText)=>{
+    return axios.post(`/eapi/question/analyze`,{
+        questionText
+    })
+}
 // 更新题目项
 const updateQuestionItemRequest=(item)=>{
     return axios.post(`/eapi/question-item/update`,item)
@@ -42,6 +52,8 @@ const delQuestionItemRequest=(itemId)=>{
 const updateQuestionCorrectRequest=(itemId)=>{
     return axios.post(`/eapi/question-item/correct/${itemId}`)
 }
+
+
 export {
     updateTagRequest,
     tagsListRequest,
@@ -53,5 +65,7 @@ export {
     delQuestionRequest,
     updateQuestionItemRequest,
     delQuestionItemRequest,
-    updateQuestionCorrectRequest
+    updateQuestionCorrectRequest,
+    batchQuestionRequest,
+    analyzeQuestionTextRequest
 }

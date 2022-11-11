@@ -46,7 +46,7 @@ instance.interceptors.response.use(function(response) {
             }else if(code.startsWith("B")){
                 Message.warning(msg)
             }else{
-                Message.warning(error)
+                Message.error(msg)
             }
            return Promise.reject(response)
         }

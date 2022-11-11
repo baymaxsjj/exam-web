@@ -13,6 +13,7 @@
         </template>
         <template #extra>
             <div class="opearte_area" v-if="isTeacher && !props.selectMode">
+                <a-button-group>
                 <a-dropdown :popup-max-height="false" trigger="hover">
                     <a-button status="info">
                         <template #icon>
@@ -42,12 +43,13 @@
 
                     </template>
                 </a-dropdown>
-                <a-button status="success">
+                <a-button status="success" @click="toBatchImport">
                     <template #icon>
                         <icon-upload />
                     </template>
                     导入题库
                 </a-button>
+            </a-button-group>
             </div>
         </template>
     </a-page-header>
@@ -58,8 +60,8 @@
             <div v-if="visible">
                 <a-page-header title="返回列表" @back="back">
                 </a-page-header>
-                <BasePreview v-if="editMode=='display'" :showArea="true" :question="questionInfo"
-                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"></BasePreview>
+                <BaseQuestionPreview v-if="editMode=='display'" :showArea="true" :question="questionInfo"
+                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"></BaseQuestionPreview>
                 <QuestionEditView v-else :question="questionInfo"
                     :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"/>
 
@@ -70,7 +72,7 @@
                     :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" :loading="loading"
                     column-resizable :pagination="{ total: total, current: page }" @page-change="pageChange">
                     <template #content="{ record, rowIndex }">
-                        <BaseEditor :initialValue="record.content.substring(0,250)"></BaseEditor>
+                        <BaseTextPreview :initialValue="record.content.substring(0,250)"></BaseTextPreview>
                     </template>
                     <template #type="{ record, rowIndex }">
                         <a-tag>{{ getQuestionType(record.type).simpleName }}</a-tag>
@@ -105,15 +107,15 @@
     </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { reactive, ref, watch } from 'vue';
 import useCourseStore from '../../sotre/course-store';
 import QuestionTagTree from '../../components/QuestionTagTree.vue';
 import { questionType, getQuestionType, getQuestionVisble } from '../../utils/question-config.js'
 import { questionListRequest, delQuestionRequest, questionDetailRequest } from '../../apis/question-api';
 import QuestionEditView from '../../components/QuestionEditView.vue';
-import BasePreview from '../../components/BasePreview.vue';
-import BaseEditor from '../../components/BaseEditor.vue';
+import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
+import BaseTextPreview from '../../components/BaseTextPreview.vue';
 const props = defineProps({
     selectMode: {
         type: Boolean,
@@ -135,9 +137,11 @@ const rowSelection = reactive({
     onlyCurrent: false,
 });
 const courseStore = useCourseStore()
+const route = useRoute();
+const router=useRouter()
+
 const isTeacher = courseStore.isTeacher
 const navList = ref([])
-const route = useRoute();
 const courseId = route.params['courseId']
 const currTagId = ref('');
 const page = ref(1);
@@ -176,6 +180,14 @@ const delQuestion = (id) => {
 const back = () => {
     visible.value = false
     getQuestList()
+}
+const toBatchImport=()=>{
+    router.push({
+        name:"BatchImportQuestion",
+        params:{
+            tagId:currTagId
+        }
+    })
 }
 const getQuestList = () => {
     loading.value = true

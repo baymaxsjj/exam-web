@@ -1,5 +1,5 @@
 <template>
-    <BasePreview :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
+    <BaseQuestionPreview :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
         <!-- 题目区 -->
         <template #question>
             <TextEditor @blur="saveQuestion('content')" v-model:model-value="question.content" />
@@ -12,19 +12,25 @@
                 </template>
             </a-button>
             <a-button class="letter" @click="saveCorrect(index)">
-                选择
+               {{options[index].answer!=null?"取消选择":"选择"}}
             </a-button>
-            <TextEditor @blur="saveOption(options[index])" v-model:model-value="options[index].content" />
+            <TextEditor  v-if="type.enumName=='COMPLETION'"  @blur="saveOption(options[index])" v-model:model-value="options[index].answer" />
+            <TextEditor v-else @blur="saveOption(options[index])" v-model:model-value="options[index].content" />
         </template>
-        <template #body v-if="type.enumName != 'SUBJECTIVE' && type.enumName != 'JUDGMENTAL'">
+        <template #option_footer >
             <a-button long @click="addOption">添加选项</a-button>
         </template>
+
         <template #subject="{ option }">
             <TextEditor mode="preview" @blur="saveOption(options[0])" v-model:model-value="options[0].content" />
         </template>
+        <!-- 代码区 -->
+        <template #code>
+            <a-input/>
+        </template>
         <!-- 答案区 -->
-        <template #correct>
-            <TextEditor mode="preview" :model-value="question.correct" />
+        <template #answer>
+            <TextEditor mode="preview" :model-value="question.answer" />
         </template>
         <!-- 解析区 -->
         <template #analysis>
@@ -52,7 +58,7 @@
             </div>
             <a-button v-if="isCreate" long type="primary" size="large" @click="createQuestion">保存</a-button>
         </template>
-    </BasePreview>
+    </BaseQuestionPreview>
 </template>
 <script setup>
 import { Message } from '@arco-design/web-vue';
@@ -60,7 +66,7 @@ import { reactive, ref, computed, watch } from 'vue';
 import { addQuestionRequest, delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
 import { getQuestionType, letterList } from '../utils/question-config';
 import TextEditor from './TextEditor.vue';
-import BasePreview from './BasePreview.vue';
+import BaseQuestionPreview from './BaseQuestionPreview.vue';
 const props = defineProps({
     topicType: String,
     question: {
@@ -120,11 +126,13 @@ const addOption = () => {
 }
 
 //删除选项
-const delOption = (index) => {
-
-    delQuestionItemRequest(options.value[index].id).then(() => {
-        options.value.splice(index, 1);
-    })
+const delOption =async (index) => {
+    if(isCreate){
+        
+    }else{
+       await delQuestionItemRequest(options.value[index].id)
+    }
+    options.value.splice(index, 1);
 }
 
 //创建题目
@@ -192,24 +200,21 @@ const saveCorrect = (index) => {
 
 }
 const updateCorrect = (index) => {
-    if (isCreate) {
-        return
-    }
     for (let i = 0; i < options.value.length; i++) {
         const item = options.value[i];
         if (i == index) {
             if (type.value.enumName == 'MULTIPLE_CHOICE') {
-                if (item['correct'] != null) {
-                    item['correct'] = null
+                if (item['answer'] != null) {
+                    item['answer'] = null
                 } else {
-                    item['correct'] = 1
+                    item['answer'] = 1
                 }
             } else {
-                item['correct'] = 1
+                item['answer'] = 1
             }
         } else {
             if (type.value.enumName != 'MULTIPLE_CHOICE') {
-                item['correct'] = null
+                item['answer'] = null
             }
         }
     }

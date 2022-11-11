@@ -1,5 +1,5 @@
 <template>
-    <span class="wysiwyg" @click="imageChange($event)" v-html="props.initialValue"></span>
+    <span class="wysiwyg" @click="imageChange($event)" v-html="saftHtml"></span>
     <a-image-preview-group v-if="imgList.length != 0" v-model:visible="visible" v-model:current="current"
         :srcList="imgList" />
 </template>
@@ -7,6 +7,7 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { computed, ref } from 'vue';
+import DOMPurify from 'dompurify';
 const props = defineProps({
     initialValue: {
         type: String,
@@ -15,6 +16,9 @@ const props = defineProps({
 })
 const visible = ref(false)
 const current = ref(0)
+const saftHtml=computed(()=>{
+    return  DOMPurify.sanitize(props.initialValue)
+})
 const imageChange = (e) => {
     const src = e.target.currentSrc
     if (src) {

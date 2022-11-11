@@ -14,7 +14,7 @@
     <ul class="exam-list" v-if="list.length!=0">
         <li class="exam-item ebutton-hover" v-for="item in list" :key="item.id">
             <div class="exam-info-wrap">
-                <a-avatar class="avatar" shape="square">课程</a-avatar>
+                <a-avatar class="avatar" shape="square">考试</a-avatar>
                 <div class="exam-info">
                     <p class="title">{{item.title}}</p>
                     <p class="date">{{item.startTime}} ~ {{item.endTime}}</p>
