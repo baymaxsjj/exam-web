@@ -19,9 +19,14 @@
                             <icon-search />
                         </template>
                     </a-button>
-                    <a-button type="primary" @click="toExamPaper(record.id)">
+                    <a-button type="primary" @click="toExamPaper(record.id)" style="margin-right: 10px;">
                         <template #icon>
                             <icon-edit />
+                        </template>
+                    </a-button>
+                    <a-button type="primary" @click="toExamPaper(record.id)">
+                        <template #icon>
+                            <icon-export />
                         </template>
                     </a-button>
                 </template>

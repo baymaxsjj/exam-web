@@ -184,8 +184,8 @@ const back = () => {
 const toBatchImport=()=>{
     router.push({
         name:"BatchImportQuestion",
-        params:{
-            tagId:currTagId
+        query:{
+            tagId:currTagId.value
         }
     })
 }

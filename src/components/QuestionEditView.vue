@@ -1,10 +1,8 @@
 <template>
-    <BaseQuestionPreview :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
-        <!-- 题目区 -->
-        <template #question>
-            <TextEditor @blur="saveQuestion('content')" v-model:model-value="question.content" />
+    <BaseQuestionPreview mode="editor" :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
+        <template #option_footer >
+            <a-button long @click="addOption">添加选项</a-button>
         </template>
-        <!-- 作题区 -->
         <template #option="{ index }">
             <a-button @click="delOption(index)" status="danger" style="margin-right: 5px;">
                 <template #icon>
@@ -14,32 +12,7 @@
             <a-button class="letter" @click="saveCorrect(index)">
                {{options[index].answer!=null?"取消选择":"选择"}}
             </a-button>
-            <TextEditor  v-if="type.enumName=='COMPLETION'"  @blur="saveOption(options[index])" v-model:model-value="options[index].answer" />
-            <TextEditor v-else @blur="saveOption(options[index])" v-model:model-value="options[index].content" />
         </template>
-        <template #option_footer >
-            <a-button long @click="addOption">添加选项</a-button>
-        </template>
-
-        <template #subject="{ option }">
-            <TextEditor mode="preview" @blur="saveOption(options[0])" v-model:model-value="options[0].content" />
-        </template>
-        <!-- 代码区 -->
-        <template #code>
-            <a-input/>
-        </template>
-        <!-- 答案区 -->
-        <template #answer>
-            <TextEditor mode="preview" :model-value="question.answer" />
-        </template>
-        <!-- 解析区 -->
-        <template #analysis>
-            <TextEditor @blur="saveQuestion('analysis')" v-model:model-value="question.analysis" />
-        </template>
-        <template #difficulty>
-            <a-rate v-model:model-value="question['difficulty']" @change="saveQuestion('difficulty')" />
-        </template>
-
         <!-- 保存区 -->
         <template #footer>
             <div class="public">
@@ -224,6 +197,10 @@ const updateCorrect = (index) => {
 :deep(.option-item) {
     flex-wrap: wrap;
 }
+:deep(.arco-radio),:deep(.arco-checkbox){
+   display: block;
+}
+
 
 :deep(.option-item:hover) {
     background-color: #fff !important;

@@ -56,7 +56,7 @@ const courses = [
                 }
             },
             {
-                path:"question/tagId(\\d+)/batch-import",
+                path:"question/batch-import",
                 component:BatchImportQuestion,
                 name:'BatchImportQuestion',
                 meta:{

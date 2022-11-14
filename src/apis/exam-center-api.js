@@ -6,10 +6,11 @@ const examStartRequest=(examInfoId)=>{
 const examQuestionOptionRequest=(examInfoId,questionId)=>{
     return axios.get(`/eapi/exam-center/${examInfoId}/question/${questionId}`)
 }
-const saveExamAnswerRequestion=()=>{
-    
+const saveExamAnswerRequestion=(examInfoId,questionId,answerMap)=>{
+    return axios.post( `/eapi/exam-center/${examInfoId}/answer/${questionId}`,answerMap)
 }
 export{
     examStartRequest,
-    examQuestionOptionRequest
+    examQuestionOptionRequest,
+    saveExamAnswerRequestion
 }

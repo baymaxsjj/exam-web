@@ -44,7 +44,7 @@ const questionType = [
     itemsConfig: {
       min: 1,
       prexType:'number',
-      editMode:'rich'
+      editMode:'editor'
     },
   },
   {
@@ -56,7 +56,7 @@ const questionType = [
       min: 1,
       max: 1,
       prexType:'none',
-      editMode:'rich'
+      editMode:'editor'
     },
   },
   {

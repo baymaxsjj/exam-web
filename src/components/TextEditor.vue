@@ -1,53 +1,43 @@
 <template>
-        <editor :init="initConfig" :api-key="apiKey" v-model="content"/>
+        <BaseTextPreview v-if="mode=='preview'"  :initialValue="content"/>
+        <BaseTextEditor  v-else :config="config"  v-model="content"/>
 </template>
 <script setup>
-  import Editor from '@tinymce/tinymce-vue';
-
-import { onBeforeUnmount, ref, shallowRef, onMounted, computed, watch } from 'vue'
-const apiKey = "qagffr3pkuv17a8on1afax661irst1hbr4e6tbv888sz91jc";
+import BaseTextEditor from './BaseTextEditor.vue';
+import BaseTextPreview from './BaseTextPreview.vue';
+import { computed } from 'vue'
 
 const props = defineProps({
-    config: {
-        type: Object,
-        default: {}
-    },
     modelValue: {
         type: String,
         default: '',
     },
-    editHight:{
-        type:Number,
-        default:150
+    mode:{
+        type:String,
+        default:'preview'
+    },
+    config:{
+        type:Object,
+        default:()=>{}
     }
 })
-const initConfig={
-    language_url : '/tinymce/zh_CN.js',
-    language:'zh_CN',
-    branding: false,
-    elementpath: false,
-    toolbar_mode: 'floating',
-    ...props.config
-}
-onMounted(() => {
-    // tinymce.init({});
-  });
-console.log(initConfig)
-const content = ref(props.modelValue)
+const content = computed({
+     // getter
+        get() {
+            return props.modelValue;
+        },
+        // setter
+        set(newValue) {
+            // 注意：我们这里使用的是解构赋值语法
+            emit('update:modelValue', newValue)
+        }
+    })
 const emit = defineEmits([
     'update:modelValue',
     'blur'
 ]);
-watch(()=>content.value,()=>{
-    emit('update:modelValue', content.value)
-})
-watch(()=>props.modelValue,(value)=>{
-    content.value=value;
-})
-
-
 const blur = () => {
-    emit('blur', valueHtml.value)
+    emit('blur',props.modelValue)
 }
 </script>
 <style lang="less" scoped>

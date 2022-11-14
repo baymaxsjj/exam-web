@@ -5,7 +5,6 @@
 </template>
   
 <script setup>
-import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import { computed, ref } from 'vue';
 import DOMPurify from 'dompurify';
 const props = defineProps({

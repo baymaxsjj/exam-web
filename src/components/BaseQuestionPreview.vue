@@ -1,54 +1,94 @@
 <template>
+    <!-- 怎么说能，前几个要么过于复杂，要么简单，所以综合之间 -->
+    <!-- 本组件用户编辑，显示，作答，不提供逻辑，只提供事件 -->
     <div class="preview">
         <!-- 题目区 -->
         <div class="question-info">
-           <div class="info">
+            <div class="info">
                 <span class="number" v-if="props.number">{{ props.number }}. </span>
                 <span class="type-name"> ({{ type.simpleName }} {{ question.score }}分)：</span>
-           </div>
+            </div>
             <slot name="question">
-                <BaseTextPreview :initialValue="question.content"></BaseTextPreview>
+                <TextEditor :mode="getEditMode()" v-model="question.content"></TextEditor>
             </slot>
         </div>
         <!-- 作题区 -->
         <ul class="options">
-            <template v-if="['SIGNAL_CHOICE','MULTIPLE_CHOICE','JUDGMENTAL','COMPLETION'].includes(type.enumName)">
-                <li class="option-item" v-for="(item, index) in options" :class="type.enumName"
-                    @click="optionClick(item)">
-                    <span class="letter" v-if="type.itemsConfig.prexType == 'letter'"
-                        :class="{ 'letter-active': item.answer != null }">
-                        {{ letterList[index] }}
-                    </span>
-                    <span class="number" v-if="type.itemsConfig.prexType == 'number'">
-                        第{{ index + 1 }}空：
-                    </span>
-                    <slot name="option" :option="item" :index="index" :type="type">
-                        <BaseTextPreview v-if="type.enumName=='COMPLETION'" :initialValue="item.answer"></BaseTextPreview>
-                        <BaseTextPreview v-else :initialValue="item.content"></BaseTextPreview>
-                    </slot>
+            <!-- 单选 -->
+            <li v-if="type.enumName == 'SIGNAL_CHOICE' || type.enumName == 'JUDGMENTAL'">
+                <a-radio-group v-model="choiceCorrect" direction="vertical">
+                    <a-radio :value="index" style="margin:10px" class="option-item" v-for="(item, index) in options" :key="item.id">
+                        <template #radio="{ checked }">
+                            <div>
+                                <span class="letter" :class="{ 'letter-active': checked }">
+                                    {{ letterList[index] }}
+                                </span>
+                                <slot name="option" :option="item" :index="index" :type="type">
+                                </slot>
+                            </div>
+                            <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
+                            </TextEditor>
+                        </template>
+                    </a-radio>
+                </a-radio-group>
+            </li>
+            <!-- 多选 -->
+            <li v-else-if="type.enumName == 'MULTIPLE_CHOICE'">
+                <a-checkbox-group v-model="choiceCorrect" direction="vertical">
+                    <a-checkbox :value="index" style="margin:10px" class="option-item"
+                        v-for="(item, index) in options" :key="item.id">
+                        <template #checkbox="{ checked }">
+                            <div>
+                                <span class="letter " style="border-radius:10px" :class="{ 'letter-active': checked }">
+                                    {{ letterList[index] }}
+                                </span>
+                                <slot name="option" :option="item" :index="index" :type="type">
+                                </slot>
+                            </div>
+                            <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
+                            </TextEditor>
+                        </template>
+                    </a-checkbox>
+                </a-checkbox-group>
+            </li>
+
+            <!-- 填空题 -->
+            <template v-else-if="type.enumName == 'COMPLETION'">
+                <li class="option-item" v-for="(item, index) in options" :key="item.id" :class="type.enumName">
+                    <div>
+                        <span class="number">
+                            第{{ index + 1 }}空：
+                        </span>
+                        <slot name="option" :option="item" :index="index" :type="type">
+                        </slot>
+                    </div>
+                    <TextEditor mode="editor" v-model="item.answer"></TextEditor>
                 </li>
-                <li>
-                    <slot name="option_footer">
-                        
-                    </slot>
-                </li>
+                <!-- 选项底部 -->
             </template>
-            <li v-if="type.enumName=='SUBJECTIVE'">
+
+            <!-- 主观题 -->
+            <li v-else-if="type.enumName == 'SUBJECTIVE'">
                 <span class="number">答：</span>
                 <slot name="subject" :option="options[0]">
-                    <BaseTextPreview :initial-value="options[0].answer"></BaseTextPreview>
+                    <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" :initial-value="options[0].answer">
+                    </TextEditor>
                 </slot>
             </li>
-            <li v-if="type.enumName=='FILE'">
+            <li v-else-if="type.enumName == 'FILE'">
                 <slot name="file" :option="options[0]">
                     <a-button>下载</a-button>
                     <a-button>预览</a-button>
                 </slot>
             </li>
-            <li v-if="type.enumName=='CODE'">
+            <li v-else-if="type.enumName == 'CODE'">
                 <slot name="code" :option="options[0]">
                     <a-button>下载</a-button>
                     <a-button>预览</a-button>
+                </slot>
+            </li>
+            <li>
+                <slot name="option_footer">
                 </slot>
             </li>
         </ul>
@@ -56,13 +96,13 @@
         <!-- 答案区 -->
         <div class="answer" v-if="showArea.answer">
             <span class="title">答案：</span>
-            <BaseTextPreview :initialValue="getCorrect"></BaseTextPreview>
+            <TextEditor mode="preview" v-model="getCorrect"></TextEditor>
         </div>
         <!-- 解析区 -->
         <div class="analysis" v-if="showArea.analysis">
             <span class="title">解析：</span>
             <slot name="analysis">
-                <BaseTextPreview :initialValue="question.analysis"></BaseTextPreview>
+                <TextEditor :mode="getEditMode()" v-model="question.analysis"></TextEditor>
             </slot>
         </div>
         <!-- 难易程度  -->
@@ -71,7 +111,6 @@
             <slot name="difficulty">
                 <a-rate v-model:model-value="question['difficulty']" readonly />
             </slot>
-
         </div>
         <slot name="footer"></slot>
 
@@ -80,7 +119,8 @@
 <script setup>
 import { reactive, ref, computed, watch } from 'vue';
 import { getQuestionType, letterList } from '../utils/question-config';
-import BaseTextPreview from './BaseTextPreview.vue'
+import TextEditor from './TextEditor.vue'
+
 // 该组件只提供题目预览，课通过插槽修改默认内容
 const props = defineProps({
     number: Number,
@@ -95,6 +135,14 @@ const props = defineProps({
             "analysis": "",
         }
     },
+    mode: {
+        type: String,
+        default: "preview",
+        validator(value) {
+            // The value must match one of these strings
+            return ['preview', 'answer', 'editor'].includes(value)
+        }
+    },
     options: {
         type: Array,
         default: []
@@ -104,25 +152,68 @@ const props = defineProps({
         default: []
     },
     showArea: {
-        type: [Object , Boolean],
+        type: [Object, Boolean],
+    }
+})
+const question = computed({
+    get() {
+        return props.question;
+    },
+    // setter
+    set(newValue) {
+        // 注意：我们这里使用的是解构赋值语法
+        emit('update:question', newValue)
     }
 })
 
+
 const emit = defineEmits(
-    ['optionClick']
+    ['choiceCorrect', 'update:question']
 )
+const getEditMode = (initMode = 'preview') => {
+    // type.value.itemsConfig.editMode
+    if (props.mode == 'editor') {
+        return 'editor'
+    } else if (props.mode == 'preview') {
+        return 'preview'
+    }
+    return initMode;
+}
+
 const showArea = computed(() => {
     const def = {
         answer: false,
         analysis: false,
         difficulty: false
     }
-    if(typeof props.showArea=='boolean'){
-        Object.keys(def).forEach(key=>{
-            def[key]=props.showArea
+    if (typeof props.showArea == 'boolean') {
+        Object.keys(def).forEach(key => {
+            def[key] = props.showArea
         })
     }
     return def
+})
+
+// 单选/多选答案,
+const choiceCorrect = computed({
+    get() {
+        const corrects = []
+        options.value.forEach((value, index) => {
+            if (value.answer != null) {
+                corrects.push(index)
+            }
+        })
+        //填空题返回数组
+        if (type.value.enumName == 'MULTIPLE_CHOICE') {
+            return corrects
+        }
+        return corrects[0]??-1
+    },
+    // setter
+    set(newValue) {
+        console.log(newValue)
+        emit('choiceCorrect', newValue,type.value)
+    }
 })
 const type = computed(() => {
     return getQuestionType(props.topicType)
@@ -131,7 +222,7 @@ const type = computed(() => {
 //如果 myoption存在->合并到option
 const options = computed(() => {
     const option = [...props.options]
-    console.log(type.enumName )
+    console.log(type.enumName)
     if (type.value.enumName == 'SUBJECTIVE' && option[0] == undefined) {
         option[0] = [{ content: '' }]
     }
@@ -141,10 +232,6 @@ const options = computed(() => {
     }
     return option
 })
-//选项点击
-const optionClick = (item) => {
-    emit("optionClick", item)
-}
 //获取答案内容
 const getCorrect = computed(() => {
     const answer = []
@@ -165,6 +252,12 @@ const getCorrect = computed(() => {
 })
 </script>
 <style lang="less" scoped>
+:deep(.arco-radio-group){
+    display:block;
+}
+:deep(.arco-checkbox-group){
+    display:block;
+}
 .preview {
     padding: 10px;
 
@@ -172,9 +265,11 @@ const getCorrect = computed(() => {
     .question-info {
         margin-right: 5px;
         line-height: 25px;
-        .info{
+
+        .info {
             float: left;
         }
+
         .number {
             color: var(--color-text-2);
         }
@@ -207,17 +302,6 @@ const getCorrect = computed(() => {
                 background-color: rgb(var(--primary-1), 0.8);
             }
 
-        }
-
-        .COMPLETION,
-        .SUBJECTIVE {
-            display: block;
-        }
-
-        .MULTIPLE_CHOICE {
-            .letter {
-                border-radius: 10px
-            }
         }
 
         .letter {

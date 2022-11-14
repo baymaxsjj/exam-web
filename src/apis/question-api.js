@@ -15,6 +15,10 @@ const deleteTagRequest=(tagId)=>{
 const questionListRequest=(courseId,currentPage,tagId='')=>{
     return axios.get(`/eapi/question/list/${courseId}?currentPage=${currentPage}&tagId=${tagId}`)
 }
+// 查询题目列表
+const questionRulesRequest=()=>{
+    return axios.get(`/eapi/question/rules`)
+}
 // 添加题目
 const addQuestionRequest=(question)=>{
     return axios.post(`/eapi/question/add`,question)
@@ -31,13 +35,20 @@ const delQuestionRequest=(questionId)=>{
     return axios.post(`/eapi/question/delete/${questionId}`)
 }
 //批量导入题目
-const batchQuestionRequest=(tagId)=>{
-    return axios.post(`/eapi/question/batchAdd/${tagId}`)
+const batchQuestionRequest=(courseId,tagId,questionInfos,questionConfig=null)=>{
+    return axios.post(`/eapi/question/batchAdd`,{
+        tagId,
+        courseId,
+        questionInfos,
+        questionConfig
+    })
 }
 // 解析题目文本
-const analyzeQuestionTextRequest=(questionText)=>{
+const parseQuestionTextRequest=(questionsText,defaultRule=null,customRule=null)=>{
     return axios.post(`/eapi/question/analyze`,{
-        questionText
+        questionsText,
+        defaultRule,
+        customRule
     })
 }
 // 更新题目项
@@ -67,5 +78,6 @@ export {
     delQuestionItemRequest,
     updateQuestionCorrectRequest,
     batchQuestionRequest,
-    analyzeQuestionTextRequest
+    parseQuestionTextRequest,
+    questionRulesRequest
 }

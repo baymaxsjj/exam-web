@@ -23,18 +23,23 @@
         <div class="exam-list">
             <div v-if="!isPreview">
                 <div style="display:flex;justify-content: space-around;">
+                   <a-button-group>
                     <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
+                        <template #icon>
+                            <icon-left />
+                        </template>
                     </a-button>
-                    <a-button long type="primary" :disabled="currQuestIndex == questionList.length - 1"
-                        @click="switchQuestion(currQuestIndex + 1)">下一题</a-button>
+                    <a-button class="nextquestBtn" long type="primary" :disabled="currQuestIndex == questionList.length - 1"
+                        @click="switchQuestion(currQuestIndex + 1)">
+                        <template #icon>
+                            <icon-right />
+                        </template>
+                        下一题</a-button>
+                   </a-button-group>
                 </div>
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
-                    <BaseQuestionPreview @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
+                    <BaseQuestionPreview @choiceCorrect="choiceCorrect" mode="answer" @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
                         :question="questionList[currQuestIndex]" :options="questionList[currQuestIndex]['option']">
-                        <template #option="{ index, type }">
-                            <TextEditor v-if="type.enumName=='COMPLETION'" @blur="saveAnswer(questionList[currQuestIndex]['option'][index])"
-                                v-model:model-value="questionList[currQuestIndex]['option'][index].content" />
-                        </template>
                     </BaseQuestionPreview>
 
                 </a-spin>
@@ -59,12 +64,13 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
-import { examStartRequest, examQuestionOptionRequest } from '../../apis/exam-center-api';
+import { examStartRequest, examQuestionOptionRequest,saveExamAnswerRequestion } from '../../apis/exam-center-api';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { getQuestionType } from '../../utils/question-config';
 import useUserStore from '../../sotre/user-store';
 import TextEditor from '../../components/TextEditor.vue';
+import { Message } from '@arco-design/web-vue';
 const userStore = useUserStore()
 const route = useRoute()
 const examInfoId = route.params['examInfoId']
@@ -79,7 +85,7 @@ const questionList = ref([])
 const options = ref([])
 //考试信息
 const examInfo = ref({})
-const loading = ref(true)
+const loading = ref(false)
 let interval;
 examStartRequest(examInfoId).then(res => {
     const data = res.data.data
@@ -119,21 +125,49 @@ const getNumber = computed(() => {
         return length + index + 1;
     }
 })
+const choiceCorrect=(selectArr,type)=>{
+    const answerMap={}
+    const question=questionList.value[currQuestIndex.value];
+    const options=question['option']
+    // 统一按数组处理
+    if(type.enumName!="MULTIPLE_CHOICE"){
+        selectArr=[selectArr]
+    }
+    options.forEach((value,index)=>{
+        if(selectArr.includes(index)){
+            value['answer']=1
+            answerMap[value.id]=1
+        }else{
+            value['answer']=null
+        }
+    })
+    saveExamAnswerRequestion(examInfo.value.id, question.id,answerMap).then(res=>{
+
+    })
+
+}
 const switchQuestion = (index) => {
     //预览模式滚动到改题目
     if (isPreview.value) {
 
     } else {
+        if(loading.value){
+            Message.error("请求过快~")
+            return
+        }
         loading.value = true
         //获取题目项
         examQuestionOptionRequest(examInfoId, questionList.value[index].id).then(res => {
-            questionList.value[index]['option'] = res.data.data['options'];
+            questionList.value[index]['option'] = res.data.data;
             console.log(questionList.value[index])
             currQuestIndex.value = index
             loading.value = false
+        }).catch(err=>{
+            loading.value=false
         })
     }
 }
+// 上传该题的所有答案
 const saveAnswer=(option)=>{
 
 }
@@ -225,6 +259,13 @@ onMounted(() => {
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
+        .nextquestBtn{
+            :deep(.arco-btn-icon){
+                order: 1;
+                margin-left: 8px;
+                margin-right: 0;
+            }
+        }
     }
 
     .exam-number {
