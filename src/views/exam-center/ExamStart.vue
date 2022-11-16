@@ -38,8 +38,14 @@
                    </a-button-group>
                 </div>
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
-                    <BaseQuestionPreview @choiceCorrect="choiceCorrect" mode="answer" @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
+                    <BaseQuestionPreview @editorBlur="submitAnswer(currQuestIndex)" @choiceCorrect="choiceCorrect(currQuestIndex,$event)" mode="answer" @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
                         :question="questionList[currQuestIndex]" :options="questionList[currQuestIndex]['option']">
+                        <template #question="{question,options,type}" >
+                            <!-- {{question}} -->
+                            <Transition name="fade">
+                                <span class="sub-info" v-if="question['subInfo']!=undefined">{{showSubInfo(question['subInfo'],options.length,type)}}</span>
+                            </Transition>
+                        </template>
                     </BaseQuestionPreview>
 
                 </a-spin>
@@ -125,26 +131,61 @@ const getNumber = computed(() => {
         return length + index + 1;
     }
 })
-const choiceCorrect=(selectArr,type)=>{
+const choiceCorrect=(index,selects)=>{
     const answerMap={}
-    const question=questionList.value[currQuestIndex.value];
+    const question=questionList.value[index];
     const options=question['option']
     // 统一按数组处理
-    if(type.enumName!="MULTIPLE_CHOICE"){
-        selectArr=[selectArr]
+    if(!(selects instanceof Array)){
+        selects=[selects]
     }
     options.forEach((value,index)=>{
-        if(selectArr.includes(index)){
+        if(selects.includes(index)){
             value['answer']=1
             answerMap[value.id]=1
         }else{
             value['answer']=null
         }
     })
+    question['subInfo']=null
     saveExamAnswerRequestion(examInfo.value.id, question.id,answerMap).then(res=>{
-
+        const count=res.data.data
+        question['subInfo']=count
     })
 
+}
+const submitAnswer=(index)=>{
+    const answerMap={}
+    const question=questionList.value[index];
+    const options=question['option']
+    let flag=false
+    options.forEach(value=>{
+        console.log(value)
+        if(value.answer!=null){
+            answerMap[value.id]=value.answer
+            flag=true
+        }
+    })
+    // 没有答案不提交
+    if(!flag){
+        return
+    }
+    question['subInfo']=null
+    saveExamAnswerRequestion(examInfo.value.id, question.id,answerMap).then(res=>{
+        const count=res.data.data
+        question['subInfo']=count
+    })
+
+}
+//显示提交信息
+const showSubInfo=(count,total,type)=>{
+    let subCount=type.subCount;
+    if(subCount==0){
+        subCount=total;
+    }else if(subCount==-1){
+        subCount=count
+    }
+    return count==subCount?"已提交":`${count}/${subCount}题`
 }
 const switchQuestion = (index) => {
     //预览模式滚动到改题目
@@ -176,6 +217,12 @@ onMounted(() => {
 })
 </script>
 <style lang="less" scoped>
+.fade-enter-active {
+  transition: transform 0.6s ease;
+}
+.fade-enter-from{
+    transform: scale(1.5);
+}
 .exam-header {
     height: 40px;
     background-color: var(--color-text-2);
@@ -265,6 +312,38 @@ onMounted(() => {
                 margin-left: 8px;
                 margin-right: 0;
             }
+        }
+        .sub-info{
+            background-color: rgb(var(--green-1));
+            position:absolute;
+            display: inline-block;
+            height: 25px;
+            line-height: 25px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: rgb(var(--green-6));
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            animation: dropdown .3;
+            opacity: .8;
+            right: -25px;
+            bottom: -20px;
+            z-index: 10;
+            // animation: dropdown 0.3s
+
+        }
+        @keyframes dropdown {
+            0% {
+                top: 0px;
+            }
+            100% {
+                bottom:-20px
+            }
+        }
+
+        :deep(.question-info){
+            position: relative;
         }
     }
 

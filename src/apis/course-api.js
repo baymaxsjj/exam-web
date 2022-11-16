@@ -23,10 +23,13 @@ const teaDelClassRequest=(classId)=>{
     return axios.post(`/uapi/classes/delete/${classId}`)
 }
 const teaGetClassCodeRequest=(classId,anew=false)=>{
-    return axios.get(`/uapi//classes/classCode/${classId}?anew=${anew}`)
+    return axios.get(`/uapi/classes/classCode/${classId}?anew=${anew}`)
 }
-const getClassUsersRequest=(classId,currentPage)=>{
-    return axios.get(`/uapi/join-class/${classId}/student/list?currentPage=${currentPage}`)
+const getClassUsersRequest=(classId,currentPage,pageSize=10)=>{
+    return axios.get(`/uapi/join-class/${classId}/student/list?currentPage=${currentPage}&pageSize=${pageSize}}`)
+}
+const getBatchClassUsersRequest=(classIds,currentPage,pageSize=10)=>{
+    return axios.post(`/uapi/join-class/student/batch/list?currentPage=${currentPage}&pageSize=${pageSize}`,classIds)
 }
 const getCourseInfoRequest=(courseId)=>{
     return axios.get(`/uapi/courses/getInfo?courseId=${courseId}`)
@@ -40,5 +43,6 @@ export {
     teaDelClassRequest,
     teaGetClassCodeRequest,
     getClassUsersRequest,
+    getBatchClassUsersRequest,
     getCourseInfoRequest
 }

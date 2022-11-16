@@ -8,8 +8,8 @@
                 <span class="number" v-if="props.number">{{ props.number }}. </span>
                 <span class="type-name"> ({{ type.simpleName }} {{ question.score }}分)：</span>
             </div>
-            <slot name="question">
-                <TextEditor :mode="getEditMode()" v-model="question.content"></TextEditor>
+            <TextEditor @blur="$emit('editorBlur','question')" :mode="getEditMode()" v-model="question.content"></TextEditor>
+            <slot name="question" :question="question" :options="options" :type="type">
             </slot>
         </div>
         <!-- 作题区 -->
@@ -17,7 +17,7 @@
             <!-- 单选 -->
             <li v-if="type.enumName == 'SIGNAL_CHOICE' || type.enumName == 'JUDGMENTAL'">
                 <a-radio-group v-model="choiceCorrect" direction="vertical">
-                    <a-radio :value="index" style="margin:10px" class="option-item" v-for="(item, index) in options" :key="item.id">
+                    <a-radio :value="index" style="margin:5px" class="option-item" v-for="(item, index) in options" :key="item.id">
                         <template #radio="{ checked }">
                             <div>
                                 <span class="letter" :class="{ 'letter-active': checked }">
@@ -26,7 +26,7 @@
                                 <slot name="option" :option="item" :index="index" :type="type">
                                 </slot>
                             </div>
-                            <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
+                            <TextEditor  @blur="$emit('editorBlur','option',index)" :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
                             </TextEditor>
                         </template>
                     </a-radio>
@@ -35,7 +35,7 @@
             <!-- 多选 -->
             <li v-else-if="type.enumName == 'MULTIPLE_CHOICE'">
                 <a-checkbox-group v-model="choiceCorrect" direction="vertical">
-                    <a-checkbox :value="index" style="margin:10px" class="option-item"
+                    <a-checkbox :value="index" style="margin:5px" class="option-item"
                         v-for="(item, index) in options" :key="item.id">
                         <template #checkbox="{ checked }">
                             <div>
@@ -45,7 +45,7 @@
                                 <slot name="option" :option="item" :index="index" :type="type">
                                 </slot>
                             </div>
-                            <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
+                            <TextEditor @blur="$emit('editorBlur','option',index)" :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.content">
                             </TextEditor>
                         </template>
                     </a-checkbox>
@@ -62,7 +62,7 @@
                         <slot name="option" :option="item" :index="index" :type="type">
                         </slot>
                     </div>
-                    <TextEditor mode="editor" v-model="item.answer"></TextEditor>
+                    <TextEditor @blur="$emit('editorBlur','option',index)" mode="editor" v-model="item.answer"></TextEditor>
                 </li>
                 <!-- 选项底部 -->
             </template>
@@ -71,7 +71,7 @@
             <li v-else-if="type.enumName == 'SUBJECTIVE'">
                 <span class="number">答：</span>
                 <slot name="subject" :option="options[0]">
-                    <TextEditor :mode="getEditMode(type.itemsConfig.editMode)" :initial-value="options[0].answer">
+                    <TextEditor @blur="$emit('editorBlur','subject')" :key="options[0].id" :mode="getEditMode(type.itemsConfig.editMode)" v-model="options[0].answer">
                     </TextEditor>
                 </slot>
             </li>
@@ -102,14 +102,14 @@
         <div class="analysis" v-if="showArea.analysis">
             <span class="title">解析：</span>
             <slot name="analysis">
-                <TextEditor :mode="getEditMode()" v-model="question.analysis"></TextEditor>
+                <TextEditor @blur="$emit('editorBlur','analysis')" :mode="getEditMode()" v-model="question.analysis"></TextEditor>
             </slot>
         </div>
         <!-- 难易程度  -->
         <div class="public" v-if="showArea.difficulty">
             <span class="title">难易程度：</span>
             <slot name="difficulty">
-                <a-rate v-model:model-value="question['difficulty']" readonly />
+                <a-rate v-model:model-value="question['difficulty']" @change="$emit('editorBlur','difficulty',$event)" :readonly="props.mode!='editor'" />
             </slot>
         </div>
         <slot name="footer"></slot>
@@ -155,6 +155,9 @@ const props = defineProps({
         type: [Object, Boolean],
     }
 })
+const emit = defineEmits(
+    ['choiceCorrect','editorBlur', 'update:question']
+)
 const question = computed({
     get() {
         return props.question;
@@ -167,9 +170,7 @@ const question = computed({
 })
 
 
-const emit = defineEmits(
-    ['choiceCorrect', 'update:question']
-)
+
 const getEditMode = (initMode = 'preview') => {
     // type.value.itemsConfig.editMode
     if (props.mode == 'editor') {
@@ -212,7 +213,7 @@ const choiceCorrect = computed({
     // setter
     set(newValue) {
         console.log(newValue)
-        emit('choiceCorrect', newValue,type.value)
+        emit('choiceCorrect',newValue)
     }
 })
 const type = computed(() => {

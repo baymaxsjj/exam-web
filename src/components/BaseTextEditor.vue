@@ -1,7 +1,14 @@
 <template>
-    <editor style="width: 100%;margin:10px 0"  :init="initConfig" :api-key="apiKey" v-model="content" />
+    <editor @blur="$emit('blur')" style="width: 100%;margin:10px 0"  :init="initConfig" :api-key="apiKey" v-model="content" />
 </template>
 <script setup>
+import tinymce from 'tinymce/tinymce'
+import 'tinymce/themes/silver'
+import 'tinymce/themes/silver/theme'
+import 'tinymce/icons/default'; //引入编辑器图标icon，不引入则不显示对应图标
+import 'tinymce/models/dom' // 这里是个坑 一定要引入
+import 'tinymce/plugins/table'; //表格
+
 import Editor from '@tinymce/tinymce-vue';
 import { onBeforeUnmount, ref, shallowRef, onMounted, computed, watch } from 'vue'
 
@@ -26,7 +33,11 @@ const initConfig = {
     language: 'zh_CN',
     branding: false,
     elementpath: false,
+    promotion: false,
+    plugins: 'table',
     toolbar_mode: 'floating',
+    skin_url: "/tinymce/skins/ui/oxide",
+    content_css: '/tinymce/skins/content/default/content.css',
     ...props.config
 }
 onMounted(() => {
@@ -44,7 +55,6 @@ watch(() => content.value, () => {
 watch(() => props.modelValue, (value) => {
     content.value = value;
 })
-
 
 const blur = () => {
     emit('blur', valueHtml.value)

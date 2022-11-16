@@ -19,6 +19,10 @@ const getExamPaperDetailRequest=(examId)=>{
 const getExamPaperQuestionRequest=(examId)=>{
     return axios.get(`/eapi/exam-paper/quesiton/${examId}`)
 }
+//试卷数据统计
+const getExamPaperStatisticsRequest=(examId)=>{
+    return axios.get(`/eapi/exam-paper/statistics/${examId}`)
+}
 /**---------------------考试相关-----------------------------*/
 const delExamInfoRequest=(examInfoId)=>{
     return axios.post(`/eapi/exam-info/delete/${examInfoId}`)
@@ -42,6 +46,7 @@ export{
     getExamPaperListRequest,
     getExamPaperDetailRequest,
     getExamPaperQuestionRequest,
+    getExamPaperStatisticsRequest,
 
     updateExamInfoRequest,
     delExamInfoRequest,

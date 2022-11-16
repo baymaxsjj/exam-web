@@ -5,6 +5,7 @@ const questionType = [
     simpleName:"单选题",
     enumName: "SIGNAL_CHOICE",
     value:0,
+    subCount:1,
     itemsConfig: {
       min: 2,
       max: 26,
@@ -17,6 +18,7 @@ const questionType = [
     simpleName:"多选题",
     enumName: "MULTIPLE_CHOICE",
     value:1,
+    subCount:-1,
     itemsConfig: {
       min: 2,
       max: 26,
@@ -29,6 +31,7 @@ const questionType = [
     simpleName:"判断题",
     enumName: "JUDGMENTAL",
     value:2,
+    subCount:1,
     itemsConfig: {
       min: 2,
       max: 2,
@@ -41,6 +44,7 @@ const questionType = [
     simpleName:"填空题",
     enumName: "COMPLETION",
     value:3,
+    subCount:0,
     itemsConfig: {
       min: 1,
       prexType:'number',
@@ -52,6 +56,7 @@ const questionType = [
     simpleName:"主观题",
     enumName: "SUBJECTIVE",
     value:4,
+    subCount:1,
     itemsConfig: {
       min: 1,
       max: 1,
@@ -64,6 +69,7 @@ const questionType = [
     simpleName:"文件题",
     enumName: "FILE",
     value:5,
+    subCount:1,
     itemsConfig: {
       min: 1,
       max: 10,
@@ -76,6 +82,7 @@ const questionType = [
     simpleName:"代码题",
     enumName: "CODE",
     value:6,
+    subCount:1,
     itemsConfig: {
       min: 1,
       max: 10,

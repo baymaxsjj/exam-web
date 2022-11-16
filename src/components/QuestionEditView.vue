@@ -1,5 +1,5 @@
 <template>
-    <BaseQuestionPreview mode="editor" :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
+    <BaseQuestionPreview mode="editor" @editorBlur="handleBlur" :question="question" :show-area="true" :topic-type="props.topicType" :options="options">
         <template #option_footer >
             <a-button long @click="addOption">添加选项</a-button>
         </template>
@@ -122,6 +122,23 @@ const createQuestion = () => {
     addQuestionRequest(params).then(res => {
 
     })
+}
+const handleBlur=(component,index)=>{
+    console.log(component)
+    let questField
+    switch(component){
+        case 'question':
+            questField='content'
+        case 'analysis':
+            questField='analysis'
+        case 'difficulty':
+            questField='difficulty'
+            saveQuestion(questField)
+            break;
+        case 'option':
+            saveOption(options.value[index])
+            break
+    }
 }
 // 更新题目/jiex 
 const saveQuestion = (info) => {

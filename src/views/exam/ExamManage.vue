@@ -31,9 +31,11 @@
                         <icon-edit />
                     </template>
                 </a-button>
-                <a-button type="primary">
+                <router-link :to="`/exam/${item.id}/console`">
+                    <a-button type="primary">
                     控制台
                 </a-button>
+                </router-link>
             </div>
             <ExamInfoButton v-else :item="item"></ExamInfoButton>
         </li>
@@ -71,25 +73,47 @@
                 </a-col>
             </a-row>
             <a-row>
-                <a-col :span="8">
-                    <a-form-item field="questionDisorder" label="题目乱序" label-col-flex="80px"
-                        :rules="[{ required: true, message: '必填' }]">
-                        <a-switch v-model:model-value="form.questionDisorder" />
+                <a-col :span="6">
+                    <a-form-item field="questionDisorder" label="考试监控" label-col-flex="80px"
+                        >
+                        <a-switch v-model:model-value="form.isMonitor" />
                     </a-form-item>
                 </a-col>
-                <a-col :span="8">
-                    <a-form-item field="optionDisorder" label="选项乱序" label-col-flex="80px"
-                        :rules="[{ required: true, message: '必填' }]">
-                        <a-switch v-model:model-value="form.optionDisorder" />
+                <a-col :span="6">
+                    <a-form-item field="optionDisorder" label="允许复制" label-col-flex="80px"
+                        >
+                        <a-switch v-model:model-value="form.isCopyPaste" />
                     </a-form-item>
                 </a-col>
-                <a-col :span="8">
-                    <a-form-item field="endVisible" label="批阅可见" label-col-flex="80px"
-                        :rules="[{ required: true, message: '必填' }]">
-                        <a-switch v-model:model-value="form.endVisible" />
+                <a-col :span="12">
+                    <a-form-item field="endTime" label="提交时长" label-col-flex="80px"
+                        >
+                        <a-input-number v-model="form.submitTime" placeholder="可以交卷时长" mode="button" class="input-demo" />
                     </a-form-item>
                 </a-col>
             </a-row>
+            <a-row>
+                <a-col :span="6">
+                    <a-form-item field="questionDisorder" label="题目乱序" label-col-flex="80px"
+                        >
+                        <a-switch v-model:model-value="form.questionDisorder" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item field="optionDisorder" label="选项乱序" label-col-flex="80px"
+                        >
+                        <a-switch v-model:model-value="form.optionDisorder" />
+                    </a-form-item>
+                </a-col>
+                <a-col :span="6">
+                    <a-form-item field="endVisible" label="批阅可见" label-col-flex="80px"
+                        >
+                        <a-switch v-model:model-value="form.endVisible" />
+                    </a-form-item>
+                </a-col>
+               
+            </a-row>
+            
             <a-row :gutter="24">
                 <a-col :span="12">
                     <a-button long @click="examVisible = false">取消</a-button>
@@ -129,9 +153,12 @@ const formRef = ref()
 const form = ref({
     startTime: "",
     endTime: 90,
+    submitTime:null,
     optionDisorder: false,
     questionDisorder: false,
     endVisible: false,
+    isMonitor:false,
+    isCopyPaste:false,
     title: '',
     classList: [],
     paper: []
@@ -146,8 +173,11 @@ const updateExamInfo = () => {
     const info = { ...form.value }
     info['examId'] = info.paper[0]
     console.log(form.value.endTime)
-    info['endTime'] = dayjs(form.value.startTime).add(form.value.endTime,'minute').format('YYYY-MM-DD HH:mm:ss')
-    info['startTime'] = dayjs(info.startTime).format('YYYY-MM-DD HH:mm:ss')
+    info.endTime= dayjs(info.startTime).add(info.endTime,'minute').format('YYYY-MM-DD HH:mm:ss')
+    if(info.submitTime){
+        info.submitTime = dayjs(info.startTime).add(info.submitTime,'minute').format('YYYY-MM-DD HH:mm:ss')
+    }
+    info.startTime = dayjs(info.startTime).format('YYYY-MM-DD HH:mm:ss')
     info['courseId'] = courseId;
     console.log(info)
     delete info.paper
@@ -169,9 +199,12 @@ const getExamInfoDetail=(id)=>{
     getExamInfoDetailRequest(id).then(res=>{
         const data=res.data.data
         form.value=data['examInfo']
-        form.value['paper']=[form.value['examId']]
-        form.value['endTime']=dayjs(form.value.endTime).diff(dayjs(form.value.startTime),"minute")
-        form.value['classList']=data['classList']
+        form.value.paper=[form.value['examId']]
+        form.value.endTime=dayjs(form.value.endTime).diff(dayjs(form.value.startTime),"minute")
+        if(form.value.submitTime){
+            form.value.submitTime=dayjs(form.value.submitTime).diff(dayjs(form.value.startTime),"minute")
+        }
+        form.value.classList=data['classList']
         examVisible.value=true;
     })
 }

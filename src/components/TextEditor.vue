@@ -1,6 +1,6 @@
 <template>
         <BaseTextPreview v-if="mode=='preview'"  :initialValue="content"/>
-        <BaseTextEditor  v-else :config="config"  v-model="content"/>
+        <BaseTextEditor @blur="$emit('blur')"  v-else :config="config"  v-model="content"/>
 </template>
 <script setup>
 import BaseTextEditor from './BaseTextEditor.vue';
