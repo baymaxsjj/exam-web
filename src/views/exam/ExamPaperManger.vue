@@ -2,6 +2,7 @@
     <div class="paper">
         <a-page-header title="试卷管理" @back="$router.back" v-if="!selectMode">
             <template #extra>
+                <a-button style="margin-right: 10px;">自动组卷</a-button>
                 <a-button type="primary" @click="toExamPaper()">创建试卷</a-button>
             </template>
         </a-page-header>

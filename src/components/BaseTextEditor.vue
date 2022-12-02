@@ -1,5 +1,5 @@
 <template>
-    <editor @blur="$emit('blur')" style="width: 100%;margin:10px 0"  :init="initConfig" :api-key="apiKey" v-model="content" />
+    <editor @blur="$emit('blur')" @contextmenu.prevent="()=>{}" style="width: 100%;margin:10px 0"  :init="initConfig" :api-key="apiKey" v-model="content" />
 </template>
 <script setup>
 import tinymce from 'tinymce/tinymce'

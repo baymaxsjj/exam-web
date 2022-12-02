@@ -32,7 +32,15 @@
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import useCourseStore from '../../sotre/course-store';
+import useUserStore from '../../sotre/user-store';
 const route = useRoute()
+const router=useRouter()
+const userStore=useUserStore()
+if(!userStore.token){
+    router.push({
+        name:"Login"
+    })
+}
 const homeList = [
     {
         name: "我的课程",

@@ -3,9 +3,10 @@
         <div class="header">
             <!-- logo -->
             <div style="height: 100%;display:flex;">
-                <div class="header-logo">
-                    <icon-lark-color style="font-size: 30px;"/>
-                </div>
+                <router-link to="/" class="header-logo">
+                    <img src="../assets/svg/logo.svg" style="height: 40px;"/>
+                    <h1 class="name">为考</h1>
+                </router-link>
                 <!-- 导航区 -->
                 <ul class="header-nav">
                     <li>
@@ -28,7 +29,7 @@
             <!-- 信息区 -->
             <ul class="header-info">
                 <li class="header-search">
-                    <a-input-search :style="{width:'320px'}" placeholder="Please enter something" search-button />
+                    <a-input-search :style="{width:'320px'}" placeholder="搜索一下吧~~~" search-button />
                 </li>
 
                 <li>
@@ -100,6 +101,16 @@ a {
            display: flex;
            align-items: center;
            margin-right: 20px;
+           img{
+            animation: loading 3s infinite linear;
+           }
+           .name{
+            text-align: center;
+            font-weight: bold;
+            opacity: 0.8;
+            font-size: 18px;
+            margin-left: 10px;
+           }
         }
 
         .header-nav {

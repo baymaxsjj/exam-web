@@ -70,7 +70,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
-import { examStartRequest, examQuestionOptionRequest,saveExamAnswerRequestion } from '../../apis/exam-center-api';
+import { examStartRequest, examQuestionOptionRequest,saveExamAnswerRequestion ,answerActionRequestion} from '../../apis/exam-center-api';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { getQuestionType } from '../../utils/question-config';
@@ -102,6 +102,9 @@ examStartRequest(examInfoId).then(res => {
     console.log(questionList.value[currQuestIndex.value])
     //加载第一天选项
     switchQuestion(0)
+    if(examInfo.value.isMonitor){
+        monitorAction()
+    }
 })
 
 const getQuestionList = () => {
@@ -112,9 +115,12 @@ const getQuestionList = () => {
 }
 const statrCountDown = (sysTime) => {
     const diffTime = dayjs(examInfo.value.endTime).diff(dayjs(sysTime), 'second');
-    const hour = parseInt(diffTime / 3600)
-    const minute = parseInt(diffTime / 60 % 60)
-    const second = diffTime % 60
+    let hour = parseInt(diffTime / 3600)
+    let minute = parseInt(diffTime / 60 % 60)
+    let second = diffTime % 60
+    hour=hour<10?'0'+hour:hour
+    minute=minute<10?'0'+minute:minute
+    second=second<10?'0'+second:second
     time.value = `${hour} : ${minute} : ${second}`
     return statrCountDown
 }
@@ -211,6 +217,41 @@ const switchQuestion = (index) => {
 // 上传该题的所有答案
 const saveAnswer=(option)=>{
 
+}
+const monitorAction=()=>{
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState != "visible") {
+           answerAction({
+                status:"PAUSE",
+                info:""
+           })
+        }
+    })
+    document.addEventListener('paste', (e) => {
+        console.log(e)
+        answerAction({
+            status:"PASTE",
+            info:""
+        })
+    })
+}
+setInterval(()=>{
+    document.addEventListener('contextmenu',function(e){
+     e.preventDefault();  // 阻止默认事件
+    });
+    document.addEventListener('selectstart',function(e){
+        e.preventDefault();  
+    });
+},1000)
+// document.addEventListener('keydown',function(e){
+//     if(e.key == 'F12'){
+//         e.preventDefault(); // 如果按下键F12,阻止事件
+//     }
+// });
+const answerAction=(actions)=>{
+    answerActionRequestion(examInfoId,actions).then(res=>{
+        console.log(res.data)
+    })
 }
 onMounted(() => {
     clearInterval(interval)

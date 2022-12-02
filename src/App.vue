@@ -1,7 +1,7 @@
 
 
 <template>
-  <header-nav v-show="headerVisible"></header-nav>
+  <header-nav v-if="headerVisible"></header-nav>
   <router-view></router-view>
 </template>
 <script setup>

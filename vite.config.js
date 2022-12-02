@@ -7,10 +7,12 @@ import vue from '@vitejs/plugin-vue'
 const { resolve } = require('path')
 // https://vitejs.dev/config/
 export default ({ mode })=>{
-  const app_host=loadEnv(mode, process.cwd()).VITE_API_HOST
+  const app_ip=loadEnv(mode, process.cwd()).VITE_API_HOST_IP
+  const app_host=`http://${app_ip}`
   const user_path=loadEnv(mode, process.cwd()).VITE_USER_API_URL
   const exam_path=loadEnv(mode, process.cwd()).VITE_EXAM_API_URL
   const auth_path=loadEnv(mode, process.cwd()).VITE_AUTH_API_URL
+  const message_path=loadEnv(mode, process.cwd()).VITE_MESSAGE_API_URL
   return defineConfig({
     plugins: [
       vue(),
@@ -47,7 +49,19 @@ export default ({ mode })=>{
               target: app_host,
               changeOrigin: true,
               rewrite: (path) => path.replace(/^\/eapi/, exam_path)
-            }
+            },
+            '/mapi': {
+              target: app_host,
+              changeOrigin: true,//是否允许跨域
+              rewrite: (path) => path.replace(/^\/mapi/, message_path),
+            },
+             // 代理websocket请求
+            '/mapi-scoket': {
+                target: `ws://${app_ip}`,
+                changeOrigin: true,//是否允许跨域
+                rewrite: (path) => path.replace(/^\/mapi-scoket/, message_path),
+                ws: true //开启ws
+              }
       }
     },
     resolve: {
