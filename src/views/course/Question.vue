@@ -61,9 +61,9 @@
                 <a-page-header title="返回列表" @back="back">
                 </a-page-header>
                 <BaseQuestionPreview v-if="editMode=='display'" :showArea="true" :question="questionInfo"
-                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"></BaseQuestionPreview>
+                    :topic-type="questionInfo['type']" :options="questionInfo['options']"></BaseQuestionPreview>
                 <QuestionEditView v-else :question="questionInfo"
-                    :topic-type="questionInfo['type']" :options="questionInfo['topicItems']"/>
+                    :topic-type="questionInfo['type']" :options="questionInfo['options']"/>
 
             </div>
             <!-- 题目列表 -->
@@ -207,7 +207,7 @@ const createQuestion = (type) => {
     questionInfo.value['type'] = type
     questionInfo.value['courseId'] = courseId
     questionInfo.value['tagId'] = currTagId.value
-    questionInfo.value['topicItems']=[{content:''}]
+    questionInfo.value['options']=[{content:''}]
     visible.value = true;
 }
 //查看题目

@@ -43,6 +43,7 @@ watch(()=>route.name,()=>{
 .arco-modal-simple .arco-modal-body {
   overflow: hidden;
 }
+
 div::-webkit-scrollbar {
   /*滚动条整体样式*/
   width : 5px;  /* 高宽分别对应横竖滚动条的尺寸 */

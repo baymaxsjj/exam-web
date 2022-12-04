@@ -1,5 +1,5 @@
 const ExamStart = () => import("../views/exam-center/ExamStart.vue");
-const ExamConsole = () => import("../views/exam-center/ExamConsole.vue");
+const ExamConsole = () => import("../views/exam-center/console/ExamConsole.vue");
 const courses = [
   {
     path: "/exam/:examInfoId(\\d+)/start",

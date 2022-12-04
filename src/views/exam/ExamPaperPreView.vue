@@ -1,7 +1,7 @@
 <template>
     <a-page-header title="试卷预览" :subtitle="title" @back="$router.back">
     </a-page-header>
-    <BaseQuestionPreview :showArea="true" v-for="(item,index) in list" :topic-type="item.type" :number="index+1" :question="item" :options="item.topicItems"></BaseQuestionPreview>
+    <BaseQuestionPreview :showArea="true" v-for="(item,index) in list" :topic-type="item.type" :number="index+1" :question="item" :options="item.options"></BaseQuestionPreview>
 </template>
 <script setup>
 import { ref } from 'vue';

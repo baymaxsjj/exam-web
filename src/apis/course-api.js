@@ -26,7 +26,7 @@ export const teaGetClassCodeRequest=(classId,anew=false)=>{
     return axios.get(`/uapi/classes/classCode/${classId}?anew=${anew}`)
 }
 export const getClassUsersRequest=(classId,currentPage,pageSize=10)=>{
-    return axios.get(`/uapi/join-class/${classId}/student/list?currentPage=${currentPage}&pageSize=${pageSize}}`)
+    return axios.get(`/uapi/join-class/${classId}/student/list?currentPage=${currentPage}&pageSize=${pageSize}`)
 }
 export const getBatchClassUsersRequest=(classIds,currentPage,pageSize=10)=>{
     return axios.post(`/uapi/join-class/student/batch/list?currentPage=${currentPage}&pageSize=${pageSize}`,classIds)

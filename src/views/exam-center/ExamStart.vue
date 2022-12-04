@@ -1,13 +1,22 @@
 <template>
     <div class="exam-header">
-        <a-button type="primary" class="exam-preview">整卷预览</a-button>
+        <a-button type="primary" class="exam-preview" v-if="isPreview">交卷</a-button>
+        <a-button type="primary" class="exam-preview" @click="(isPreview = true)" v-else>整卷预览</a-button>
+        <a-button v-if="isPreview" class="back-preview" shape="round" @click="(isPreview = false)">
+            <template #icon><icon-left /></template>
+            返回</a-button>
         <p class="exam-title">考试</p>
     </div>
     <div class="exam-start">
         <div class="exam-info">
-            <h1 class="exam-name common-style">{{ examInfo.title }}</h1>
             <p class="exam-count-down common-style">
-                <icon-history style="font-size: 25px;margin-right: 10px;" /><span>{{ time }}</span>
+                <a-countdown ref="countDownRef"
+                            :value="dayjs(examInfo.endTime).valueOf()" :start="examInfo.endTime != null"
+                            :now="Date.now()" format="HH:mm:ss">
+                        <template #title>
+                            <h1>{{examInfo.title  ?? 'loading'}}</h1>
+                        </template>
+                        </a-countdown>
             </p>
             <div class="common-style">
                 <p class="user-name">姓名：{{ userStore.userInfo.username }}</p>
@@ -23,27 +32,32 @@
         <div class="exam-list">
             <div v-if="!isPreview">
                 <div style="display:flex;justify-content: space-around;">
-                   <a-button-group>
-                    <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
-                        <template #icon>
-                            <icon-left />
-                        </template>
-                    </a-button>
-                    <a-button class="nextquestBtn" long type="primary" :disabled="currQuestIndex == questionList.length - 1"
-                        @click="switchQuestion(currQuestIndex + 1)">
-                        <template #icon>
-                            <icon-right />
-                        </template>
-                        下一题</a-button>
-                   </a-button-group>
+                    <a-button-group>
+                        <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
+                            <template #icon>
+                                <icon-left />
+                            </template>
+                        </a-button>
+                        <a-button class="nextquestBtn" long type="primary"
+                            :disabled="currQuestIndex == questionList.length - 1"
+                            @click="switchQuestion(currQuestIndex + 1)">
+                            <template #icon>
+                                <icon-right />
+                            </template>
+                            下一题</a-button>
+                    </a-button-group>
                 </div>
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
-                    <BaseQuestionPreview @editorBlur="submitAnswer(currQuestIndex)" @choiceCorrect="choiceCorrect(currQuestIndex,$event)" mode="answer" @optionClick="saveAnswer" :show-area="false" :number="currQuestIndex + 1" :topic-type="questionList[currQuestIndex]['type']"
-                        :question="questionList[currQuestIndex]" :options="questionList[currQuestIndex]['option']">
-                        <template #question="{question,options,type}" >
+                    <BaseQuestionPreview @editorBlur="submitAnswer(currQuestIndex)"
+                        @choiceCorrect="choiceCorrect(currQuestIndex, $event)" mode="answer" @optionClick="saveAnswer"
+                        :show-area="false" :number="currQuestIndex + 1"
+                        :topic-type="questionList[currQuestIndex]['type']" :question="questionList[currQuestIndex]"
+                        :options="questionList[currQuestIndex]['options']">
+                        <template #question="{ question, options, type }">
                             <!-- {{question}} -->
                             <Transition name="fade">
-                                <span class="sub-info" v-if="question['subInfo']!=undefined">{{showSubInfo(question['subInfo'],options.length,type)}}</span>
+                                <span class="sub-info"
+                                    v-if="question['subInfo'] != undefined">{{ showSubInfo(question['subInfo'], options.length, type) }}</span>
                             </Transition>
                         </template>
                     </BaseQuestionPreview>
@@ -70,7 +84,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
-import { examStartRequest, examQuestionOptionRequest,saveExamAnswerRequestion ,answerActionRequestion} from '../../apis/exam-center-api';
+import { examStartRequest, examQuestionOptionRequest, saveExamAnswerRequestion, answerActionRequestion } from '../../apis/exam-center-api';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { getQuestionType } from '../../utils/question-config';
@@ -92,17 +106,15 @@ const options = ref([])
 //考试信息
 const examInfo = ref({})
 const loading = ref(false)
-let interval;
 examStartRequest(examInfoId).then(res => {
     const data = res.data.data
     questionInfo.value = data['questionList']
     examInfo.value = data['examInfo']
-    interval = setInterval(statrCountDown(data['systemTime']), 1000)
     getQuestionList()
     console.log(questionList.value[currQuestIndex.value])
-    //加载第一天选项
+    //加载第一个选项
     switchQuestion(0)
-    if(examInfo.value.isMonitor){
+    if (examInfo.value.isMonitor) {
         monitorAction()
     }
 })
@@ -112,17 +124,6 @@ const getQuestionList = () => {
         console.log(questionInfo.value[key])
         questionList.value.push(...questionInfo.value[key])
     })
-}
-const statrCountDown = (sysTime) => {
-    const diffTime = dayjs(examInfo.value.endTime).diff(dayjs(sysTime), 'second');
-    let hour = parseInt(diffTime / 3600)
-    let minute = parseInt(diffTime / 60 % 60)
-    let second = diffTime % 60
-    hour=hour<10?'0'+hour:hour
-    minute=minute<10?'0'+minute:minute
-    second=second<10?'0'+second:second
-    time.value = `${hour} : ${minute} : ${second}`
-    return statrCountDown
 }
 const getNumber = computed(() => {
     return (key, index) => {
@@ -137,133 +138,142 @@ const getNumber = computed(() => {
         return length + index + 1;
     }
 })
-const choiceCorrect=(index,selects)=>{
-    const answerMap={}
-    const question=questionList.value[index];
-    const options=question['option']
+const choiceCorrect = (index, selects) => {
+    const answerMap = {}
+    const question = questionList.value[index];
+    const options = question.options
     // 统一按数组处理
-    if(!(selects instanceof Array)){
-        selects=[selects]
+    if (!(selects instanceof Array)) {
+        selects = [selects]
     }
-    options.forEach((value,index)=>{
-        if(selects.includes(index)){
-            value['answer']=1
-            answerMap[value.id]=1
-        }else{
-            value['answer']=null
+    options.forEach((value, index) => {
+        if (selects.includes(index)) {
+            value['answer'] = 1
+            answerMap[value.id] = 1
+        } else {
+            value['answer'] = null
         }
     })
-    question['subInfo']=null
-    saveExamAnswerRequestion(examInfo.value.id, question.id,answerMap).then(res=>{
-        const count=res.data.data
-        question['subInfo']=count
+    question['subInfo'] = null
+    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(res => {
+        const count = res.data.data
+        question['subInfo'] = count
     })
 
 }
-const submitAnswer=(index)=>{
-    const answerMap={}
-    const question=questionList.value[index];
-    const options=question['option']
-    let flag=false
-    options.forEach(value=>{
+const submitAnswer = (index) => {
+    const answerMap = {}
+    const question = questionList.value[index];
+    const options = question.options
+    let flag = false
+    options.forEach(value => {
         console.log(value)
-        if(value.answer!=null){
-            answerMap[value.id]=value.answer
-            flag=true
+        if (value.answer != null) {
+            answerMap[value.id] = value.answer
+            flag = true
         }
     })
     // 没有答案不提交
-    if(!flag){
+    if (!flag) {
         return
     }
-    question['subInfo']=null
-    saveExamAnswerRequestion(examInfo.value.id, question.id,answerMap).then(res=>{
-        const count=res.data.data
-        question['subInfo']=count
+    question['subInfo'] = null
+    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(res => {
+        const count = res.data.data
+        question['subInfo'] = count
     })
 
 }
 //显示提交信息
-const showSubInfo=(count,total,type)=>{
-    let subCount=type.subCount;
-    if(subCount==0){
-        subCount=total;
-    }else if(subCount==-1){
-        subCount=count
+const showSubInfo = (count, total, type) => {
+    let subCount = type.subCount;
+    if (subCount == 0) {
+        subCount = total;
+    } else if (subCount == -1) {
+        subCount = count
     }
-    return count==subCount?"已提交":`${count}/${subCount}题`
+    return count == subCount ? "已提交" : `${count}/${subCount}题`
 }
 const switchQuestion = (index) => {
     //预览模式滚动到改题目
     if (isPreview.value) {
 
     } else {
-        if(loading.value){
+        if (loading.value) {
             Message.error("请求过快~")
             return
         }
-        loading.value = true
+        currQuestIndex.value = index
         //获取题目项
         examQuestionOptionRequest(examInfoId, questionList.value[index].id).then(res => {
-            questionList.value[index]['option'] = res.data.data;
-            console.log(questionList.value[index])
-            currQuestIndex.value = index
-            loading.value = false
-        }).catch(err=>{
-            loading.value=false
+            const answers = res.data.data??[];
+            const options=questionList.value[index].options;
+            //合并答案
+            for(let i=0;i<options.length;i++){
+                const id=options[i].id;
+                const answer=answers[id]
+                if(answer){
+                    options[i].answer=answer
+                }
+            }
+        }).catch(err => {
+            console.log(err)
+            // loading.value = false
+            Message.error('服务器错误')
         })
     }
 }
 // 上传该题的所有答案
-const saveAnswer=(option)=>{
+const saveAnswer = (option) => {
 
 }
-const monitorAction=()=>{
+const monitorAction = () => {
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState != "visible") {
-           answerAction({
-                status:"PAUSE",
-                info:""
-           })
+            answerAction({
+                status: "PAUSE",
+                info: ""
+            })
         }
     })
     document.addEventListener('paste', (e) => {
         console.log(e)
         answerAction({
-            status:"PASTE",
-            info:""
+            status: "PASTE",
+            info: ""
         })
     })
 }
-setInterval(()=>{
-    document.addEventListener('contextmenu',function(e){
-     e.preventDefault();  // 阻止默认事件
+setInterval(() => {
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();  // 阻止默认事件
     });
-    document.addEventListener('selectstart',function(e){
-        e.preventDefault();  
+    document.addEventListener('selectstart', function (e) {
+        e.preventDefault();
     });
-},1000)
+}, 1000)
 // document.addEventListener('keydown',function(e){
 //     if(e.key == 'F12'){
 //         e.preventDefault(); // 如果按下键F12,阻止事件
 //     }
 // });
-const answerAction=(actions)=>{
-    answerActionRequestion(examInfoId,actions).then(res=>{
+const answerAction = (actions) => {
+    answerActionRequestion(examInfoId, actions).then(res => {
         console.log(res.data)
     })
 }
 onMounted(() => {
-    clearInterval(interval)
 })
 </script>
 <style lang="less" scoped>
 .fade-enter-active {
-  transition: transform 0.6s ease;
+    transition: transform 0.6s ease;
 }
-.fade-enter-from{
+
+.fade-enter-from {
     transform: scale(1.5);
 }
+
 .exam-header {
     height: 40px;
     background-color: var(--color-text-2);
@@ -277,18 +287,31 @@ onMounted(() => {
     .exam-title {
         font-size: 20px;
         color: #fff;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .exam-preview {
-        float: right;
         border-bottom-right-radius: 0;
         border-top-right-radius: 0;
         font-size: 16px;
+        position: absolute;
         right: 0;
         height: 40px;
         width: 120px;
         top: 0px;
         bottom: 0px;
+    }
+
+    .back-preview {
+        position: absolute;
+        left: 0;
+        top: 0px;
+        bottom: 0;
+        height: 40px;
+        background-color: transparent;
+        color: #fff;
     }
 }
 
@@ -347,16 +370,18 @@ onMounted(() => {
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
-        .nextquestBtn{
-            :deep(.arco-btn-icon){
+
+        .nextquestBtn {
+            :deep(.arco-btn-icon) {
                 order: 1;
                 margin-left: 8px;
                 margin-right: 0;
             }
         }
-        .sub-info{
+
+        .sub-info {
             background-color: rgb(var(--green-1));
-            position:absolute;
+            position: absolute;
             display: inline-block;
             height: 25px;
             line-height: 25px;
@@ -374,16 +399,18 @@ onMounted(() => {
             // animation: dropdown 0.3s
 
         }
+
         @keyframes dropdown {
             0% {
                 top: 0px;
             }
+
             100% {
-                bottom:-20px
+                bottom: -20px
             }
         }
 
-        :deep(.question-info){
+        :deep(.question-info) {
             position: relative;
         }
     }
@@ -394,7 +421,8 @@ onMounted(() => {
         height: 100%;
         padding: 10px;
         padding-top: 0;
-        overflow-y:auto;
+        overflow-y: auto;
+
         .number-wrap {
             margin: 10px 0;
             display: flex;

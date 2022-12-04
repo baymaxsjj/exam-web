@@ -116,7 +116,7 @@ const createQuestion = () => {
     }
     const params = {
         ...question,
-        'topicItems': options.value
+        'options': options.value
     }
     params['type'] = props.topicType
     addQuestionRequest(params).then(res => {

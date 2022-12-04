@@ -20,3 +20,6 @@ export const examExamAnswerInfoRequest=(examInfoId,classids,status,page=1,pageSi
     const pageParam={page,pageSize}
     return axios.post(`/eapi/exam-console/${examInfoId}/outline-monitor?status=${status}&page=${page}&pageSize=${pageSize}`,classids)
 }
+export const examExamStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
+    return axios.get(`/eapi//exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
+}

@@ -38,7 +38,7 @@
         <ul v-if="list.length != 0" class="preview">
             <li v-for="(item, index) in list" :key="index">
                 <BaseQuestionPreview :number="index + 1" :topic-type="item['type']" :question="item"
-                    :options="item['topicItems']"></BaseQuestionPreview>
+                    :options="item['options']"></BaseQuestionPreview>
             </li>
         </ul>
         <a-empty class="empty" v-else />
