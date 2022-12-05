@@ -223,11 +223,9 @@ const type = computed(() => {
 //如果 myoption存在->合并到option
 const options = computed(() => {
     const option = [...props.options]
-    console.log(type.enumName)
     if (type.value.enumName == 'SUBJECTIVE' && option[0] == undefined) {
         option[0] = [{ content: '' }]
     }
-    console.log(option)
     if (props.myOptions) {
 
     }

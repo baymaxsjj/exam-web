@@ -1,8 +1,8 @@
 <template>
     <div class="exam-header">
         <a-button type="primary" class="exam-preview" v-if="isPreview">交卷</a-button>
-        <a-button type="primary" class="exam-preview" @click="(isPreview = true)" v-else>整卷预览</a-button>
-        <a-button v-if="isPreview" class="back-preview" shape="round" @click="(isPreview = false)">
+        <a-button type="primary" class="exam-preview" @click="isPreview = true" v-else>整卷预览</a-button>
+        <a-button v-if="isPreview" class="back-preview" shape="round" @click="isPreview = false">
             <template #icon><icon-left /></template>
             返回</a-button>
         <p class="exam-title">考试</p>
@@ -10,13 +10,12 @@
     <div class="exam-start">
         <div class="exam-info">
             <p class="exam-count-down common-style">
-                <a-countdown ref="countDownRef"
-                            :value="dayjs(examInfo.endTime).valueOf()" :start="examInfo.endTime != null"
-                            :now="Date.now()" format="HH:mm:ss">
-                        <template #title>
-                            <h1>{{examInfo.title  ?? 'loading'}}</h1>
-                        </template>
-                        </a-countdown>
+                <a-countdown ref="countDownRef" :value="dayjs(examInfo.endTime).valueOf()"
+                    :start="examInfo.endTime != null" :now="Date.now()" format="HH:mm:ss">
+                    <template #title>
+                        <h1>{{ examInfo.title ?? "loading" }}</h1>
+                    </template>
+                </a-countdown>
             </p>
             <div class="common-style">
                 <p class="user-name">姓名：{{ userStore.userInfo.username }}</p>
@@ -30,8 +29,8 @@
             </div>
         </div>
         <div class="exam-list">
-            <div v-if="!isPreview">
-                <div style="display:flex;justify-content: space-around;">
+            <div>
+                <div style="display: flex; justify-content: space-around" v-if="!isPreview">
                     <a-button-group>
                         <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
                             <template #icon>
@@ -47,223 +46,299 @@
                             下一题</a-button>
                     </a-button-group>
                 </div>
-                <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%;min-height: 200px;">
-                    <BaseQuestionPreview @editorBlur="submitAnswer(currQuestIndex)"
-                        @choiceCorrect="choiceCorrect(currQuestIndex, $event)" mode="answer" @optionClick="saveAnswer"
-                        :show-area="false" :number="currQuestIndex + 1"
-                        :topic-type="questionList[currQuestIndex]['type']" :question="questionList[currQuestIndex]"
-                        :options="questionList[currQuestIndex]['options']">
-                        <template #question="{ question, options, type }">
-                            <!-- {{question}} -->
-                            <Transition name="fade">
-                                <span class="sub-info"
-                                    v-if="question['subInfo'] != undefined">{{ showSubInfo(question['subInfo'], options.length, type) }}</span>
-                            </Transition>
+                <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%; min-height: 200px">
+                    <a-list :data="getExamQuestion" :bordered="false">
+                        <template #item="{ item, index }">
+                            <a-list-item :id="`question-${item.id}`">
+                                <BaseQuestionPreview @editorBlur="submitAnswer(item.id)"
+                                    @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
+                                    @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
+                                    :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
+                                    :options="item.options">
+                                    <template #question="{ question, options, type }">
+                                        <!-- {{question}} -->
+                                        <Transition name="fade">
+                                            <span class="sub-info" v-if="question['subInfo'] != undefined">{{
+                                                    showSubInfo(question["subInfo"], options.length, type)
+                                            }}</span>
+                                        </Transition>
+                                    </template>
+                                </BaseQuestionPreview>
+                            </a-list-item>
                         </template>
-                    </BaseQuestionPreview>
+                    </a-list>
 
                 </a-spin>
                 <a-empty v-else></a-empty>
             </div>
         </div>
         <div class="exam-number">
-            <div v-for="(item, key) of questionInfo" :key="key" class="common-style">
-                <h5>{{ getQuestionType(key).simpleName }}</h5>
-                <ul class="number-wrap">
-                    <li class="number-item" @click="switchQuestion(getNumber(key, index) - 1)"
-                        :class="{ 'number-active': (currQuestIndex + 1) == getNumber(key, index) }"
-                        v-for="(info, index) of item">{{
-        getNumber(key, index)
-                        }}</li>
-                </ul>
-            </div>
-
+            <ul class="answer-status  common-style">
+                <li>未作答<span class="status-color status-color-none"></span></li>
+                <li>未答完<span class="status-color status-color-start"></span></li>
+                <li>已作答<span class="status-color status-color-end"></span></li>
+            </ul>
+                <a-anchor line-less :change-hash="false" scroll-container=".exam-list">
+                    <li v-for="(item, key) of getNumberInfo" :key="key" class="common-style">
+                        <h5 style="margin-bottom: 10px;">{{ key }}</h5>
+                        <ul style="display:flex;flex-wrap:wrap">
+                            <a-anchor-link @click="switchQuestion(info.number - 1)" :class="'status-color-' + info.status" :href="`#question-${info.id}`" v-for="info of item">{{ info.number }}</a-anchor-link>
+                        </ul>
+                    </li>
+                </a-anchor>
+                <!-- <ul class="number-wrap">
+                    <li class="number-item" @click="switchQuestion(info.number - 1)"
+                        :class="'status-color-' + info.status" v-for="(info, index) of item">
+                        {{ info.number }}
+                    </li>
+                </ul> -->
         </div>
     </div>
 </template>
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
-import { examStartRequest, examQuestionOptionRequest, saveExamAnswerRequestion, answerActionRequestion } from '../../apis/exam-center-api';
-import { useRoute } from 'vue-router';
-import dayjs from 'dayjs';
-import { getQuestionType } from '../../utils/question-config';
-import useUserStore from '../../sotre/user-store';
-import TextEditor from '../../components/TextEditor.vue';
-import { Message } from '@arco-design/web-vue';
-const userStore = useUserStore()
-const route = useRoute()
-const examInfoId = route.params['examInfoId']
-const time = ref(0)
-const currQuestIndex = ref(0)
+import { computed, onMounted, ref } from "vue";
+import BaseQuestionPreview from "../../components/BaseQuestionPreview.vue";
+import {
+    examStartRequest,
+    examQuestionOptionRequest,
+    saveExamAnswerRequestion,
+    answerActionRequestion,
+} from "../../apis/exam-center-api";
+import { useRoute } from "vue-router";
+import dayjs from "dayjs";
+import { getQuestionType } from "../../utils/question-config";
+import useUserStore from "../../sotre/user-store";
+import TextEditor from "../../components/TextEditor.vue";
+import { Message } from "@arco-design/web-vue";
+const userStore = useUserStore();
+const route = useRoute();
+const examInfoId = route.params["examInfoId"];
+const time = ref(0);
+const currQuestIndex = ref(0);
 //临时编号
-let temNumber = 0
-const isPreview = ref(false)
+let temNumber = 0;
+const isPreview = ref(false);
 //题目信息
-const questionInfo = ref({})
-const questionList = ref([])
-const options = ref([])
+const questionInfo = ref({});
+const questionList = ref([]);
+const options = ref([]);
 //考试信息
-const examInfo = ref({})
-const loading = ref(false)
-examStartRequest(examInfoId).then(res => {
-    const data = res.data.data
-    questionInfo.value = data['questionList']
-    examInfo.value = data['examInfo']
-    getQuestionList()
-    console.log(questionList.value[currQuestIndex.value])
-    //加载第一个选项
-    switchQuestion(0)
-    if (examInfo.value.isMonitor) {
-        monitorAction()
+const examInfo = ref({});
+const loading = ref(false);
+
+const getExamQuestion = computed(() => {
+    const list = questionList.value
+    if (isPreview.value) {
+        //FIXME:可以重新同步下数据
+        return list;
+    } else {
+        return [list[currQuestIndex.value]]
     }
 })
 
-const getQuestionList = () => {
-    Object.keys(questionInfo.value).forEach(key => {
-        console.log(questionInfo.value[key])
-        questionList.value.push(...questionInfo.value[key])
-    })
-}
-const getNumber = computed(() => {
-    return (key, index) => {
-        let length = 0;
-        for (const tKey in questionInfo.value) {
-            if (tKey != key) {
-                length += questionInfo.value[tKey].length;
-            } else {
-                break;
-            }
-        }
-        return length + index + 1;
+
+
+examStartRequest(examInfoId).then((res) => {
+    const data = res.data.data;
+    questionInfo.value = data["questionList"];
+    examInfo.value = data["examInfo"];
+    getQuestionList();
+    console.log(questionList.value[currQuestIndex.value]);
+    //加载第一个选项
+    switchQuestion(0);
+    if (examInfo.value.isMonitor) {
+        monitorAction();
     }
+});
+
+
+const getQuestionList = () => {
+    Object.keys(questionInfo.value).forEach((key) => {
+        console.log(questionInfo.value[key]);
+        questionList.value.push(...questionInfo.value[key]);
+    });
+};
+//获取序号选项
+const getNumberInfo = computed(() => {
+    const numberInfo = {}
+    const questionGroup = questionInfo.value;
+    let number=1;
+    for (const key in questionGroup) {
+        const name = getQuestionType(key).simpleName
+        const info = []
+        questionGroup[key].forEach((question, index) => {
+            info.push({
+                id:question.id,
+                number: number++,
+                status: getQuestionAnswerStatus(question)
+            })
+        })
+        numberInfo[name] = info
+    }
+    return numberInfo
 })
-const choiceCorrect = (index, selects) => {
-    const answerMap = {}
-    const question = questionList.value[index];
-    const options = question.options
+//获取题目作答情况
+const getQuestionAnswerStatus = (question) => {
+    let status = 'none'
+    const type = question.type;
+    let answerCount = 0;
+    question.options.forEach(option => {
+        if (option.answer) {
+            answerCount++;
+        }
+    })
+    if (type == 'SIGNAL_CHOICE' || type == 'MULTIPLE_CHOICE' || type == 'JUDGMENTAL') {
+        status = 'end'
+    } else {
+        if (answerCount == question.options.length) {
+            status = 'end'
+        } else if (answerCount > 0) {
+            status = 'start'
+        }
+    }
+    return status;
+}
+//选择答案
+const choiceCorrect = (id, selects) => {
+    const answerMap = {};
+    const question = getQuestionById(id);
+    const options = question.options;
     // 统一按数组处理
     if (!(selects instanceof Array)) {
-        selects = [selects]
+        selects = [selects];
     }
     options.forEach((value, index) => {
         if (selects.includes(index)) {
-            value['answer'] = 1
-            answerMap[value.id] = 1
+            value["answer"] = 1;
+            answerMap[value.id] = 1;
         } else {
-            value['answer'] = null
+            value["answer"] = null;
         }
-    })
-    question['subInfo'] = null
-    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(res => {
-        const count = res.data.data
-        question['subInfo'] = count
-    })
-
+    });
+    question["subInfo"] = null;
+    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(
+        (res) => {
+            const count = res.data.data;
+            question["subInfo"] = count;
+        }
+    );
+};
+const getQuestionIndex = (id) => {
+    const list = questionList.value
+    for (let i = 0; i < list.length; i++) {
+        if (list[i].id == id) {
+            return i;
+        }
+    }
+    return 0;
 }
-const submitAnswer = (index) => {
-    const answerMap = {}
-    const question = questionList.value[index];
-    const options = question.options
-    let flag = false
-    options.forEach(value => {
-        console.log(value)
+const getQuestionById = (id) => {
+    const list = questionList.value
+    return list[getQuestionIndex(id)]
+}
+
+const submitAnswer = (id) => {
+    const answerMap = {};
+    const question = getQuestionById(id);
+    const options = question.options;
+    let flag = false;
+    options.forEach((value) => {
+        console.log(value);
         if (value.answer != null) {
-            answerMap[value.id] = value.answer
-            flag = true
+            answerMap[value.id] = value.answer;
+            flag = true;
         }
-    })
+    });
     // 没有答案不提交
     if (!flag) {
-        return
+        return;
     }
-    question['subInfo'] = null
-    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(res => {
-        const count = res.data.data
-        question['subInfo'] = count
-    })
-
-}
+    question["subInfo"] = null;
+    saveExamAnswerRequestion(examInfo.value.id, question.id, answerMap).then(
+        (res) => {
+            const count = res.data.data;
+            question["subInfo"] = count;
+        }
+    );
+};
 //显示提交信息
 const showSubInfo = (count, total, type) => {
     let subCount = type.subCount;
     if (subCount == 0) {
         subCount = total;
     } else if (subCount == -1) {
-        subCount = count
+        subCount = count;
     }
-    return count == subCount ? "已提交" : `${count}/${subCount}题`
+    return count == subCount ? "已提交" : `${count}/${subCount}题`;
+};
+const scrollToQuestion = (id) => {
+    document.getElementById(`question-${id}`).scrollIntoView()
 }
 const switchQuestion = (index) => {
+    if(isPreview.value){
+        return
+    }
+    const question = questionList.value[index]
     //预览模式滚动到改题目
-    if (isPreview.value) {
-
-    } else {
-        if (loading.value) {
-            Message.error("请求过快~")
-            return
-        }
-        currQuestIndex.value = index
-        //获取题目项
-        examQuestionOptionRequest(examInfoId, questionList.value[index].id).then(res => {
-            const answers = res.data.data??[];
-            const options=questionList.value[index].options;
+    currQuestIndex.value = index;
+    //获取题目项
+    examQuestionOptionRequest(examInfoId, question.id)
+        .then((res) => {
+            const answers = res.data.data ?? [];
+            const options = question.options;
             //合并答案
-            for(let i=0;i<options.length;i++){
-                const id=options[i].id;
-                const answer=answers[id]
-                if(answer){
-                    options[i].answer=answer
+            for (let i = 0; i < options.length; i++) {
+                const id = options[i].id;
+                const answer = answers[id];
+                if (answer) {
+                    options[i].answer = answer;
                 }
             }
-        }).catch(err => {
-            console.log(err)
-            // loading.value = false
-            Message.error('服务器错误')
         })
-    }
+        .catch((err) => {
+            console.log(err);
+            // loading.value = false
+            Message.error("服务器错误");
+        });
 }
 // 上传该题的所有答案
-const saveAnswer = (option) => {
-
-}
+const saveAnswer = (option) => { };
 const monitorAction = () => {
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener("visibilitychange", () => {
         if (document.visibilityState != "visible") {
             answerAction({
                 status: "PAUSE",
-                info: ""
-            })
+                info: "",
+            });
         }
-    })
-    document.addEventListener('paste', (e) => {
-        console.log(e)
+    });
+    document.addEventListener("paste", (e) => {
+        console.log(e);
         answerAction({
             status: "PASTE",
-            info: ""
-        })
-    })
-}
-setInterval(() => {
-    document.addEventListener('contextmenu', function (e) {
-        e.preventDefault();  // 阻止默认事件
+            info: "",
+        });
     });
-    document.addEventListener('selectstart', function (e) {
+};
+setInterval(() => {
+    document.addEventListener("contextmenu", function (e) {
+        e.preventDefault(); // 阻止默认事件
+    });
+    document.addEventListener("selectstart", function (e) {
         e.preventDefault();
     });
-}, 1000)
+}, 1000);
 // document.addEventListener('keydown',function(e){
 //     if(e.key == 'F12'){
 //         e.preventDefault(); // 如果按下键F12,阻止事件
 //     }
 // });
 const answerAction = (actions) => {
-    answerActionRequestion(examInfoId, actions).then(res => {
-        console.log(res.data)
-    })
-}
-onMounted(() => {
-})
+    answerActionRequestion(examInfoId, actions).then((res) => {
+        console.log(res.data);
+    });
+};
+onMounted(() => { });
 </script>
 <style lang="less" scoped>
 .fade-enter-active {
@@ -391,13 +466,12 @@ onMounted(() => {
             font-size: 12px;
             font-weight: bold;
             position: absolute;
-            animation: dropdown .3;
-            opacity: .8;
+            animation: dropdown 0.3;
+            opacity: 0.8;
             right: -25px;
             bottom: -20px;
             z-index: 10;
             // animation: dropdown 0.3s
-
         }
 
         @keyframes dropdown {
@@ -406,7 +480,7 @@ onMounted(() => {
             }
 
             100% {
-                bottom: -20px
+                bottom: -20px;
             }
         }
 
@@ -421,34 +495,82 @@ onMounted(() => {
         height: 100%;
         padding: 10px;
         padding-top: 0;
-        overflow-y: auto;
+        overflow-y: overlay;
 
-        .number-wrap {
-            margin: 10px 0;
+        .answer-status {
             display: flex;
-            flex-wrap: wrap;
+            color: var(--color-text-1);
+            justify-content: space-around;
+            font-size: 14px;
+            font-weight: bold;
 
-            .number-item {
+            li {
+                display: flex;
+                align-items: center;
+            }
+
+            .status-color {
+                display: inline-block;
+                height: 20px;
+                width: 20px;
+                border-radius: 4px;
+                margin: 5px;
+                border: 1px solid var(--color-fill-2);
+            }
+        }
+
+        .status-color-none {
+            background-color: var(--color-fill-1);
+        }
+
+        .status-color-start {
+            background-color: rgba(var(--orange-4), 8);
+            color: #fff;
+        }
+
+        .status-color-end {
+            background-color: rgba(var(--green-4), .8);
+            color: #fff;
+        }
+        :deep(.arco-anchor){
+            width: auto;
+        }
+        :deep(.arco-anchor-list) {
+            .arco-anchor-link-item  {
                 width: 42px;
                 height: 42px;
                 box-sizing: content-box;
-                border: 2px solid var(--color-fill-2);
+                border: 2px solid var(--color-fill-3);
                 border-radius: 5px;
                 margin: 5px;
                 text-align: center;
                 line-height: 42px;
-                transition: all .3s;
+                transition: all 0.3s;
                 cursor: pointer;
-
-                &:hover {
-                    border: 2px solid rgba(var(--primary-4));
+                &:hover{
+                    border: 2px solid rgba(var(--primary-5));
+                    background-color: rgba(var(--primary-3));
+                    color: #fff;
+                }
+               
+            }
+            .arco-anchor-link-item .arco-anchor-link{
+                padding: 0;
+                color: inherit;
+                line-height:inherit;
+                border-radius: initial;
+                &:hover{
+                    background-color: transparent;
                 }
             }
 
-            .number-active {
+            .arco-anchor-link-active{
                 border: 2px solid rgba(var(--primary-6));
                 background-color: rgba(var(--primary-4));
                 color: #fff;
+            }
+            .arco-anchor-link-active > .arco-anchor-link{
+                background-color: transparent;
             }
         }
     }
