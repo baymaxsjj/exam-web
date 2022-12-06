@@ -38,7 +38,6 @@ import { Message } from '@arco-design/web-vue';
 import { reactive, ref, computed, watch } from 'vue';
 import { addQuestionRequest, delQuestionItemRequest, delQuestionRequest, updateQuestionItemRequest, updateQuestionCorrectRequest, updateQuestionRequest } from '../apis/question-api';
 import { getQuestionType, letterList } from '../utils/question-config';
-import TextEditor from './TextEditor.vue';
 import BaseQuestionPreview from './BaseQuestionPreview.vue';
 const props = defineProps({
     topicType: String,

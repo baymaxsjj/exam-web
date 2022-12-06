@@ -62,7 +62,7 @@
                         <slot name="option" :option="item" :index="index" :type="type">
                         </slot>
                     </div>
-                    <TextEditor @blur="$emit('editorBlur','option',index)" mode="editor" v-model="item.answer"></TextEditor>
+                    <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','option',index)" mode="editor" v-model="item.answer"></TextEditor>
                 </li>
                 <!-- 选项底部 -->
             </template>
@@ -71,7 +71,7 @@
             <li v-else-if="type.enumName == 'SUBJECTIVE'">
                 <span class="number">答：</span>
                 <slot name="subject" :option="options[0]">
-                    <TextEditor @blur="$emit('editorBlur','subject')" :key="options[0].id" :mode="getEditMode(type.itemsConfig.editMode)" v-model="options[0].answer">
+                    <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','subject')" :key="options[0].id" :mode="getEditMode(type.itemsConfig.editMode)" v-model="options[0].answer">
                     </TextEditor>
                 </slot>
             </li>
@@ -96,13 +96,13 @@
         <!-- 答案区 -->
         <div class="answer" v-if="showArea.answer">
             <span class="title">答案：</span>
-            <TextEditor mode="preview" v-model="getCorrect"></TextEditor>
+            <TextEditor :lazy="props.lazy" mode="preview" v-model="getCorrect"></TextEditor>
         </div>
         <!-- 解析区 -->
         <div class="analysis" v-if="showArea.analysis">
             <span class="title">解析：</span>
             <slot name="analysis">
-                <TextEditor @blur="$emit('editorBlur','analysis')" :mode="getEditMode()" v-model="question.analysis"></TextEditor>
+                <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','analysis')" :mode="getEditMode()" v-model="question.analysis"></TextEditor>
             </slot>
         </div>
         <!-- 难易程度  -->
@@ -150,6 +150,10 @@ const props = defineProps({
     myOptions: {
         type: Array,
         default: []
+    },
+    lazy: {
+        type: Boolean,
+        default: false
     },
     showArea: {
         type: [Object, Boolean],

@@ -10,6 +10,8 @@
   "dependencies": {
     "@arco-themes/vue-mgo-blog": "^0.0.2",
     "@tinymce/tinymce-vue": "^5.0.0",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
     "axios": "^0.27.2",
     "dayjs": "^1.11.6",
     "dompurify": "^2.4.1",

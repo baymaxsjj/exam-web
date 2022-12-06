@@ -38,11 +38,11 @@ const initConfig = {
     toolbar_mode: 'floating',
     skin_url: "/tinymce/skins/ui/oxide",
     content_css: '/tinymce/skins/content/default/content.css',
+    auto_focus: true,
     ...props.config
 }
-onMounted(() => {
-    // tinymce.init({});
-});
+onBeforeUnmount(()=>{
+})
 console.log(initConfig)
 const content = ref(props.modelValue)
 const emit = defineEmits([

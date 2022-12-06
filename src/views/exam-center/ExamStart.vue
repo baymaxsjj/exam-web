@@ -1,6 +1,6 @@
 <template>
     <div class="exam-header">
-        <a-button type="primary" class="exam-preview" v-if="isPreview">交卷</a-button>
+        <a-button type="primary" class="exam-preview" v-if="isPreview" @click="sumbit">交卷</a-button>
         <a-button type="primary" class="exam-preview" @click="isPreview = true" v-else>整卷预览</a-button>
         <a-button v-if="isPreview" class="back-preview" shape="round" @click="isPreview = false">
             <template #icon><icon-left /></template>
@@ -30,7 +30,7 @@
         </div>
         <div class="exam-list">
             <div>
-                <div style="display: flex; justify-content: space-around" v-if="!isPreview">
+                <div class="question-pre-next" style="display: flex; justify-content: space-around" v-if="!isPreview">
                     <a-button-group>
                         <a-button long :disabled="currQuestIndex == 0" @click="switchQuestion(currQuestIndex - 1)">上一题
                             <template #icon>
@@ -49,12 +49,14 @@
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%; min-height: 200px">
                     <a-list :data="getExamQuestion" :bordered="false">
                         <template #item="{ item, index }">
-                            <a-list-item :id="`question-${item.id}`">
+                            <a-list-item :id="`question-${item.id}`" :key="item.id">
                                 <BaseQuestionPreview @editorBlur="submitAnswer(item.id)"
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
                                     @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
-                                    :options="item.options">
+                                    :options="item.options"
+                                    :lazy="isPreview"
+                                    >
                                     <template #question="{ question, options, type }">
                                         <!-- {{question}} -->
                                         <Transition name="fade">
@@ -73,11 +75,14 @@
             </div>
         </div>
         <div class="exam-number">
-            <ul class="answer-status  common-style">
-                <li>未作答<span class="status-color status-color-none"></span></li>
-                <li>未答完<span class="status-color status-color-start"></span></li>
-                <li>已作答<span class="status-color status-color-end"></span></li>
-            </ul>
+            <div class="common-style" style="margin-bottom: 0;">
+                <h5 style="margin-bottom: 10px;">作答状态</h5>
+                <ul class="answer-status">
+                    <li>未作答<span class="status-color status-color-none"></span></li>
+                    <li>未答完<span class="status-color status-color-start"></span></li>
+                    <li>已作答<span class="status-color status-color-end"></span></li>
+                </ul>
+            </div>
                 <a-anchor line-less :change-hash="false" scroll-container=".exam-list">
                     <li v-for="(item, key) of getNumberInfo" :key="key" class="common-style">
                         <h5 style="margin-bottom: 10px;">{{ key }}</h5>
@@ -86,17 +91,11 @@
                         </ul>
                     </li>
                 </a-anchor>
-                <!-- <ul class="number-wrap">
-                    <li class="number-item" @click="switchQuestion(info.number - 1)"
-                        :class="'status-color-' + info.status" v-for="(info, index) of item">
-                        {{ info.number }}
-                    </li>
-                </ul> -->
         </div>
     </div>
 </template>
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, h, onMounted, ref } from "vue";
 import BaseQuestionPreview from "../../components/BaseQuestionPreview.vue";
 import {
     examStartRequest,
@@ -108,8 +107,7 @@ import { useRoute } from "vue-router";
 import dayjs from "dayjs";
 import { getQuestionType } from "../../utils/question-config";
 import useUserStore from "../../sotre/user-store";
-import TextEditor from "../../components/TextEditor.vue";
-import { Message } from "@arco-design/web-vue";
+import { Message, Modal } from "@arco-design/web-vue";
 const userStore = useUserStore();
 const route = useRoute();
 const examInfoId = route.params["examInfoId"];
@@ -150,6 +148,21 @@ examStartRequest(examInfoId).then((res) => {
         monitorAction();
     }
 });
+const sumbit=()=>{
+    const submitTime=examInfo.value.submitTime;
+    if(submitTime&&dayjs().isAfter(dayjs(submitTime))){
+        Message.success("可以交卷")
+    }else{
+        Modal.info({
+            title: '未到提交时间',
+            content: h('h1', [
+                h('span', `老师设置了提交时间，未到`),
+                h('a-tag', dayjs(submitTime).format('YYYY-MM-DD HH: mm: ss')),
+                h('span', '不可以提交试卷！'),
+            ])
+        });
+    }
+}
 
 
 const getQuestionList = () => {
@@ -188,7 +201,9 @@ const getQuestionAnswerStatus = (question) => {
         }
     })
     if (type == 'SIGNAL_CHOICE' || type == 'MULTIPLE_CHOICE' || type == 'JUDGMENTAL') {
-        status = 'end'
+        if(answerCount>0){
+            status = 'end'
+        }
     } else {
         if (answerCount == question.options.length) {
             status = 'end'
@@ -358,6 +373,7 @@ onMounted(() => { });
     left: 0;
     right: 0;
     top: 0;
+    z-index: 99;
 
     .exam-title {
         font-size: 20px;
@@ -445,7 +461,6 @@ onMounted(() => { });
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
-
         .nextquestBtn {
             :deep(.arco-btn-icon) {
                 order: 1;
@@ -495,6 +510,7 @@ onMounted(() => { });
         height: 100%;
         padding: 10px;
         padding-top: 0;
+        overflow-y: auto;
         overflow-y: overlay;
 
         .answer-status {
