@@ -21,9 +21,15 @@
             <!-- 课程 -->
             <div class="home-content home-common">
                 <router-view></router-view>
-                <p class="home-common" style="text-align: center;color:var(--color-border-4)">
-                    &copy; 2022 Baymax 版权所有
-                </p>
+                <div style="text-align: center;color:var(--color-text-3);font-size: 16px;">
+                    <p>
+                        &copy; 2022 Baymax 版权所有<br/>
+                    </p>
+                    <p style="font-size:12px;margin:5px 0;">
+                        <a href="" >数据库数据填充由 SqlMock 提供</a>
+                    </p>
+                </div>
+               
             </div>
         </div>
     </div>

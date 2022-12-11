@@ -61,9 +61,10 @@ const bgStyle = computed(() => {
 .tags {
   height: 40px;
   background: var(--color-secondary-disabled);
-  border-radius: 1px solid #000;
-  padding: 5px;
+  border-radius: 6px;
+  padding: 3px;
   box-sizing: border-box;
+  font-size: 16px;
 
   .tags-wrap {
     display: flex;
@@ -76,11 +77,10 @@ const bgStyle = computed(() => {
     .tags-bg {
       position: absolute;
       background: var(--color-bg-1);
-      border-radius: 1px solid #000;
+      border-radius: 6px;
       left: 0;
       top: 0;
       transition: all 0.3s;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     li {
       z-index: 10;
@@ -94,10 +94,12 @@ const bgStyle = computed(() => {
       cursor: pointer;
       &:hover {
         color: rgb(var(--primary-6));
+        font-weight: bold;
       }
     }
     .active {
       color: rgb(var(--primary-6));
+      font-weight: bold;
     }
   }
 }

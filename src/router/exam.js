@@ -1,4 +1,5 @@
 const ExamStart = () => import("../views/exam-center/ExamStart.vue");
+const ExamSuccess = () => import("../views/exam-center/SubmitSuccess.vue");
 const ExamConsole = () => import("../views/exam-center/console/ExamConsole.vue");
 const courses = [
   {
@@ -8,6 +9,14 @@ const courses = [
     meta: {
       title: "考试",
       header: false,
+    },
+  },
+  {
+    path: "/exam/:examInfoId(\\d+)/success",
+    component: ExamSuccess,
+    name: "ExamSuccess",
+    meta: {
+      title: "提交成功",
     },
   },
   {

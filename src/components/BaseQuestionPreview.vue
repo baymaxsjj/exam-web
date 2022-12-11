@@ -117,7 +117,7 @@
     </div>
 </template>
 <script setup>
-import { reactive, ref, computed, watch } from 'vue';
+import { computed } from 'vue';
 import { getQuestionType, letterList } from '../utils/question-config';
 import TextEditor from './TextEditor.vue'
 

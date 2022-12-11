@@ -1,7 +1,10 @@
 <template>
-    <span class="wysiwyg" @click="imageChange($event)" v-html="saftHtml"></span>
-    <a-image-preview-group v-if="imgList.length != 0" v-model:visible="visible" v-model:current="current"
-        :srcList="imgList" />
+    <div>
+        <span class="wysiwyg" @click="imageChange($event)" v-html="saftHtml"></span>
+        <!-- 一个组件及够了，没有必要每个都 -->
+        <a-image-preview-group v-if="imgList.length != 0" v-model:visible="visible" v-model:current="current"
+            :srcList="imgList" />
+    </div>
 </template>
   
 <script setup>

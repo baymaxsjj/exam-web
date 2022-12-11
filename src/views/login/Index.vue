@@ -113,6 +113,11 @@ console.log(app_name)
     background-image:  url('@/assets/img/login_bg.jpg');
     background-size: cover;
     background-attachment:fixed;
+    .header-logo{
+        position: fixed;
+        top: 40px;
+        left: 40px;
+    }
     .login-wrap{
         min-height: 100vh;
         display: flex;

@@ -49,8 +49,9 @@
                 <a-spin dot :loading="loading" v-if="questionList.length != 0" style="width: 100%; min-height: 200px">
                     <a-list :data="getExamQuestion" :bordered="false">
                         <template #item="{ item, index }">
-                            <a-list-item :id="`question-${item.id}`" :key="item.id">
+                            <a-list-item :id="`question-${item.id}`">
                                 <BaseQuestionPreview @editorBlur="submitAnswer(item.id)"
+                                    :key="item.id"
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
                                     @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
@@ -69,7 +70,6 @@
                             </a-list-item>
                         </template>
                     </a-list>
-
                 </a-spin>
                 <a-empty v-else></a-empty>
             </div>
@@ -83,14 +83,8 @@
                     <li>已作答<span class="status-color status-color-end"></span></li>
                 </ul>
             </div>
-                <a-anchor line-less :change-hash="false" scroll-container=".exam-list">
-                    <li v-for="(item, key) of getNumberInfo" :key="key" class="common-style">
-                        <h5 style="margin-bottom: 10px;">{{ key }}</h5>
-                        <ul style="display:flex;flex-wrap:wrap">
-                            <a-anchor-link @click="switchQuestion(info.number - 1)" :class="'status-color-' + info.status" :href="`#question-${info.id}`" v-for="info of item">{{ info.number }}</a-anchor-link>
-                        </ul>
-                    </li>
-                </a-anchor>
+            <QuestionNumber @numberClick="numberChange" scroll-container=".exam-list" :number-list="getNumberInfo" group-class="common-style"/>
+                   
         </div>
     </div>
 </template>
@@ -99,17 +93,20 @@ import { computed, h, onMounted, ref } from "vue";
 import BaseQuestionPreview from "../../components/BaseQuestionPreview.vue";
 import {
     examStartRequest,
+    examSubmitRequest,
     examQuestionOptionRequest,
     saveExamAnswerRequestion,
     answerActionRequestion,
 } from "../../apis/exam-center-api";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import dayjs from "dayjs";
 import { getQuestionType } from "../../utils/question-config";
 import useUserStore from "../../sotre/user-store";
 import { Message, Modal } from "@arco-design/web-vue";
+import QuestionNumber from "../../components/QuestionNumber.vue";
 const userStore = useUserStore();
 const route = useRoute();
+const router=useRouter()
 const examInfoId = route.params["examInfoId"];
 const time = ref(0);
 const currQuestIndex = ref(0);
@@ -117,7 +114,7 @@ const currQuestIndex = ref(0);
 let temNumber = 0;
 const isPreview = ref(false);
 //题目信息
-const questionInfo = ref({});
+const numberGroup=ref({})
 const questionList = ref([]);
 const options = ref([]);
 //考试信息
@@ -138,20 +135,28 @@ const getExamQuestion = computed(() => {
 
 examStartRequest(examInfoId).then((res) => {
     const data = res.data.data;
-    questionInfo.value = data["questionList"];
+    const qlist=data["questionList"];
     examInfo.value = data["examInfo"];
-    getQuestionList();
+    getQuestionList(qlist);
     console.log(questionList.value[currQuestIndex.value]);
     //加载第一个选项
     switchQuestion(0);
     if (examInfo.value.isMonitor) {
         monitorAction();
     }
+}).catch(()=>{
+    router.push({
+        name:'Home'
+    })
 });
 const sumbit=()=>{
     const submitTime=examInfo.value.submitTime;
     if(submitTime&&dayjs().isAfter(dayjs(submitTime))){
-        Message.success("可以交卷")
+        examSubmitRequest(examInfoId).then(res=>{
+            router.push({
+                name:'ExamSuccess'
+            })
+        })
     }else{
         Modal.info({
             title: '未到提交时间',
@@ -164,29 +169,35 @@ const sumbit=()=>{
     }
 }
 
-
-const getQuestionList = () => {
-    Object.keys(questionInfo.value).forEach((key) => {
-        console.log(questionInfo.value[key]);
-        questionList.value.push(...questionInfo.value[key]);
+const getQuestionList = (qList) => {
+    Object.keys(qList).forEach((key) => {
+        console.log(qList[key]);
+        questionList.value.push(...qList[key]);
+        numberGroup.value[key]=qList[key].length;
     });
 };
 //获取序号选项
 const getNumberInfo = computed(() => {
-    const numberInfo = {}
-    const questionGroup = questionInfo.value;
-    let number=1;
-    for (const key in questionGroup) {
+    const numberInfo =[]
+    const questions=questionList.value
+    let i=0;
+    for (const key in numberGroup.value) {
         const name = getQuestionType(key).simpleName
         const info = []
-        questionGroup[key].forEach((question, index) => {
+        const length=(i+numberGroup.value[key]);
+        for(;i<length;i++){
+            const question=questions[i]
             info.push({
-                id:question.id,
-                number: number++,
-                status: getQuestionAnswerStatus(question)
+                key:question.id,
+                number: i+1,
+                href:`question-${question.id}`,
+                class: "status-color-"+getQuestionAnswerStatus(question)
             })
+        }
+        numberInfo.push({
+            title:name,
+            list:info
         })
-        numberInfo[name] = info
     }
     return numberInfo
 })
@@ -212,6 +223,10 @@ const getQuestionAnswerStatus = (question) => {
         }
     }
     return status;
+}
+const numberChange=(info)=>{
+    console.log(info)
+    switchQuestion(info.number-1)
 }
 //选择答案
 const choiceCorrect = (id, selects) => {
@@ -286,9 +301,7 @@ const showSubInfo = (count, total, type) => {
     }
     return count == subCount ? "已提交" : `${count}/${subCount}题`;
 };
-const scrollToQuestion = (id) => {
-    document.getElementById(`question-${id}`).scrollIntoView()
-}
+
 const switchQuestion = (index) => {
     if(isPreview.value){
         return
@@ -319,6 +332,9 @@ const switchQuestion = (index) => {
 // 上传该题的所有答案
 const saveAnswer = (option) => { };
 const monitorAction = () => {
+    if(import.meta.env.DEV){
+        return
+    }
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState != "visible") {
             answerAction({
@@ -335,19 +351,21 @@ const monitorAction = () => {
         });
     });
 };
-setInterval(() => {
+if(import.meta.env.PROD){
     document.addEventListener("contextmenu", function (e) {
         e.preventDefault(); // 阻止默认事件
     });
     document.addEventListener("selectstart", function (e) {
         e.preventDefault();
     });
-}, 1000);
-// document.addEventListener('keydown',function(e){
-//     if(e.key == 'F12'){
-//         e.preventDefault(); // 如果按下键F12,阻止事件
-//     }
-// });
+    document.addEventListener('keydown',function(e){
+        if(e.key == 'F12'){
+            e.preventDefault(); // 如果按下键F12,阻止事件
+        }
+    });
+}
+
+
 const answerAction = (actions) => {
     answerActionRequestion(examInfoId, actions).then((res) => {
         console.log(res.data);
@@ -406,7 +424,7 @@ onMounted(() => { });
     }
 }
 
-.common-style {
+:deep(.common-style) {
     background-color: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -503,14 +521,12 @@ onMounted(() => { });
             position: relative;
         }
     }
-
     .exam-number {
         width: 320px;
         background-color: var(--color-fill-1);
         height: 100%;
         padding: 10px;
         padding-top: 0;
-        overflow-y: auto;
         overflow-y: overlay;
 
         .answer-status {
@@ -535,59 +551,18 @@ onMounted(() => { });
             }
         }
 
-        .status-color-none {
+        :deep(.status-color-none) {
             background-color: var(--color-fill-1);
         }
 
-        .status-color-start {
+        :deep(.status-color-start) {
             background-color: rgba(var(--orange-4), 8);
             color: #fff;
         }
 
-        .status-color-end {
+        :deep(.status-color-end) {
             background-color: rgba(var(--green-4), .8);
             color: #fff;
-        }
-        :deep(.arco-anchor){
-            width: auto;
-        }
-        :deep(.arco-anchor-list) {
-            .arco-anchor-link-item  {
-                width: 42px;
-                height: 42px;
-                box-sizing: content-box;
-                border: 2px solid var(--color-fill-3);
-                border-radius: 5px;
-                margin: 5px;
-                text-align: center;
-                line-height: 42px;
-                transition: all 0.3s;
-                cursor: pointer;
-                &:hover{
-                    border: 2px solid rgba(var(--primary-5));
-                    background-color: rgba(var(--primary-3));
-                    color: #fff;
-                }
-               
-            }
-            .arco-anchor-link-item .arco-anchor-link{
-                padding: 0;
-                color: inherit;
-                line-height:inherit;
-                border-radius: initial;
-                &:hover{
-                    background-color: transparent;
-                }
-            }
-
-            .arco-anchor-link-active{
-                border: 2px solid rgba(var(--primary-6));
-                background-color: rgba(var(--primary-4));
-                color: #fff;
-            }
-            .arco-anchor-link-active > .arco-anchor-link{
-                background-color: transparent;
-            }
         }
     }
 }

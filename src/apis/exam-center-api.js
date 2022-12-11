@@ -3,6 +3,9 @@ import axios from '../utils/http'
 export const examStartRequest=(examInfoId)=>{
     return axios.get(`/eapi/exam-center/${examInfoId}/start`)
 }
+export const examSubmitRequest=(examInfoId)=>{
+    return axios.post(`/eapi/exam-center/${examInfoId}/submit`)
+}
 export const examQuestionOptionRequest=(examInfoId,questionId)=>{
     return axios.get(`/eapi/exam-center/${examInfoId}/question/${questionId}`)
 }
