@@ -19,10 +19,17 @@ export const answerActionRequestion=(examInfoId,action)=>{
 export const examAnswerLogRequest=(examInfoId)=>{
     return axios.get(`/eapi/exam-answer-log/statistics/${examInfoId}`)
 }
-export const examExamAnswerInfoRequest=(examInfoId,classids,status,page=1,pageSize=10)=>{
+export const examAnswerInfoRequest=(examInfoId,classids,status,page=1,pageSize=10)=>{
     const pageParam={page,pageSize}
     return axios.post(`/eapi/exam-console/${examInfoId}/outline-monitor?status=${status}&page=${page}&pageSize=${pageSize}`,classids)
 }
-export const examExamStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
+export const examAnswerReviewRequest=(examInfoId,classids,reviewType,page=1,pageSize=10)=>{
+    const pageParam={page,pageSize}
+    return axios.post(`/eapi/exam-console/${examInfoId}/review/list?reviewType=${reviewType}&page=${page}&pageSize=${pageSize}`,classids)
+}
+export const examStudentAnswerResultRequest=(examInfoId,studentId)=>{
+    return axios.get(`/eapi/exam-console/${examInfoId}/review/${studentId}`)
+}
+export const examStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
     return axios.get(`/eapi//exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
 }

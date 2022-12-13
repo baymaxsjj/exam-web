@@ -31,7 +31,7 @@
                             <icon-edit />
                         </template>
                     </a-button>
-                    <router-link :to="`/exam/${item.id}/console`">
+                    <router-link :to="`/exam/${item.id}/console/outline`">
                         <a-button type="primary">
                             控制台
                         </a-button>

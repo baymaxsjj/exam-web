@@ -1,5 +1,8 @@
 import { defineConfig,loadEnv  } from 'vite'
 import vue from '@vitejs/plugin-vue'
+
+import OptimizationPersist from 'vite-plugin-optimize-persist'
+import PkgConfig from 'vite-plugin-package-config'
 // import Components from 'unplugin-vue-components/vite';
 // import { ArcoResolver } from 'unplugin-vue-components/resolvers';
 // import vitePluginForArco from '@arco-plugins/vite-vue'
@@ -16,6 +19,8 @@ export default ({ mode })=>{
   return defineConfig({
     plugins: [
       vue(),
+      PkgConfig(),
+      OptimizationPersist()
       // svgLoader(),
       // vitePluginForArco({
       //   theme:'@arco-themes/vue-mgo-blog',

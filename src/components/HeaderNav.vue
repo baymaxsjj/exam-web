@@ -91,7 +91,7 @@ a {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     color: var(--color-text-2);
     padding: 0 30px;
-    z-index: 10;
+    z-index: 99;
     .header {
         display: flex;
         height: 100%;
