@@ -62,7 +62,7 @@
                         <slot name="option" :option="item" :index="index" :type="type">
                         </slot>
                     </div>
-                    <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','option',index)" mode="editor" v-model="item.answer"></TextEditor>
+                    <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','option',index)" :mode="getEditMode(type.itemsConfig.editMode)" v-model="item.answer"></TextEditor>
                 </li>
                 <!-- 选项底部 -->
             </template>
@@ -95,19 +95,19 @@
         <slot name="body"></slot>
         <!-- 答案区 -->
         <div class="answer" v-if="showArea.answer">
-            <span class="title">答案：</span>
+            <a-tag color="green" class="title">答案：</a-tag>
             <TextEditor :lazy="props.lazy" mode="preview" v-model="getCorrect"></TextEditor>
         </div>
         <!-- 解析区 -->
         <div class="analysis" v-if="showArea.analysis">
-            <span class="title">解析：</span>
+            <a-tag color="blue" class="title">解析：</a-tag>
             <slot name="analysis">
                 <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','analysis')" :mode="getEditMode()" v-model="question.analysis"></TextEditor>
             </slot>
         </div>
         <!-- 难易程度  -->
         <div class="public" v-if="showArea.difficulty">
-            <span class="title">难易程度：</span>
+            <a-tag color="orangered" style="margin-top: 5px" class="title">难易程度：</a-tag>
             <slot name="difficulty">
                 <a-rate v-model:model-value="question['difficulty']" @change="$emit('editorBlur','difficulty',$event)" :readonly="props.mode!='editor'" />
             </slot>
@@ -140,7 +140,7 @@ const props = defineProps({
         default: "preview",
         validator(value) {
             // The value must match one of these strings
-            return ['preview', 'answer', 'editor'].includes(value)
+            return ['preview', 'answer', 'editor','review'].includes(value)
         }
     },
     options: {
@@ -160,7 +160,7 @@ const props = defineProps({
     }
 })
 const emit = defineEmits(
-    ['choiceCorrect','editorBlur', 'update:question']
+    ['choiceCorrect','editorBlur', 'update:question','update:options']
 )
 const question = computed({
     get() {
@@ -173,13 +173,11 @@ const question = computed({
     }
 })
 
-
-
 const getEditMode = (initMode = 'preview') => {
     // type.value.itemsConfig.editMode
     if (props.mode == 'editor') {
         return 'editor'
-    } else if (props.mode == 'preview') {
+    } else if (['preview','review'].includes(props.mode)) {
         return 'preview'
     }
     return initMode;
@@ -225,29 +223,45 @@ const type = computed(() => {
 })
 
 //如果 myoption存在->合并到option
-const options = computed(() => {
-    const option = [...props.options]
-    if (type.value.enumName == 'SUBJECTIVE' && option[0] == undefined) {
-        option[0] = [{ content: '' }]
-    }
-    if (props.myOptions) {
+const options = computed({
+    get(){
+        //引用的数据，会直接修改props
+        const temOptions=JSON.parse(JSON.stringify(props.options))
+        if(props.mode=='review'){
+            for (const option of temOptions) {
+                //去除答案
+                option.answer=null
+                for (const myOption of props.myOptions) {
+                    //添加自己的答案
+                    if(myOption.optionId==option.id){
+                        option.answer=myOption.answer;
+                    }
+                }
+            }
 
+        }else if (type.value.enumName == 'SUBJECTIVE' && temOptions[0] == undefined) {
+            temOptions[0] = [{ content: '' }]
+        }
+        return temOptions
+    },
+    set(newValue){
+        emit("update:options",newValue)
     }
-    return option
 })
 //获取答案内容
 const getCorrect = computed(() => {
     const answer = []
-    for (let i = 0; i < options.value.length; i++) {
-        if (options.value[i].answer) {
+    props.options.forEach((option,index)=>{
+        if (option.answer) {
             // 单、多、判断
             if (type.value.itemsConfig.prexType == 'letter') {
-                answer.push(letterList[i]);
+                answer.push(letterList[index]);
             } else {
-                answer.push(options.value[i].content)
+                answer.push(option.answer)
             }
         }
-    }
+    })
+
     if (answer.length == 0) {
         answer.push('无')
     }
@@ -268,7 +282,6 @@ const getCorrect = computed(() => {
     .question-info {
         margin-right: 5px;
         line-height: 25px;
-
         .info {
             float: left;
         }
@@ -338,28 +351,16 @@ const getCorrect = computed(() => {
         }
     }
 
-    .public {
-        display: flex;
-        align-items: center;
-        margin: 10px;
-
-        .title {
-            color: var(--color-text-3);
-        }
-    }
-
     .analysis,
-    .answer {
-        margin: 10px;
-        background-color: var(--color-fill-1);
-        padding: 15px;
+    .answer,.public {
+        margin: 10px 0;
         border-radius: 5px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-
+        overflow: hidden;
         .title {
-            color: var(--color-text-3);
+            font-weight: bold;
+            width: 70px;
+            margin-right: 10px;
+            float: left;
         }
     }
 }

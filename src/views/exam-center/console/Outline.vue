@@ -4,12 +4,24 @@
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
-                    <img alt="avatar" :src="record.user.picture" />
+                    <img alt="avatar" :src="record.studentInfo.picture" />
                 </a-avatar>
                 <div>
-                    <h3>{{ record.user.nickname }}</h3>
-                    <a-tag color="gray">{{ `工号：${record.user.personalId ?? '未认证'}` }}</a-tag>
+                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{ record.studentInfo.nickname }}</h3>
+                    <a-tag style="font-weight:bold" color="gray">{{
+                            record.studentInfo.realName ?? '未认证'
+                    }}</a-tag>
                 </div>
+            </div>
+        </template>
+        <template #authInfo="{record}">
+            <div class="authInfo">
+                <a-tag color="orangered">{{
+                        record.studentInfo.jobNo??'信息未认证'
+                }}</a-tag>
+             <a-tag color="blue" v-if="record.studentInfo.schoolName">{{
+                        record.studentInfo.schoolName
+                }}</a-tag>
             </div>
         </template>
         <template #status="{ record }">
@@ -17,19 +29,22 @@
                 :text="getAnswerStatus(record.answerStatus).statusText" style="white-space: nowrap;"/>
         </template>
         <template #actions="{ record }">
-            <a-popover v-for="action of record.actionPage.list">
-                <a-tag :color="action.status.value > 50 ? 'red' : 'green'" style="margin:5px">{{
-                        action.status.action
-                }}</a-tag>
-                <template #content>
-                    <a-tag style="display: block;" color="cyan">时间：{{
-                            dayjs(action.createdAt).format("MM-DD HH:mm: ss")
+            <template v-if="record.actionPage">
+                <a-popover v-for="action of record.actionPage?.list">
+                    <a-tag :color="action.status.value > 50 ? 'red' : 'green'" style="margin:5px">{{
+                            action.status.action
                     }}</a-tag>
-                    <a-tag style="display: block;margin-top: 2px;" color="grey" v-if="action.info">IP:{{
-                            action.info
-                    }}</a-tag>
-                </template>
-            </a-popover>
+                    <template #content>
+                        <a-tag style="display: block;" color="cyan">时间：{{
+                                dayjs(action.createdAt).format("MM-DD HH:mm: ss")
+                        }}</a-tag>
+                        <a-tag style="display: block;margin-top: 2px;" color="grey" v-if="action.info">IP:{{
+                                action.info
+                        }}</a-tag>
+                    </template>
+                </a-popover>
+            </template>
+            <a-tag color="grey" v-else>暂无行为日志</a-tag>
         </template>
         <template #operate="{ record }">
             <div class="operate">
@@ -169,7 +184,13 @@ watch([() => classIds.value, () => currClassId.value, () => answerStatus.value],
 const columns = [
     {
         title: '个人信息',
-        slotName: 'userInfo'
+        slotName: 'userInfo',
+        width:200,
+    },
+    {
+        title: '认证信息',
+        slotName: 'authInfo',
+        width:150,
     },
     {
         title: '考试行为',
@@ -177,10 +198,12 @@ const columns = [
     },
     {
         title: '状态',
-        slotName: 'status'
+        slotName: 'status',
+        width:70,
     },
     {
         title: '操作',
+        width:100,
         slotName: 'operate'
     },
 ]
@@ -196,5 +219,14 @@ const columns = [
 }
 .operate{
     display: flex;
+}
+.authInfo{
+    display: flex;
+    flex-direction: column;
+    span{
+        margin: 4px 0;
+        justify-content: center;
+        font-weight: bold;
+    }
 }
 </style>

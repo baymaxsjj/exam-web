@@ -1,39 +1,63 @@
 <template>
-    <a-table row-key="id"  :columns="columns" :data="studentList" :loading="loading" :pagination="{total,current:page}" page-position="bottom" @page-change="pageChange">
+    <a-table row-key="id" :columns="columns" :data="studentList" :loading="loading" :pagination="{ total, current: page }"
+        page-position="bottom" @page-change="pageChange">
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
-                    <img alt="avatar" :src="record.user.picture" />
+                    <img alt="avatar" :src="record.studentInfo.picture" />
                 </a-avatar>
                 <div>
-                    <h3>{{ record.user.nickname }}</h3>
-                    <a-tag color="gray" >{{ `工号：${record.user.personalId ?? '未认证'}` }}</a-tag>
+                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{
+                            record.studentInfo.nickname
+                    }}</h3>
+                    <a-tag style="font-weight:bold" color="gray">{{
+                            record.studentInfo.realName ?? '未认证'
+                    }}</a-tag>
                 </div>
+            </div>
+        </template>
+        <template #time="{ record }">
+            <div class="time">
+                <a-tag>{{ record.startTime ?? '未开始' }}</a-tag>
+                <a-tag>{{ record.submitTime ?? '未提交' }}</a-tag>
+            </div>
+        </template>
+        <template #authInfo="{ record }">
+            <div class="authInfo">
+                <a-tag color="orangered">{{
+                        record.studentInfo.jobNo ?? '信息未认证'
+                }}</a-tag>
+                <a-tag color="blue" v-if="record.studentInfo.schoolName">{{
+                        record.studentInfo.schoolName
+                }}</a-tag>
             </div>
 
         </template>
         <template #score="{ record }">
             <div>
-                <a-tag  color="green">{{record.score}}</a-tag>
+                <a-tag color="green">{{ record.score }}</a-tag>
             </div>
         </template>
         <template #status="{ record }">
-            <a-badge status="normal" :text="record.reviewType?.action ?? '未参加'" />
+            <a-badge status="normal" :text="record.answerStatus?.action ?? '未参加'" />
         </template>
         <template #correctNumber="{ record }">
-            <a-tag color="orange" >{{record.correctNumber}}</a-tag>
+            <a-tag color="orange">{{ record.correctNumber }}</a-tag>
         </template>
         <template #totalTime="{ record }">
-            <a-tag color="cyan" >{{getTotalTime(record.startTime,record.submitTime)}}</a-tag>
+            <a-tag color="cyan">{{ getTotalTime(record.startTime, record.submitTime) }}</a-tag>
         </template>
         <template #operate="{ record }">
-            <a-button type="primary" @click="toReviewPage(record.user.id)" :disabled="record.reviewType?.value == 11 || record.reviewType == null"
-                style="margin-left: 10px;">
-                查看/批阅
-            </a-button>
-            <a-button type="primary" :disabled="record.reviewType?.value != 11" style="margin-left: 10px;">
-                交卷
-            </a-button>
+            <div class="operate">
+                <a-button type="primary" @click="toReviewPage(record.studentInfo.userId)"
+                    :disabled="record.answerStatus?.value == 11 || record.answerStatus == null"
+                    style="margin-left: 10px;">
+                    查看/批阅
+                </a-button>
+                <a-button type="primary" :disabled="record.answerStatus?.value != 11" style="margin-left: 10px;">
+                    交卷
+                </a-button>
+            </div>
         </template>
     </a-table>
 </template>
@@ -42,17 +66,17 @@ import { ref, watch, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { examAnswerReviewRequest } from '@/apis/exam-center-api';
 import { examConsoleInfoKey } from '@/utils/keys.js'
-import  dayjs from 'dayjs'
-const { currClassId, classIds, reviewType } = inject(examConsoleInfoKey)
+import dayjs from 'dayjs'
+const { currClassId, classIds, answerStatus } = inject(examConsoleInfoKey)
 const route = useRoute();
-const router=useRouter()
+const router = useRouter()
 const examInfoId = route.params['examInfoId']
 const studentList = ref([])
 const loading = ref(true)
 const page = ref(1)
 const total = ref(1)
-const pageChange=(current)=>{
-    page.value=current
+const pageChange = (current) => {
+    page.value = current
     console.log(current)
     getReviewList()
 }
@@ -64,7 +88,7 @@ const getReviewList = () => {
         claIds = classIds.value;
     }
     loading.value = true
-    examAnswerReviewRequest(examInfoId, claIds, reviewType.value, page.value).then(res => {
+    examAnswerReviewRequest(examInfoId, claIds, answerStatus.value, page.value).then(res => {
         const data = res.data.data;
         studentList.value = data.list;
         total.value = data.total;
@@ -74,73 +98,102 @@ const getReviewList = () => {
 if (classIds.value.length != 0) {
     getReviewList()
 }
-const toReviewPage=(studentId)=>{
+const toReviewPage = (studentId) => {
     router.push({
-        name:'ExamReview',
-        params:{
+        name: 'ExamReview',
+        params: {
             studentId
         }
     })
 }
-const getTotalTime=(startTime,endTime)=>{
-    if(startTime&&endTime){
-        return dayjs(endTime).diff(startTime,'minute')+" 分钟"
+const getTotalTime = (startTime, endTime) => {
+    if (startTime && endTime) {
+        return dayjs(endTime).diff(startTime, 'minute') + " 分钟"
     }
     return "暂无时间"
 }
-watch([() => classIds.value, () => currClassId.value, () => reviewType.value], () => {
+watch([() => classIds.value, () => currClassId.value, () => answerStatus.value], () => {
     page.value = 1
     getReviewList()
 })
 const columns = [
     {
         title: '个人信息',
-        slotName: 'userInfo'
+        slotName: 'userInfo',
+        width: 200,
+    },
+    {
+        title: '认证信息',
+        slotName: 'authInfo',
+        width: 150,
     },
     {
         title: '得分',
         dataIndex: 'score',
-        slotName: 'score'
+        slotName: 'score',
     },
     {
         title: '题目对错',
         dataIndex: 'correctNumber',
-        slotName: 'correctNumber'
+        slotName: 'correctNumber',
 
     },
     {
         title: '耗时',
-        slotName: 'totalTime'
+        slotName: 'totalTime',
 
     },
     {
-        title: '开始时间',
-        dataIndex: 'startTime',
-        slotName: 'startTime'
-
-    },
-    {
-        title: '提交时间',
-        dataIndex: 'submitTime',
-        slotName: 'submitTime'
+        title: '作答时间',
+        dataIndex: 'time',
+        slotName: 'time',
 
     },
     {
         title: '状态',
-        slotName: 'status'
+        slotName: 'status',
+        width: 100,
     },
     {
+        width: 200,
         title: '操作',
         slotName: 'operate'
     },
 ]
 </script>
 <style lang="less" scoped>
-.user-info{
+.user-info {
     display: flex;
     align-items: center;
-    .avatar{
+
+    .avatar {
         margin-right: 10px;
+    }
+}
+
+.operate {
+    display: flex;
+}
+
+.authInfo {
+    display: flex;
+    flex-direction: column;
+
+    span {
+        margin: 4px;
+        justify-content: center;
+        font-weight: bold;
+    }
+}
+
+.time {
+    display: flex;
+    flex-direction: column;
+
+    // align-items: center;
+    span {
+        margin: 4px 0;
+        justify-content: center;
     }
 }
 </style>

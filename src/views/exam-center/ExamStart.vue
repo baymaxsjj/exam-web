@@ -55,7 +55,7 @@
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
                                     @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
-                                    :options="item.options"
+                                    v-model:options="item.options"
                                     :lazy="isPreview"
                                     >
                                     <template #question="{ question, options, type }">
@@ -74,19 +74,12 @@
                 <a-empty v-else></a-empty>
             </div>
         </div>
-        <div class="exam-number">
-            <div class="common-style" style="margin-bottom: 0;">
-                <h5 style="margin-bottom: 10px;">作答状态</h5>
-                <ul class="answer-status">
-                    <li>未作答<span class="status-color status-color-none"></span></li>
-                    <li>未答完<span class="status-color status-color-start"></span></li>
-                    <li>已作答<span class="status-color status-color-end"></span></li>
-                </ul>
-            </div>
-            <QuestionNumber @numberClick="numberChange" scroll-container=".exam-list" :number-list="getNumberInfo" group-class="common-style"/>
+        <div class="exam-number common-style">
+            <QuestionNumber :status-list="answerStatus" :status-visible="true" title="作答状态" @numberClick="numberChange" scroll-container=".exam-list" :number-list="getNumberInfo" group-class="common-style"/>
                    
         </div>
     </div>
+    <QuestionImagePreview click-area=".exam-list"/>
 </template>
 <script setup>
 import { computed, h, onMounted, ref } from "vue";
@@ -104,6 +97,7 @@ import { getQuestionType } from "../../utils/question-config";
 import useUserStore from "../../sotre/user-store";
 import { Message, Modal } from "@arco-design/web-vue";
 import QuestionNumber from "../../components/QuestionNumber.vue";
+import QuestionImagePreview from "../../components/QuestionImagePreview.vue";
 const userStore = useUserStore();
 const route = useRoute();
 const router=useRouter()
@@ -191,7 +185,7 @@ const getNumberInfo = computed(() => {
                 key:question.id,
                 number: i+1,
                 href:`question-${question.id}`,
-                class: "status-color-"+getQuestionAnswerStatus(question)
+                statusKey: getQuestionAnswerStatus(question)
             })
         }
         numberInfo.push({
@@ -372,6 +366,23 @@ const answerAction = (actions) => {
     });
 };
 onMounted(() => { });
+const answerStatus=[
+    {
+        key:'none',
+        status:'未作答',
+        style:{backgroundColor:'var(--color-fill-1)'}
+    },
+    {
+        key:'start',
+        status:'未答完',
+        style:{backgroundColor:'rgba(var(--orange-4), 8)',color:'var(--color-white)'}
+    },
+    {
+        key:'end',
+        status:'已作答',
+        style:{backgroundColor:'rgba(var(--green-4), 8)',color:'var(--color-white)'}
+    }
+]
 </script>
 <style lang="less" scoped>
 .fade-enter-active {
@@ -424,7 +435,7 @@ onMounted(() => { });
     }
 }
 
-:deep(.common-style) {
+.common-style {
     background-color: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -523,47 +534,10 @@ onMounted(() => { });
     }
     .exam-number {
         width: 320px;
-        background-color: var(--color-fill-1);
         height: 100%;
-        padding: 10px;
-        padding-top: 0;
         overflow-y: overlay;
-
-        .answer-status {
-            display: flex;
-            color: var(--color-text-1);
-            justify-content: space-around;
-            font-size: 14px;
-            font-weight: bold;
-
-            li {
-                display: flex;
-                align-items: center;
-            }
-
-            .status-color {
-                display: inline-block;
-                height: 20px;
-                width: 20px;
-                border-radius: 4px;
-                margin: 5px;
-                border: 1px solid var(--color-fill-2);
-            }
-        }
-
-        :deep(.status-color-none) {
-            background-color: var(--color-fill-1);
-        }
-
-        :deep(.status-color-start) {
-            background-color: rgba(var(--orange-4), 8);
-            color: #fff;
-        }
-
-        :deep(.status-color-end) {
-            background-color: rgba(var(--green-4), .8);
-            color: #fff;
-        }
+        box-sizing: border-box;
+        margin: 10px;
     }
 }
 </style>

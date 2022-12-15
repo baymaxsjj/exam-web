@@ -1,9 +1,16 @@
 <template>
+    <div v-if="props.statusVisible">
+        <h5 style="margin-bottom: 10px;">{{props.title}}</h5>
+        <ul class="status-desc">
+            <li v-for="item of props.statusList">{{item.status}}<span class="status-color" :style="item.style"></span></li>
+        </ul>
+        <hr style="background-color:var(--color-fill-1)"/>
+    </div>
     <a-anchor line-less :change-hash="false" :scroll-container="scrollContainer" class="group-number">
         <li v-for="item of numberList" :key="item.title" :class="groupClass">
-            <h5 style="margin-bottom: 10px;">{{ item.title }}</h5>
+            <h5 style="margin: 10px 0;">{{ item.title }}</h5>
             <ul style="display:flex;flex-wrap:wrap">
-                <a-anchor-link @click="$emit('numberClick',info)" :class="info.class" :style="{ color: info.color }"
+                <a-anchor-link @click="$emit('numberClick',info)" :style="getStuatsItem(info.statusKey)?.style"
                     :href="`#${info.href}`" :key="info.key" v-for="info of item.list">{{ info.number }}</a-anchor-link>
             </ul>
         </li>
@@ -29,6 +36,19 @@ const props = defineProps({
             }
         ]
     },
+    title:{
+        type:String,
+        default:""
+        
+    },
+    statusList:{
+        type:Array,
+        default:()=>[]
+    },
+    statusVisible:{
+        type:Boolean,
+        default:false
+    },
     groupClass: {
         type: String,
         default: ""
@@ -38,8 +58,35 @@ const props = defineProps({
         default:() => Window
     }
 })
+const getStuatsItem=(key)=>{
+    for (const item of props.statusList) {
+        if(item.key==key){
+            return item
+        }
+    }
+}
 </script>
 <style lang="less" scoped>
+ .status-desc{
+    display: flex;
+    color: var(--color-text-1);
+    justify-content: space-around;
+    font-size: 14px;
+    font-weight: bold;
+
+    li {
+        display: flex;
+        align-items: center;
+    }
+    .status-color {
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        border-radius: 4px;
+        margin: 5px;
+        border: 1px solid var(--color-fill-2);
+    }
+}
 .group-number {
     width: 100%;
     :deep(.arco-anchor-list){

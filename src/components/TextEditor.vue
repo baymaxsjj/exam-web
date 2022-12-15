@@ -1,11 +1,15 @@
 <template>
-    <BaseTextPreview v-if="((mode == 'preview') || lazy)" :class="{lazy:lazy}" @click="loadEdit" :initialValue="content" />
-    <BaseTextEditor @blur="$emit('blur')" v-else :config="config" v-model="content" />
+    {{showPreview}}
+    <div v-if="(props.mode == 'preview') || lazy" :class="{lazy}" @click="loadEdit">
+        <span class="wysiwyg" v-html="DOMPurify.sanitize(modelValue)"></span>
+    </div>
+    <BaseTextEditor v-else @blur="$emit('blur')" :config="config" v-model="content" />
 </template>
 <script setup>
 import BaseTextEditor from './BaseTextEditor.vue';
-import BaseTextPreview from './BaseTextPreview.vue';
 import { computed,ref,watch } from 'vue'
+import DOMPurify from 'dompurify';
+import '../assets/styles/wysiwyg.css'
 
 const props = defineProps({
     modelValue: {
@@ -45,9 +49,7 @@ const emit = defineEmits([
     'update:modelValue',
     'blur'
 ]);
-const blur = () => {
-    emit('blur', props.modelValue)
-}
+
 const loadEdit = () => {
     lazy.value=false
 }
@@ -58,5 +60,8 @@ const loadEdit = () => {
     padding: 10px;
     border-radius: 10px;
     min-height: 50px;
+}
+.vditor {
+    margin: 10px 0;
 }
 </style>
