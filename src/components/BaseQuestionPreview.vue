@@ -93,6 +93,13 @@
             </li>
         </ul>
         <slot name="body"></slot>
+        <!-- 难易程度  -->
+        <div class="public" v-if="showArea.difficulty">
+            <a-tag color="orangered" style="margin-top: 5px" class="title">难易程度：</a-tag>
+            <slot name="difficulty">
+                <a-rate v-model:model-value="question['difficulty']" @change="$emit('editorBlur','difficulty',$event)" :readonly="props.mode!='editor'" />
+            </slot>
+        </div>
         <!-- 答案区 -->
         <div class="answer" v-if="showArea.answer">
             <a-tag color="green" class="title">答案：</a-tag>
@@ -105,13 +112,7 @@
                 <TextEditor :lazy="props.lazy" @blur="$emit('editorBlur','analysis')" :mode="getEditMode()" v-model="question.analysis"></TextEditor>
             </slot>
         </div>
-        <!-- 难易程度  -->
-        <div class="public" v-if="showArea.difficulty">
-            <a-tag color="orangered" style="margin-top: 5px" class="title">难易程度：</a-tag>
-            <slot name="difficulty">
-                <a-rate v-model:model-value="question['difficulty']" @change="$emit('editorBlur','difficulty',$event)" :readonly="props.mode!='editor'" />
-            </slot>
-        </div>
+        
         <slot name="footer"></slot>
 
     </div>

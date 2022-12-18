@@ -59,10 +59,10 @@ const bgStyle = computed(() => {
 </script>
 <style lang="less" scoped>
 .tags {
-  height: 40px;
+  height: 48px;
   background: var(--color-secondary-disabled);
   border-radius: 6px;
-  padding: 3px;
+  padding: 4px;
   box-sizing: border-box;
   font-size: 16px;
 

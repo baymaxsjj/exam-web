@@ -9,23 +9,36 @@
     </div>
     <div class="exam-start">
         <div class="exam-info">
-            <p class="exam-count-down common-style">
+            <div class=" common-style">
+                <div class="user-info">
+                    <a-avatar shape="square" class="avatar">
+                        <img alt="avatar" :src="userStore.userInfo.picture" />
+                    </a-avatar>
+                    <div class="desc">
+                        <div>
+                            <a-tag color="orange">{{ userStore.userInfo.nickname }}</a-tag>
+                            <span class="real-name">({{ userStore.userInfo.realName ?? '未认证' }})</span>
+                        </div>
+                        <div>
+                            <a-tag color="blue">{{ userStore.userInfo.schoolName ?? '未认证' }}</a-tag>
+                        </div>
+                    </div>
+                </div>
+                <div class="number-desc ">
+                    <span class="number"> 已答：<a-tag color="green">{{ 10 }}</a-tag></span>
+                    <span class="number"> 题数：<a-tag color="orangered">{{ questionList.length }}</a-tag></span>
+                </div>
+            </div>
+
+            <div class="common-style">
                 <a-countdown ref="countDownRef" :value="dayjs(examInfo.endTime).valueOf()"
                     :start="examInfo.endTime != null" :now="Date.now()" format="HH:mm:ss">
                     <template #title>
                         <h1>{{ examInfo.title ?? "loading" }}</h1>
                     </template>
                 </a-countdown>
-            </p>
-            <div class="common-style">
-                <p class="user-name">姓名：{{ userStore.userInfo.username }}</p>
-                <p class="school-number">学号</p>
-                <p class="school-name">学校</p>
-            </div>
-            <div class="common-style">
-                <p class="question-count">题目数量：{{ questionList.length }}</p>
-                <p class="exam-stat-time">开始时间：{{ examInfo.startTime }}</p>
-                <p class="exam-end-time">结束时间：{{ examInfo.endTime }}</p>
+                <a-tag class="exam-stat-time" style="margin:10px 0">开始时间：{{ examInfo.startTime }}</a-tag>
+                <a-tag class="exam-end-time">结束时间：{{ examInfo.endTime }}</a-tag>
             </div>
         </div>
         <div class="exam-list">
@@ -50,14 +63,11 @@
                     <a-list :data="getExamQuestion" :bordered="false">
                         <template #item="{ item, index }">
                             <a-list-item :id="`question-${item.id}`">
-                                <BaseQuestionPreview @editorBlur="submitAnswer(item.id)"
-                                    :key="item.id"
+                                <BaseQuestionPreview @editorBlur="submitAnswer(item.id)" :key="item.id"
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
                                     @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
-                                    v-model:options="item.options"
-                                    :lazy="isPreview"
-                                    >
+                                    v-model:options="item.options" :lazy="isPreview">
                                     <template #question="{ question, options, type }">
                                         <!-- {{question}} -->
                                         <Transition name="fade">
@@ -75,11 +85,12 @@
             </div>
         </div>
         <div class="exam-number common-style">
-            <QuestionNumber :status-list="answerStatus" :status-visible="true" title="作答状态" @numberClick="numberChange" scroll-container=".exam-list" :number-list="getNumberInfo" group-class="common-style"/>
-                   
+            <QuestionNumber :status-list="answerStatus" :status-visible="true" title="作答状态" @numberClick="numberChange"
+                scroll-container=".exam-list" :number-list="getNumberInfo" group-class="common-style" />
+
         </div>
     </div>
-    <QuestionImagePreview click-area=".exam-list"/>
+    <QuestionImagePreview click-area=".exam-list" />
 </template>
 <script setup>
 import { computed, h, onMounted, ref } from "vue";
@@ -100,7 +111,7 @@ import QuestionNumber from "../../components/QuestionNumber.vue";
 import QuestionImagePreview from "../../components/QuestionImagePreview.vue";
 const userStore = useUserStore();
 const route = useRoute();
-const router=useRouter()
+const router = useRouter()
 const examInfoId = route.params["examInfoId"];
 const time = ref(0);
 const currQuestIndex = ref(0);
@@ -108,7 +119,7 @@ const currQuestIndex = ref(0);
 let temNumber = 0;
 const isPreview = ref(false);
 //题目信息
-const numberGroup=ref({})
+const numberGroup = ref({})
 const questionList = ref([]);
 const options = ref([]);
 //考试信息
@@ -129,7 +140,7 @@ const getExamQuestion = computed(() => {
 
 examStartRequest(examInfoId).then((res) => {
     const data = res.data.data;
-    const qlist=data["questionList"];
+    const qlist = data["questionList"];
     examInfo.value = data["examInfo"];
     getQuestionList(qlist);
     console.log(questionList.value[currQuestIndex.value]);
@@ -138,20 +149,20 @@ examStartRequest(examInfoId).then((res) => {
     if (examInfo.value.isMonitor) {
         monitorAction();
     }
-}).catch(()=>{
+}).catch(() => {
     router.push({
-        name:'Home'
+        name: 'Home'
     })
 });
-const sumbit=()=>{
-    const submitTime=examInfo.value.submitTime;
-    if(submitTime&&dayjs().isAfter(dayjs(submitTime))){
-        examSubmitRequest(examInfoId).then(res=>{
+const sumbit = () => {
+    const submitTime = examInfo.value.submitTime;
+    if (submitTime && dayjs().isAfter(dayjs(submitTime))) {
+        examSubmitRequest(examInfoId).then(res => {
             router.push({
-                name:'ExamSuccess'
+                name: 'ExamSuccess'
             })
         })
-    }else{
+    } else {
         Modal.info({
             title: '未到提交时间',
             content: h('h1', [
@@ -167,30 +178,30 @@ const getQuestionList = (qList) => {
     Object.keys(qList).forEach((key) => {
         console.log(qList[key]);
         questionList.value.push(...qList[key]);
-        numberGroup.value[key]=qList[key].length;
+        numberGroup.value[key] = qList[key].length;
     });
 };
 //获取序号选项
 const getNumberInfo = computed(() => {
-    const numberInfo =[]
-    const questions=questionList.value
-    let i=0;
+    const numberInfo = []
+    const questions = questionList.value
+    let i = 0;
     for (const key in numberGroup.value) {
         const name = getQuestionType(key).simpleName
         const info = []
-        const length=(i+numberGroup.value[key]);
-        for(;i<length;i++){
-            const question=questions[i]
+        const length = (i + numberGroup.value[key]);
+        for (; i < length; i++) {
+            const question = questions[i]
             info.push({
-                key:question.id,
-                number: i+1,
-                href:`question-${question.id}`,
+                key: question.id,
+                number: i + 1,
+                href: `question-${question.id}`,
                 statusKey: getQuestionAnswerStatus(question)
             })
         }
         numberInfo.push({
-            title:name,
-            list:info
+            title: name,
+            list: info
         })
     }
     return numberInfo
@@ -206,7 +217,7 @@ const getQuestionAnswerStatus = (question) => {
         }
     })
     if (type == 'SIGNAL_CHOICE' || type == 'MULTIPLE_CHOICE' || type == 'JUDGMENTAL') {
-        if(answerCount>0){
+        if (answerCount > 0) {
             status = 'end'
         }
     } else {
@@ -218,9 +229,9 @@ const getQuestionAnswerStatus = (question) => {
     }
     return status;
 }
-const numberChange=(info)=>{
+const numberChange = (info) => {
     console.log(info)
-    switchQuestion(info.number-1)
+    switchQuestion(info.number - 1)
 }
 //选择答案
 const choiceCorrect = (id, selects) => {
@@ -297,7 +308,7 @@ const showSubInfo = (count, total, type) => {
 };
 
 const switchQuestion = (index) => {
-    if(isPreview.value){
+    if (isPreview.value) {
         return
     }
     const question = questionList.value[index]
@@ -326,7 +337,7 @@ const switchQuestion = (index) => {
 // 上传该题的所有答案
 const saveAnswer = (option) => { };
 const monitorAction = () => {
-    if(import.meta.env.DEV){
+    if (import.meta.env.DEV) {
         return
     }
     document.addEventListener("visibilitychange", () => {
@@ -345,15 +356,15 @@ const monitorAction = () => {
         });
     });
 };
-if(import.meta.env.PROD){
+if (import.meta.env.PROD) {
     document.addEventListener("contextmenu", function (e) {
         e.preventDefault(); // 阻止默认事件
     });
     document.addEventListener("selectstart", function (e) {
         e.preventDefault();
     });
-    document.addEventListener('keydown',function(e){
-        if(e.key == 'F12'){
+    document.addEventListener('keydown', function (e) {
+        if (e.key == 'F12') {
             e.preventDefault(); // 如果按下键F12,阻止事件
         }
     });
@@ -366,21 +377,21 @@ const answerAction = (actions) => {
     });
 };
 onMounted(() => { });
-const answerStatus=[
+const answerStatus = [
     {
-        key:'none',
-        status:'未作答',
-        style:{backgroundColor:'var(--color-fill-1)'}
+        key: 'none',
+        status: '未作答',
+        style: { backgroundColor: 'var(--color-fill-1)' }
     },
     {
-        key:'start',
-        status:'未答完',
-        style:{backgroundColor:'rgba(var(--orange-4), 8)',color:'var(--color-white)'}
+        key: 'start',
+        status: '未答完',
+        style: { backgroundColor: 'rgba(var(--orange-4), 8)', color: 'var(--color-white)' }
     },
     {
-        key:'end',
-        status:'已作答',
-        style:{backgroundColor:'rgba(var(--green-4), 8)',color:'var(--color-white)'}
+        key: 'end',
+        status: '已作答',
+        style: { backgroundColor: 'rgba(var(--green-4), 8)', color: 'var(--color-white)' }
     }
 ]
 </script>
@@ -476,9 +487,46 @@ const answerStatus=[
             justify-content: center;
         }
 
-        p {
-            color: var(--color-text-2);
-            margin: 10px 0;
+        .user-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .avatar {
+                margin-right: 10px;
+            }
+
+            .desc {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                flex: 1;
+
+                span {
+                    margin: 2px;
+                    font-weight: bold;
+                }
+
+                .real-name {
+                    font-size: 14px;
+                    color: var(--color-text-3);
+                }
+            }
+        }
+        .number-desc {
+            display: flex;
+            justify-content: center;
+
+            .number {
+                font-size: 14px;
+                font-weight: bold;
+                color: var(--color-text-3);
+                margin: 10px;
+
+                span {
+                    font-weight: bold;
+                }
+            }
         }
     }
 
@@ -490,6 +538,7 @@ const answerStatus=[
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
+
         .nextquestBtn {
             :deep(.arco-btn-icon) {
                 order: 1;
@@ -532,6 +581,7 @@ const answerStatus=[
             position: relative;
         }
     }
+
     .exam-number {
         width: 320px;
         height: 100%;

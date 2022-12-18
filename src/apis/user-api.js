@@ -3,3 +3,6 @@ import axios from '../utils/http'
 export const userInfoRequest=()=>{
     return axios.get(`/uapi/user/info`)
 }
+export const userAuthInfoRequest=()=>{
+    return axios.get(`/uapi/user-auth/info`)
+}

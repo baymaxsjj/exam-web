@@ -45,18 +45,18 @@ watch(()=>route.name,()=>{
   overflow: hidden;
 }
 
-div::-webkit-scrollbar {
+div::-webkit-scrollbar,body::-webkit-scrollbar  {
   /*滚动条整体样式*/
   width : 5px;  /* 高宽分别对应横竖滚动条的尺寸 */
   height: 1px;
 }
-div::-webkit-scrollbar-thumb {
+div::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb{
   /*滚动条里面小方块*/
   border-radius: 10px;
   box-shadow   : inset 0 0 5px rgba(219, 219, 219, 0.5);
   background   : #d6d6d6;
 }
-div::-webkit-scrollbar-track {
+div::-webkit-scrollbar-track,body::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
   box-shadow   : inset 0 0 5px rgba(255, 255, 255, 0.8);
   border-radius: 10px;

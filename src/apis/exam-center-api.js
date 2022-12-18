@@ -33,3 +33,7 @@ export const examStudentAnswerResultRequest=(examInfoId,studentId)=>{
 export const examStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
     return axios.get(`/eapi//exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
 }
+/**---------------------考试批阅~相关-----------------------------*/
+export const examSubmitReviewRequest=(examInfoId,scoreList)=>{
+    return axios.post(`/eapi/exam-score-record/${examInfoId}/update/score`,scoreList)
+}

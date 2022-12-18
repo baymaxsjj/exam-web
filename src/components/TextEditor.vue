@@ -1,5 +1,4 @@
 <template>
-    {{showPreview}}
     <div v-if="(props.mode == 'preview') || lazy" :class="{lazy}" @click="loadEdit">
         <span class="wysiwyg" v-html="DOMPurify.sanitize(modelValue)"></span>
     </div>

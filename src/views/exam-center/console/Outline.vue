@@ -4,12 +4,12 @@
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
-                    <img alt="avatar" :src="record.studentInfo.picture" />
+                    <img alt="avatar" :src="record.userAuthInfo.picture" />
                 </a-avatar>
                 <div>
-                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{ record.studentInfo.nickname }}</h3>
+                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{ record.userAuthInfo.nickname }}</h3>
                     <a-tag style="font-weight:bold" color="gray">{{
-                            record.studentInfo.realName ?? '未认证'
+                            record.userAuthInfo.realName ?? '未认证'
                     }}</a-tag>
                 </div>
             </div>
@@ -17,10 +17,10 @@
         <template #authInfo="{record}">
             <div class="authInfo">
                 <a-tag color="orangered">{{
-                        record.studentInfo.jobNo??'信息未认证'
+                        record.userAuthInfo.jobNo??'信息未认证'
                 }}</a-tag>
-             <a-tag color="blue" v-if="record.studentInfo.schoolName">{{
-                        record.studentInfo.schoolName
+             <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
+                        record.userAuthInfo.schoolName
                 }}</a-tag>
             </div>
         </template>
@@ -53,7 +53,7 @@
                 </a-button>
                 <a-badge :count="(record.actionPage?.total ?? 0)">
                     <a-button type="primary" :disabled="(record.actionPage == null)" style="margin-left: 10px;"
-                        @click="showStudnetLog(record.user)">
+                        @click="showStudnetLog(record.userAuthInfo)">
                         查看日志
                     </a-button>
                 </a-badge>
@@ -64,7 +64,8 @@
     <a-modal simple v-model:visible="showLog" class="student-log" title="学生答题日志">
         <div class="student-info">
             <a-badge status="processing" :text="'姓名：' + stuInfo.nickname" />
-            <a-badge status="normal" :text="`工号：${stuInfo.schoolId ?? '未认证'}`" />
+            <a-badge status="normal" :text="`工号：${stuInfo.jobNo ?? '未认证'}`" />
+            <a-badge status="normal" :text="`学校：${stuInfo.schoolName ?? '未认证'}`" />
             <a-badge :status="(stuLogTotal > 10 ? 'danger' : 'warning')" :text="`共${stuLogTotal}条日志`" />
         </div>
         <div class="log-timeline">
@@ -129,7 +130,7 @@ const showStudnetLog = (info) => {
 }
 const getStudentLog = () => {
     logLoading.value = true
-    examStudentLogRequest(examInfoId, stuInfo.value.id, stuLogPage.value, 5).then(res => {
+    examStudentLogRequest(examInfoId, stuInfo.value.userId, stuLogPage.value, 5).then(res => {
         const data = res.data.data;
         stuLog.value = data.list;
         stuLog.value.forEach(log => {
@@ -228,5 +229,11 @@ const columns = [
         justify-content: center;
         font-weight: bold;
     }
+}
+.student-info{
+    position: absolute;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
 }
 </style>

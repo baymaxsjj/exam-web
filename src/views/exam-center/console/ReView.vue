@@ -4,14 +4,14 @@
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
-                    <img alt="avatar" :src="record.studentInfo.picture" />
+                    <img alt="avatar" :src="record.userAuthInfo.picture" />
                 </a-avatar>
                 <div>
                     <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{
-                            record.studentInfo.nickname
+                            record.userAuthInfo.nickname
                     }}</h3>
                     <a-tag style="font-weight:bold" color="gray">{{
-                            record.studentInfo.realName ?? '未认证'
+                            record.userAuthInfo.realName ?? '未认证'
                     }}</a-tag>
                 </div>
             </div>
@@ -25,10 +25,10 @@
         <template #authInfo="{ record }">
             <div class="authInfo">
                 <a-tag color="orangered">{{
-                        record.studentInfo.jobNo ?? '信息未认证'
+                        record.userAuthInfo.jobNo ?? '信息未认证'
                 }}</a-tag>
-                <a-tag color="blue" v-if="record.studentInfo.schoolName">{{
-                        record.studentInfo.schoolName
+                <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
+                        record.userAuthInfo.schoolName
                 }}</a-tag>
             </div>
 
@@ -47,9 +47,12 @@
         <template #totalTime="{ record }">
             <a-tag color="cyan">{{ getTotalTime(record.startTime, record.submitTime) }}</a-tag>
         </template>
+        <template #reviewStatus="{record}">
+            <a-tag>{{record.reviewCount}}/{{record.reviewTotal}}</a-tag>
+        </template>
         <template #operate="{ record }">
             <div class="operate">
-                <a-button type="primary" @click="toReviewPage(record.studentInfo.userId)"
+                <a-button type="primary" @click="toReviewPage(record.userAuthInfo.userId)"
                     :disabled="record.answerStatus?.value == 11 || record.answerStatus == null"
                     style="margin-left: 10px;">
                     查看/批阅
@@ -67,7 +70,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { examAnswerReviewRequest } from '@/apis/exam-center-api';
 import { examConsoleInfoKey } from '@/utils/keys.js'
 import dayjs from 'dayjs'
-const { currClassId, classIds, answerStatus } = inject(examConsoleInfoKey)
+const { currClassId, classIds, reviewType } = inject(examConsoleInfoKey)
 const route = useRoute();
 const router = useRouter()
 const examInfoId = route.params['examInfoId']
@@ -88,7 +91,7 @@ const getReviewList = () => {
         claIds = classIds.value;
     }
     loading.value = true
-    examAnswerReviewRequest(examInfoId, claIds, answerStatus.value, page.value).then(res => {
+    examAnswerReviewRequest(examInfoId, claIds, reviewType.value, page.value).then(res => {
         const data = res.data.data;
         studentList.value = data.list;
         total.value = data.total;
@@ -112,7 +115,7 @@ const getTotalTime = (startTime, endTime) => {
     }
     return "暂无时间"
 }
-watch([() => classIds.value, () => currClassId.value, () => answerStatus.value], () => {
+watch([() => classIds.value, () => currClassId.value, () => reviewType.value], () => {
     page.value = 1
     getReviewList()
 })
@@ -148,6 +151,11 @@ const columns = [
         dataIndex: 'time',
         slotName: 'time',
 
+    },
+    {
+        title: '批阅题数',
+        slotName: 'reviewStatus',
+        width: 100,
     },
     {
         title: '状态',

@@ -72,7 +72,7 @@
                     :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" :loading="loading"
                     column-resizable :pagination="{ total: total, current: page }" @page-change="pageChange">
                     <template #content="{ record, rowIndex }">
-                        <BaseTextPreview :initialValue="record.content.substring(0,250)"></BaseTextPreview>
+                        <TextEditor mode="preview" :model-value="record.content.substring(0,250)"></TextEditor>
                     </template>
                     <template #type="{ record, rowIndex }">
                         <a-tag>{{ getQuestionType(record.type).simpleName }}</a-tag>
@@ -115,7 +115,7 @@ import { questionType, getQuestionType, getQuestionVisble } from '../../utils/qu
 import { questionListRequest, delQuestionRequest, questionDetailRequest } from '../../apis/question-api';
 import QuestionEditView from '../../components/QuestionEditView.vue';
 import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue';
-import BaseTextPreview from '../../components/BaseTextPreview.vue';
+import TextEditor from '../../components/TextEditor.vue';
 const props = defineProps({
     selectMode: {
         type: Boolean,

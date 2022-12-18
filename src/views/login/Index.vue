@@ -1,4 +1,8 @@
 <template>
+   <router-link to="/" class="header-logo">
+        <img src="../../assets/svg/logo.svg" style="height: 40px;"/>
+        <h1 class="name">为考</h1>
+    </router-link>
     <div class="login">
         <div class="login-wrap">
             <div class="login-left" >
@@ -8,9 +12,12 @@
                 <div class="login-right-wrap">
                     <h3 class="title">{{title}}</h3>
                     <!-- 标签选项 -->
-                    <Tabs style="margin-bottom:10px" v-model:tag="loginType" :tagList="tagList" @tab-click="taggleTag"/>
+                    <Tabs style="margin:20px 0" v-model:tag="loginType" :tagList="tagList" @tab-click="taggleTag"/>
                     <!-- 操作表单 -->
                     <tags-form :loginType="loginType" :tagList="tagList"></tags-form>
+                    <div class="protocol">
+                        点击「登录」表示已阅读并同意 <a style="color:rgb(var(--primary-6))">服务条款</a>
+                    </div>
                     <a-divider orientation="center" class="half-divider">
                         <span style="color:var(--color-text-3)">其他方式登录</span>
                     </a-divider>
@@ -48,17 +55,17 @@ const tagList=[
     {
         name:'登录',
         loginType:0,
-        title:`${app_name}`
+        title:`登录你的${app_name}账户`
     },
     {
         name:'注册',
         loginType:1,
-        title:`${app_name}`
+        title:`注册你的${app_name}账户`
     },
     {
         name:'找回密码',
         loginType:2,
-        title:`${app_name}`
+        title:`找回你的${app_name}账户`
     }
 ]
 const route=useRoute()
@@ -109,6 +116,26 @@ console.log(app_name)
 
 </script>
 <style lang="less" scoped>
+.header-logo {
+    position: fixed;
+    top: 40px;
+    left: 40px;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    img{
+    animation: loading 3s infinite linear;
+    }
+    .name{
+        text-align: center;
+        font-weight: bold;
+        opacity: 0.8;
+        font-size: 24px;
+        font-weight: bold;
+        margin-left: 10px;
+        color: #fff;
+    }
+}
 .login{
     background-image:  url('@/assets/img/login_bg.jpg');
     background-size: cover;
@@ -142,30 +169,37 @@ console.log(app_name)
             box-sizing: border-box;
             width: 100%;
             .login-right-wrap{
-                border-radius: 10px;
-                padding: 40px 30px;
-                margin: 60px 0;
+                border-radius: 20px;
+                padding: 60px;
                 background: var(--color-bg-1);
                 border-radius: 1px solid #000;
                 box-shadow: var(--shadow-3);
-                width: 400px;
+                width: 350px;
                 // min-width: 300px;
-                box-sizing: border-box;
                 .title{
-                    font-size: 30px;
+                    font-size: 35px;
                     margin-bottom: 40px;
                     color: var(--color-text-1);
                     font-family: SourceHanSansCN_Bold
                 }
+                .protocol{
+                    text-align: center;
+                    margin-top: 20px;
+                    color: rgba(35, 48, 65, 0.7);
+                    font-size: 14px;
+                }
+                .half-divider{
+                    margin-top: 40px;
+                }
                 .tripa_login{
                     display: flex;
-                    height: 40px;
+                    height: 50px;
                     width: 100%;
                     align-items: center;
                     .tripa{
                         margin:0 5px;
                         height: 100%;
-                        border-radius:  1px solid #000;
+                        border-radius: 5px;
                         border: 1px solid var(--color-fill-1);
                         box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.1);
                         transition: all .3s;

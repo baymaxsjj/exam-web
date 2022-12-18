@@ -9,7 +9,7 @@ const useCourseStore = defineStore({
     getters:{
         isTeacher(){
             const userStore=useUserStore()
-            return userStore.userInfo['id']==this.courseInfo['userId']
+            return userStore.userInfo['userId']==this.courseInfo['userId']
         },
         menu(){
             const id=this.courseInfo['id'];

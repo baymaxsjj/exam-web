@@ -45,7 +45,7 @@
                     </RouterLink>
                 </li>
                 <li>
-                    <a-button type="primary">学校认证</a-button>
+                    <a-button type="primary">{{userInfo.schoolName??'学校认证'}}</a-button>
                 </li>
 
                 <li>
