@@ -9,7 +9,7 @@
                 <div class="card-container">
                     <AAvatar  shape="square">{{ props.messageInfo.type.info }}</AAvatar>
                     <div style="margin: 0 5px">
-                        <h2>{{ props.messageInfo.title }}</h2>
+                        <h2 style="margin-bottom: 5px;">{{ props.messageInfo.title }}</h2>
                         <p>{{ props.messageInfo.introduce }}</p>
                     </div>
                 </div>

@@ -288,7 +288,7 @@ const form_rules = {
           callback("邮箱格式不正确~")
         }
       }else{
-        reg=/^[a-zA-Z][a-zA-Z0-9_]{4,15}$/
+        reg=/^[a-zA-Z][a-zA-Z0-9_ ]{4,15}$/
         if(!reg.test(val)){
           callback("必须以字母开头，只允许字母数字下划线~")
         }

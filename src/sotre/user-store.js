@@ -3,9 +3,12 @@ import { userAuthInfoRequest } from '../apis/user-api'
 const useUserStore = defineStore({ 
     id: 'user', 
     state: () => ({ 
-        token:"",
-        userInfo:{},
+        token:null,
+        userInfo:null,
     }),
+    getters:{
+        isLogin: (state) => state.token!=null&&state.userInfo!=null
+    },
     actions:{
         async getUserInfo(){
             const resp=await userAuthInfoRequest()

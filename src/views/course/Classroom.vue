@@ -81,7 +81,7 @@ import {
     exitFullScreen, setFullScreen, hasFullScreenElement
 } from '../../utils/screen';
 import SocketService from '../../utils/web-stocket-service.js'
-import noticeUrl from '@/assets/mp3/notice.mp3';
+
 
 const userStore=useUserStore()
 const route = useRoute()
@@ -113,15 +113,14 @@ getClassListRequest(courseId).then(res=>{
     getRoomMessage(data[0].id)
 })
 const socketServe = SocketService.Instance;
-socketServe.connect()
 socketServe.registerCallBack('COURSE_CLASSROOM_MESSAGE', (data) => {
+    if(route.name!="Classroom"){
+        return
+    }
     console.log(data)
     const messageInfo=data.info;
-    
-
     if(messageInfo.targetId==currClassId.value){
         messagelist.value.push(data.info)
-        new Audio(noticeUrl).play();
         nextTick(()=>{
             //显示新消息提示，
             const scrollTop=roomBodyRef.value.scrollTop;

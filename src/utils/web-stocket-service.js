@@ -1,5 +1,10 @@
 import useUserStore from '../sotre/user-store'
-
+import { Notification,Button,Avatar} from '@arco-design/web-vue';
+import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
+import noticeUrl from '@/assets/mp3/notice.mp3';
+import {h} from 'vue'
+import TextEditor from '../components/TextEditor.vue'
 export default class SocketService {
     static instance = null;
     static get Instance() {
@@ -23,6 +28,9 @@ export default class SocketService {
     retryTime = 500;
  
     store = useUserStore();
+    route=useRoute();
+    router=useRouter();
+    audio=new Audio(noticeUrl);
  
     //  定义连接服务器的方法
     connect() {
@@ -33,14 +41,14 @@ export default class SocketService {
         }
         let ip = import.meta.env.VITE_API_HOST_IP;//配置文件获取url
         let message_path =import.meta.env.VITE_MESSAGE_API_URL;//配置文件获取url
-        this.ws = new WebSocket(`ws://${ip}${message_path}/socket?token=${this.store.token}`);//getToken()请求头添加token鉴权
+        this.ws = new WebSocket(`ws://${location.host}/mapi-scoket/socket?token=${this.store.token}`);//getToken()请求头添加token鉴权
         // 连接成功的事件
         this.ws.onopen = () => {
             console.log('ws连接服务端成功' );
  
             //server重启，将重连次数存入store，监听该值的组件重新订阅socket
             if(this.connectRetryCount > 0){
-                this.store.commit("setWsRetryCount", this.connectRetryCount)
+                // this.store.commit("setWsRetryCount", this.connectRetryCount)
             }
  
             this.connected = true;
@@ -62,6 +70,50 @@ export default class SocketService {
             console.log(msg.data, '从服务端获取到了数据');
             const recvData = JSON.parse(msg.data)
             const socketType = recvData.code;
+            let notice=true,voice=true;
+            switch(socketType){
+                case 'COURSE_CLASSROOM_MESSAGE':
+                    //在课堂时，不通知
+                    if(this.route.name=="Classroom"){
+                        notice=false;
+                    }
+                    break;
+                case 'EXAM_CONSOLE_STATISTICS':
+                    notice=false
+                    voice=false
+            }
+            //考试期间不通知
+            if(this.route.name=="ExamStart"){
+                notice=false;
+                voice=false;
+            }
+            if(notice){
+                //消息通知
+                Notification.info({
+                    title: recvData.info.type.info,
+                    content: h(TextEditor,{modelValue:recvData.info.introduce,style:{
+                        "text-overflow": "ellipsis",
+                        "white-space": "nowrap",
+                        width: "200px",
+                        overflow: "hidden"}}),
+                    position: 'bottomRight',
+                    closable:true,
+                    icon:h(Avatar,{
+                        shape:"square"
+                    },{ default: () => recvData.info.type.info }),
+                    footer: h(Button, { 
+                            type:"primary",
+                            onClick: () => {
+                                this.router.push(JSON.parse(recvData.info.path))
+                            },
+                        },{ default: () => "点击查看" }
+                    )
+                    }
+                )
+            }
+            if(voice){
+                this.audio.play();
+            }
             //注册回调函数 参数2 是需要回调的方法
             if (this.callBackMapping[socketType]) {
                 // const realData = msg.data // 得到该图表的数据

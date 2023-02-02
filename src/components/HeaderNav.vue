@@ -156,6 +156,7 @@ a {
                     height: 32px;
                     width: 32px;
                     overflow: hidden;
+                    flex-shrink: 0;
                 }
                 .user-name{
                     margin-left: 4px;

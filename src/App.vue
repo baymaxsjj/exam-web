@@ -5,11 +5,23 @@
   <router-view></router-view>
 </template>
 <script setup>
-import { computed, watch ,ref} from 'vue';
+import { computed, watch,watchEffect ,ref} from 'vue';
 import { useRoute } from 'vue-router';
 import HeaderNav from './components/HeaderNav.vue';
+import useUserStore from './sotre/user-store';
+import SocketService from './utils/web-stocket-service.js'
+const userStore=useUserStore()
 const route=useRoute()
 const headerVisible=ref(true)
+//登录成功后连接
+watchEffect(()=>{
+console.log(userStore.isLogin)
+  if(userStore.isLogin){
+    const socketServe = SocketService.Instance;
+    socketServe.connect()
+    console.log("已登录：连接webstock")
+  }
+})
 watch(()=>route.name,()=>{
   const meta=route.meta
   let title=meta['title']
