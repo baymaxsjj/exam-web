@@ -23,14 +23,23 @@
             </div>
         </template>
         <template #authInfo="{ record }">
-            <div class="authInfo">
-                <a-tag color="orangered">{{
+            <a-trigger>
+                <div class="authInfo">
+                    <a-tag color="orangered">{{
                         record.userAuthInfo.jobNo ?? '信息未认证'
-                }}</a-tag>
-                <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
+                    }}</a-tag>
+                    <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
                         record.userAuthInfo.schoolName
-                }}</a-tag>
-            </div>
+                    }}</a-tag>
+                </div>
+                <template #content>
+                    <AuthCard :userAuthInfo="record.userAuthInfo">
+                        <template #notCertified>
+                            <h1 style="color:var(--color-white)">学生未认证！</h1>
+                        </template>
+                    </AuthCard>
+                </template>
+            </a-trigger>
 
         </template>
         <template #score="{ record }">
@@ -70,6 +79,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { examAnswerReviewRequest } from '@/apis/exam-center-api';
 import { examConsoleInfoKey } from '@/utils/keys.js'
 import dayjs from 'dayjs'
+import AuthCard from '../../../components/auth/AuthCard.vue';
+
 const { currClassId, classIds, reviewType } = inject(examConsoleInfoKey)
 const route = useRoute();
 const router = useRouter()

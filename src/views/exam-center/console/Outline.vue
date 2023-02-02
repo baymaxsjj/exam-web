@@ -1,45 +1,57 @@
 <template>
     <a-table row-key="id" :columns="columns" :data="studentList" :loading="stuLoading"
-        :pagination="{ total:stuTotal, current: stuPage }" page-position="bottom" @page-change="pageChange">
+        :pagination="{ total: stuTotal, current: stuPage }" page-position="bottom" @page-change="pageChange">
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
                     <img alt="avatar" :src="record.userAuthInfo.picture" />
                 </a-avatar>
                 <div>
-                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{ record.userAuthInfo.nickname }}</h3>
+                    <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{
+                        record.userAuthInfo.nickname
+                    }}</h3>
                     <a-tag style="font-weight:bold" color="gray">{{
-                            record.userAuthInfo.realName ?? '未认证'
+                        record.userAuthInfo.realName ?? '未认证'
                     }}</a-tag>
                 </div>
             </div>
         </template>
-        <template #authInfo="{record}">
-            <div class="authInfo">
-                <a-tag color="orangered">{{
-                        record.userAuthInfo.jobNo??'信息未认证'
-                }}</a-tag>
-             <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
+        <template #authInfo="{ record }">
+            <a-trigger>
+                <div class="authInfo">
+                    <a-tag color="orangered">{{
+                        record.userAuthInfo.jobNo ?? '信息未认证'
+                    }}</a-tag>
+                    <a-tag color="blue" v-if="record.userAuthInfo.schoolName">{{
                         record.userAuthInfo.schoolName
-                }}</a-tag>
-            </div>
+                    }}</a-tag>
+                </div>
+                <template #content>
+                    <AuthCard :userAuthInfo="record.userAuthInfo">
+                        <template #notCertified>
+                            <h1 style="color:var(--color-white)">学生未认证！</h1>
+                        </template>
+                    </AuthCard>
+                </template>
+            </a-trigger>
+
         </template>
         <template #status="{ record }">
             <a-badge :status="getAnswerStatus(record.answerStatus).statusColor"
-                :text="getAnswerStatus(record.answerStatus).statusText" style="white-space: nowrap;"/>
+                :text="getAnswerStatus(record.answerStatus).statusText" style="white-space: nowrap;" />
         </template>
         <template #actions="{ record }">
             <template v-if="record.actionPage">
                 <a-popover v-for="action of record.actionPage?.list">
                     <a-tag :color="action.status.value > 50 ? 'red' : 'green'" style="margin:5px">{{
-                            action.status.action
+                        action.status.action
                     }}</a-tag>
                     <template #content>
                         <a-tag style="display: block;" color="cyan">时间：{{
-                                dayjs(action.createdAt).format("MM-DD HH:mm: ss")
+                            dayjs(action.updatedAt).format("MM-DD HH:mm: ss")
                         }}</a-tag>
                         <a-tag style="display: block;margin-top: 2px;" color="grey" v-if="action.info">IP:{{
-                                action.info
+                            action.info
                         }}</a-tag>
                     </template>
                 </a-popover>
@@ -49,7 +61,7 @@
         <template #operate="{ record }">
             <div class="operate">
                 <a-button type="primary" :disabled="record.answerStatus != 'START'" style="margin-left: 10px;">
-                交卷
+                    交卷
                 </a-button>
                 <a-badge :count="(record.actionPage?.total ?? 0)">
                     <a-button type="primary" :disabled="(record.actionPage == null)" style="margin-left: 10px;"
@@ -58,7 +70,7 @@
                     </a-button>
                 </a-badge>
             </div>
-           
+
         </template>
     </a-table>
     <a-modal simple v-model:visible="showLog" class="student-log" title="学生答题日志">
@@ -89,6 +101,8 @@ import { ref, watch, inject } from 'vue';
 import { useRoute } from 'vue-router';
 import { examAnswerInfoRequest, examStudentLogRequest } from '../../../apis/exam-center-api';
 import { examConsoleInfoKey } from '@/utils/keys.js'
+import AuthCard from '../../../components/auth/AuthCard.vue';
+
 const { currClassId, classIds, answerStatus, examInfo } = inject(examConsoleInfoKey)
 
 const route = useRoute();
@@ -186,12 +200,12 @@ const columns = [
     {
         title: '个人信息',
         slotName: 'userInfo',
-        width:200,
+        width: 200,
     },
     {
         title: '认证信息',
         slotName: 'authInfo',
-        width:150,
+        width: 150,
     },
     {
         title: '考试行为',
@@ -200,11 +214,11 @@ const columns = [
     {
         title: '状态',
         slotName: 'status',
-        width:70,
+        width: 70,
     },
     {
         title: '操作',
-        width:100,
+        width: 100,
         slotName: 'operate'
     },
 ]
@@ -218,19 +232,23 @@ const columns = [
         margin-right: 10px;
     }
 }
-.operate{
+
+.operate {
     display: flex;
 }
-.authInfo{
+
+.authInfo {
     display: flex;
     flex-direction: column;
-    span{
+
+    span {
         margin: 4px 0;
         justify-content: center;
         font-weight: bold;
     }
 }
-.student-info{
+
+.student-info {
     position: absolute;
     right: 10px;
     display: flex;

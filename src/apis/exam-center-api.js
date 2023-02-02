@@ -23,17 +23,23 @@ export const examAnswerInfoRequest=(examInfoId,classids,status,page=1,pageSize=1
     const pageParam={page,pageSize}
     return axios.post(`/eapi/exam-console/${examInfoId}/outline-monitor?status=${status}&page=${page}&pageSize=${pageSize}`,classids)
 }
-export const examAnswerReviewRequest=(examInfoId,classids,reviewType,page=1,pageSize=10)=>{
-    const pageParam={page,pageSize}
-    return axios.post(`/eapi/exam-console/${examInfoId}/review/list?reviewType=${reviewType}&page=${page}&pageSize=${pageSize}`,classids)
-}
+
 export const examStudentAnswerResultRequest=(examInfoId,studentId)=>{
     return axios.get(`/eapi/exam-console/${examInfoId}/review/${studentId}`)
 }
 export const examStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
-    return axios.get(`/eapi//exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
+    return axios.get(`/eapi/exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
 }
 /**---------------------考试批阅~相关-----------------------------*/
+export const examAnswerReviewRequest=(examInfoId,classids,reviewType,page=1,pageSize=10)=>{
+    const pageParam={page,pageSize}
+    return axios.post(`/eapi/exam-console/${examInfoId}/review/list?reviewType=${reviewType}&page=${page}&pageSize=${pageSize}`,classids)
+}
+export const examAnswerReviewExportRequest=(examInfoId,classids,reviewType)=>{
+    return axios.post(`/eapi/exam-console/${examInfoId}/review/list/export?reviewType=${reviewType}`,classids,{
+        responseType:'blob'
+    })
+}
 export const examSubmitReviewRequest=(examInfoId,scoreList)=>{
     return axios.post(`/eapi/exam-score-record/${examInfoId}/update/score`,scoreList)
 }

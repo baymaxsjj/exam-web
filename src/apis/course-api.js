@@ -37,3 +37,4 @@ export const getBatchClassUsersRequest=(classIds,currentPage,pageSize=10)=>{
 export const getCourseInfoRequest=(courseId)=>{
     return axios.get(`/uapi/courses/getInfo?courseId=${courseId}`)
 }
+

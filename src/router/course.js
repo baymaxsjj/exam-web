@@ -1,6 +1,7 @@
 const Home=()=>import("../views/home/Index.vue")
 const Question=()=>import("../views/course/Question.vue")
 const MyClasses=()=>import("../views/course/MyClasses.vue")
+const Classroom=()=>import("../views/course/Classroom.vue")
 const ClassUser=()=>import("../views/course/ClassUser.vue")
 const BatchImportQuestion=()=>import("../views/course/BatchImportQuestion.vue")
 
@@ -15,6 +16,14 @@ const courses = [
         component: Home,
         name:'Course',
         children: [
+            {
+                path:"classroom",
+                component:Classroom,
+                name:'Classroom',
+                meta:{
+                    title:'课堂'
+                }
+            },
             {
                 path:"exam/manage",
                 component:ExamManage,

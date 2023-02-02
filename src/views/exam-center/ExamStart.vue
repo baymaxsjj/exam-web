@@ -21,6 +21,7 @@
                         </div>
                         <div>
                             <a-tag color="blue">{{ userStore.userInfo.schoolName ?? '未认证' }}</a-tag>
+                            <a-tag color="blue">{{ userStore.userInfo.jobNo ?? '未认证' }}</a-tag>
                         </div>
                     </div>
                 </div>
@@ -65,7 +66,7 @@
                             <a-list-item :id="`question-${item.id}`">
                                 <BaseQuestionPreview @editorBlur="submitAnswer(item.id)" :key="item.id"
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
-                                    @optionClick="saveAnswer" :show-area="false" :topic-type="item.type"
+                                    :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
                                     v-model:options="item.options" :lazy="isPreview">
                                     <template #question="{ question, options, type }">
@@ -284,6 +285,7 @@ const submitAnswer = (id) => {
             flag = true;
         }
     });
+    console.log(options)
     // 没有答案不提交
     if (!flag) {
         return;

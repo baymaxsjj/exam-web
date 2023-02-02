@@ -50,12 +50,12 @@ export default class SocketService {
         // 1.连接服务端失败
         // 2.当连接成功之后, 服务器关闭的情况
         this.ws.onclose = () => {
-            console.log('ws连接服务端失败, url:' + url);
+            console.log('ws连接服务端失败, url:');
             this.connected = false;
             this.connectRetryCount++;
             setTimeout(() => {
                 this.connect();
-            }, wsTimeout(this.connectRetryCount , this.retryTime));
+            }, this.wsTimeout(this.connectRetryCount , this.retryTime));
         };
         // 得到服务端发送过来的数据
         this.ws.onmessage = msg => {
@@ -92,12 +92,15 @@ export default class SocketService {
             this.sendRetryCount++;
             setTimeout(() => {
                 this.send(data);
-            }, wsTimeout(this.sendRetryCount , this.retryTime));
+            }, this.wsTimeout(this.sendRetryCount , this.retryTime));
         }
     }
     //关闭连接
     close(){
         this.ws.close();
+    }
+    wsTimeout(count,time){
+        return count*time;
     }
 }
 

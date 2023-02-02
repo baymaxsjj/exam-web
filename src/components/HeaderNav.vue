@@ -45,7 +45,12 @@
                     </RouterLink>
                 </li>
                 <li>
-                    <a-button type="primary">{{userInfo.schoolName??'学校认证'}}</a-button>
+                    <a-trigger>
+                        <a-button type="primary">{{userInfo.schoolName??'学校认证'}}</a-button>
+                        <template #content>
+                            <AuthCard style="margin-top:20px" :userAuthInfo="userInfo"/>
+                        </template>
+                    </a-trigger>
                 </li>
 
                 <li>
@@ -70,6 +75,7 @@
 </template>
 <script setup>
 import useUserStore from '../sotre/user-store';
+import AuthCard from './auth/AuthCard.vue';
 const userStore=useUserStore();
 const userInfo=userStore.userInfo;
 </script>

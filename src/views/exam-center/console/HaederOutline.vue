@@ -1,128 +1,128 @@
 <template>
     <a-row align="stretch" class="header-outline">
-            <a-col :lg="6" :sm="12" :xs="24">
-                <a-card hoverable title="考试信息" :bordered="false" style="background-color: rgb(var(--blue-1));"
-                    class="statistic-card exam-info">
-                    <div class="desc">
-                        <a-countdown ref="countDownRef" :title="examInfo['title'] ?? 'loading'"
-                            :value="getExamProgress.time" @finish="countdownFinish" :start="startTime != null"
-                            :now="Date.now()" format="HH:mm:ss" />
-                        <a-tag :color="getExamProgress.color" style="margin-left: 5px;font-weight: bold;">{{
-                                getExamProgress.info
-                        }}</a-tag>
-                        <a-typography-paragraph style="margin-top: 8px;">
-                            <span>开始时间：{{ examInfo['startTime'] }}</span><br />
-                        </a-typography-paragraph>
-                        <a-typography-paragraph>
-                            <span>结束时间：{{ examInfo['endTime'] }}</span>
-                        </a-typography-paragraph>
-                    </div>
-                    <div class="chart">
-                    </div>
-                </a-card>
-            </a-col>
-            <a-col :lg="6" :sm="12" :xs="24">
-                <a-card hoverable title="试卷信息" :bordered="false" style="background-color:rgb(var(--orange-1));"
-                    class="statistic-card paper-info">
-                    <a-row class="desc">
-                        <a-col :span="12">
-                            <a-statistic animation :title="(paperStatstics?.examPaper?.title) ?? 'loading'"
-                                :value="paperStatstics?.questionCount ?? 0">
-                                <template #suffix>
-                                    题
-                                </template>
-                            </a-statistic>
-                            <br />
-                            <a-statistic animation title="试卷总分" :value="paperStatstics['totalScore'] ?? 0">
-                                <template #suffix>
-                                    分
-                                </template>
-                            </a-statistic>
-                        </a-col>
-                        <a-col :span="12">
-                            <div class="chart">
-                                <a-typography-paragraph v-for="(item, key) of paperStatstics?.questionStatistics">
-                                    <a-tag color="cyan">{{ key }}：{{ item }}</a-tag>
-                                </a-typography-paragraph>
-                            </div>
-                        </a-col>
-                    </a-row>
+        <a-col :lg="6" :sm="12" :xs="24">
+            <a-card hoverable title="考试信息" :bordered="false" style="background-color: rgb(var(--blue-1));"
+                class="statistic-card exam-info">
+                <div class="desc">
+                    <a-countdown ref="countDownRef" :title="examInfo['title'] ?? 'loading'"
+                        :value="getExamProgress.time" @finish="countdownFinish" :start="startTime != null"
+                        :now="Date.now()" format="HH:mm:ss" />
+                    <a-tag :color="getExamProgress.color" style="margin-left: 5px;font-weight: bold;">{{
+                        getExamProgress.info
+                    }}</a-tag>
+                    <a-typography-paragraph style="margin-top: 8px;">
+                        <span>开始时间：{{ examInfo['startTime'] }}</span><br />
+                    </a-typography-paragraph>
+                    <a-typography-paragraph>
+                        <span>结束时间：{{ examInfo['endTime'] }}</span>
+                    </a-typography-paragraph>
+                </div>
+                <div class="chart">
+                </div>
+            </a-card>
+        </a-col>
+        <a-col :lg="6" :sm="12" :xs="24">
+            <a-card hoverable title="试卷信息" :bordered="false" style="background-color:rgb(var(--orange-1));"
+                class="statistic-card paper-info">
+                <a-row class="desc">
+                    <a-col :span="12">
+                        <a-statistic animation :title="(paperStatstics?.examPaper?.title) ?? 'loading'"
+                            :value="paperStatstics?.questionCount ?? 0">
+                            <template #suffix>
+                                题
+                            </template>
+                        </a-statistic>
+                        <br />
+                        <a-statistic animation title="试卷总分" :value="paperStatstics['totalScore'] ?? 0">
+                            <template #suffix>
+                                分
+                            </template>
+                        </a-statistic>
+                    </a-col>
+                    <a-col :span="12">
+                        <div class="chart">
+                            <a-typography-paragraph v-for="(item, key) of paperStatstics?.questionStatistics">
+                                <a-tag color="cyan">{{ key }}：{{ item }}</a-tag>
+                            </a-typography-paragraph>
+                        </div>
+                    </a-col>
+                </a-row>
 
-                </a-card>
-            </a-col>
-            <a-col :lg="6" :sm="12" :xs="24">
-                <a-card hoverable title="考试统计" :bordered="false" style="background-color:rgb(var(--green-1));"
-                    class="statistic-card statistic-info">
-                    <a-row class="desc">
-                        <a-col :span="12">
-                            <a-statistic animation title="考试人数" :value="stuTotal">
+            </a-card>
+        </a-col>
+        <a-col :lg="6" :sm="12" :xs="24">
+            <a-card hoverable title="考试统计" :bordered="false" style="background-color:rgb(var(--green-1));"
+                class="statistic-card statistic-info">
+                <a-row class="desc">
+                    <a-col :span="12">
+                        <a-statistic animation title="考试人数" :value="stuTotal">
+                            <template #suffix>
+                                人
+                            </template>
+                        </a-statistic>
+                        <br />
+                        <a-statistic animation title="班级个数" :value="classList.length">
+                            <template #suffix>
+                                个班级
+                            </template>
+                        </a-statistic>
+                    </a-col>
+                    <a-col :span="12">
+                        <div class="chart">
+                            <a-statistic animation title="交卷人数" :value="(answerLog?.normal?.SUBMIT?.length) ?? 0">
                                 <template #suffix>
                                     人
                                 </template>
                             </a-statistic>
                             <br />
-                            <a-statistic animation title="班级个数" :value="classList.length">
+                            <a-statistic animation title="答题人数" :value="(answerLog?.normal?.START?.length) ?? 0">
                                 <template #suffix>
-                                    个班级
+                                    人
                                 </template>
                             </a-statistic>
-                        </a-col>
-                        <a-col :span="12">
-                            <div class="chart">
-                                <a-statistic animation title="交卷人数" :value="(answerLog?.normal?.SUBMIT?.length) ?? 0">
-                                    <template #suffix>
-                                        人
-                                    </template>
-                                </a-statistic>
-                                <br />
-                                <a-statistic animation title="答题人数" :value="(answerLog?.normal?.START?.length) ?? 0">
-                                    <template #suffix>
-                                        人
-                                    </template>
-                                </a-statistic>
-                            </div>
-                        </a-col>
-                    </a-row>
+                        </div>
+                    </a-col>
+                </a-row>
 
-                </a-card>
-            </a-col>
-            <a-col :lg="6" :sm="12" :xs="24">
-                <a-card hoverable title="考试监控" :bordered="false" style="background-color:rgb(var(--red-1));"
-                    class="statistic-card monitor-info">
-                    <a-row class="desc">
-                        <a-col :span="12">
-                            <a-statistic animation title="行为次数" :value="answerLog.abnormalCount ?? 0">
-                                <template #suffix>
-                                    次数
-                                </template>
-                            </a-statistic>
-                            <br />
-                            <a-statistic animation title="复制次数" :value="(answerLog?.abnormal?.PASTE) ?? 0">
+            </a-card>
+        </a-col>
+        <a-col :lg="6" :sm="12" :xs="24">
+            <a-card hoverable title="考试监控" :bordered="false" style="background-color:rgb(var(--red-1));"
+                class="statistic-card monitor-info">
+                <a-row class="desc">
+                    <a-col :span="12">
+                        <a-statistic animation title="行为次数" :value="answerLog.abnormalCount ?? 0">
+                            <template #suffix>
+                                次数
+                            </template>
+                        </a-statistic>
+                        <br />
+                        <a-statistic animation title="复制次数" :value="(answerLog?.abnormal?.PASTE) ?? 0">
+                            <template #suffix>
+                                次
+                            </template>
+                        </a-statistic>
+                    </a-col>
+                    <a-col :span="12">
+                        <div class="chart">
+                            <a-statistic animation title="后台次数" :value="(answerLog?.abnormal?.PAUSE) ?? 0">
                                 <template #suffix>
                                     次
                                 </template>
                             </a-statistic>
-                        </a-col>
-                        <a-col :span="12">
-                            <div class="chart">
-                                <a-statistic animation title="后台次数" :value="(answerLog?.abnormal?.PAUSE) ?? 0">
-                                    <template #suffix>
-                                        次
-                                    </template>
-                                </a-statistic>
-                                <br />
-                                <a-statistic animation title="IP异常" :value="0">
-                                    <template #suffix>
-                                        人
-                                    </template>
-                                </a-statistic>
-                            </div>
-                        </a-col>
-                    </a-row>
+                            <br />
+                            <a-statistic animation title="IP异常" :value="0">
+                                <template #suffix>
+                                    人
+                                </template>
+                            </a-statistic>
+                        </div>
+                    </a-col>
+                </a-row>
 
-                </a-card>
-            </a-col>
-        </a-row>
+            </a-card>
+        </a-col>
+    </a-row>
 </template>
 <script setup>
 import { computed, ref, watch } from 'vue';
@@ -132,9 +132,9 @@ import { getExamPaperStatisticsRequest } from '../../../apis/exam-api';
 import { examAnswerLogRequest } from '../../../apis/exam-center-api';
 import SocketService from '../../../utils/web-stocket-service.js'
 
-const props=defineProps({
-    examInfo:Object,
-    classList:Array,
+const props = defineProps({
+    examInfo: Object,
+    classList: Array,
 })
 
 
@@ -147,7 +147,7 @@ const countDownRef = ref(null);
 const paperStatstics = ref({})
 //统计相关
 const answerLog = ref({})
-const stuTotal=ref(0)
+const stuTotal = ref(0)
 
 const socketServe = SocketService.Instance;
 socketServe.connect()
@@ -218,15 +218,16 @@ const countdownFinish = () => {
     }, 100);
 }
 getAnswerLog()
-watch(()=>props.examInfo,(examInfo)=>{
+watch(() => props.examInfo, (examInfo) => {
     getExamPaperStatistics(examInfo.examId)
     startTime.value = examInfo.startTime;
 })
 </script>
 <style lang="less" scoped>
-.header-outline{
+.header-outline {
     padding: 10px;
     overflow: hidden;
+
     .statistic-card {
         margin: 5px;
         height: 100%;
@@ -234,6 +235,9 @@ watch(()=>props.examInfo,(examInfo)=>{
         background-size: cover;
         background-repeat: no-repeat;
         height: 220px;
+        :deep(.arco-card-header){
+            border-bottom: 2px solid rgba(255, 255, 255, .4);
+        }
 
         :deep(.arco-card-body) {
             position: absolute;
@@ -294,26 +298,35 @@ watch(()=>props.examInfo,(examInfo)=>{
 
     .exam-info {
         &::before {
-            background-image: url(@/assets/img/console/console_gradient_bg.svg);
+            background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgba(228, 212, 254, 1) 59.21%, rgba(171, 195, 255, 1) 100%);
+            // background-image: url(@/assets/img/console/console_gradient_bg.svg);
         }
     }
 
     .monitor-info {
         &::before {
-            background-image: url(@/assets/img/console/console_gradient_bg4.svg);
+            // background-image: url(@/assets/img/console/console_gradient_bg4.svg);
+            background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(255, 201, 93) 59.21%, rgba(248, 212, 140, 1) 100%);
+
+
         }
     }
 
     .statistic-info {
         &::before {
-            background-image: url(@/assets/img/console/console_gradient_bg3.svg);
+            // background-image: url(@/assets/img/console/console_gradient_bg3.svg);
+
+            background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(163, 211, 255) 59.21%, rgba(201, 229, 255, 1) 100%);
+
+
         }
 
     }
 
     .paper-info {
         &::before {
-            background-image: url(@/assets/img/console/console_gradient_bg2.svg);
+            // background-image: url(@/assets/img/console/console_gradient_bg2.svg);
+            background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(161, 223, 241) 59.21%, rgba(200, 225, 232, 1) 100%);
 
         }
     }

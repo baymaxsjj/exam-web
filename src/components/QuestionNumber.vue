@@ -58,6 +58,7 @@ const props = defineProps({
         default:() => Window
     }
 })
+defineEmits(["numberClick"])
 const getStuatsItem=(key)=>{
     for (const item of props.statusList) {
         if(item.key==key){

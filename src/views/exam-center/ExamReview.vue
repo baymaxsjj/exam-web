@@ -18,6 +18,7 @@
                         </div>
                         <div>
                             <a-tag color="blue">{{ userAuthInfo.schoolName ?? '未认证' }}</a-tag>
+                            <a-tag color="blue">{{ userAuthInfo.jobNo ?? '未认证' }}</a-tag>
                         </div>
                     </div>
                 </div>
@@ -51,7 +52,7 @@
                         </div>
                         <div class="result-info">
                             <a-tag color="blue" class="title">结果：</a-tag>
-                            <a-tag color="red">{{ getResultType(item.scoreRecord.resultType).label }}</a-tag>
+                            <a-tag color="red">{{ getResultType(item.scoreRecord.score==item.questionInfo.score?'CORRECT':item.scoreRecord.resultType).label }}</a-tag>
                         </div>
                         <div class="result-info" v-if="statusVisible">
                             <a-tag color="blue" class="title">批阅类型：</a-tag>

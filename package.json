@@ -1,7 +1,7 @@
 {
   "name": "exam-vue-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,6 +15,7 @@
     "axios": "^0.27.2",
     "dayjs": "^1.11.7",
     "dompurify": "^2.4.1",
+    "file-saver": "^2.0.5",
     "pinia": "^2.0.28",
     "pinia-plugin-persistedstate": "^2.4.0",
     "qrcode.vue": "^3.3.3",

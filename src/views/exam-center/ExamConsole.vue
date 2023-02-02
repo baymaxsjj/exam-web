@@ -28,8 +28,11 @@
                 <a-button type="primary" v-if="pageKey =='ConsoleOutline'" style="margin-right: 5px;">
                     全部收卷
                 </a-button>
-                <a-button type="primary" v-if="(pageKey == 'ConsoleReview')">
+                <a-button type="primary" status="danger" v-if="(pageKey == 'ConsoleReview')" style="margin-right: 5px;">
                     重新评阅
+                </a-button>
+                <a-button type="primary" v-if="(pageKey == 'ConsoleReview')" @click="exportExecl">
+                    导出成绩
                 </a-button>
             </template>
             <a-tab-pane :key="item.key" :title="item.name" v-for="(item, index) in pageView">
@@ -49,8 +52,9 @@
 <script setup>
 import { computed, ref,provide  } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getExamInfoDetailRequest, } from '@/apis/exam-api';
+import { getExamInfoDetailRequest } from '@/apis/exam-api';
 import { getPartClassListRequest } from '@/apis/course-api';
+import { examAnswerReviewExportRequest } from '../../apis/exam-center-api.js';
 import HaederOutline from './console/HaederOutline.vue';
 import {examConsoleInfoKey} from '@/utils/keys.js'
 const router=useRouter()
@@ -85,6 +89,25 @@ getExamInfo()
 const toView=()=>{
     router.replace({
         name:pageKey.value
+    })
+}
+//导出文档
+const exportExecl=()=>{
+    examAnswerReviewExportRequest(examInfoId,classIds.value,reviewType.value).then(res=>{
+        if (!res.data) {
+        return
+      }
+      let url = window.URL.createObjectURL(new Blob([res.data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}))
+      let link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.setAttribute('download','成绩.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      // 释放URL对象所占资源
+      window.URL.revokeObjectURL(url)
+      // 用完即删
+      document.body.removeChild(link)
     })
 }
 provide(examConsoleInfoKey,{
