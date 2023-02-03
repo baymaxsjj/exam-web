@@ -1,4 +1,4 @@
-# 为考-后端
+# 为考-前端
 
 > 毕业设计：为考-考试系统，后端采用Spring Cloud，前端采用Vue，存储采用Mysql，缓存采用Redis。完成基本的考试功能。
 
@@ -25,9 +25,10 @@
     </tr>
 </table>
 
+
 ### 系统
 
-- 框架：SpringBoot、Mybatis Plus、WebSocket
+- 框架：SpringBoot、SpringCloud、Mybatis Plus、WebSocket
 - 数据库：Mysql
 - 缓存：Redis
 - 前端：Vue 3、Vite、Pinia、Arco UI
@@ -36,7 +37,7 @@
 
 - [x] 创建课程、添加课程
 
-- [x]  创建班级、查看班级用户、分享班级码
+- [x] 创建班级、查看班级用户、分享班级码
 
 - [x] 课堂互相实时聊天
 
@@ -55,6 +56,8 @@
 - [x] 行为监控
 
 - [x] 实时消息通知
+
+- [x] 考试数据导出
 
 - [ ] 考生数据统计分析
 
