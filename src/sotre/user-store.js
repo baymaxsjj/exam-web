@@ -13,6 +13,10 @@ const useUserStore = defineStore({
         async getUserInfo(){
             const resp=await userAuthInfoRequest()
             this.userInfo=resp.data.data
+        },
+        logOut(){
+            this.userInfo=null
+            this.token=null
         }
     },
     persist: {

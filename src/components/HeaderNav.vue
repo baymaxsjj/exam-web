@@ -46,7 +46,7 @@
                 </li>
                 <li>
                     <a-trigger>
-                        <a-button type="primary">{{userInfo.schoolName??'学校认证'}}</a-button>
+                        <a-button type="primary">{{userInfo?.schoolName??'学校认证'}}</a-button>
                         <template #content>
                             <AuthCard style="margin-top:20px" :userAuthInfo="userInfo"/>
                         </template>
@@ -56,16 +56,16 @@
                 <li>
                     <ADropdown  trigger="hover" :popup-max-height="false">
                         <div class="user-info">
-                            <AImage class="avatar" height="32" width="32" :src="userInfo.picture">
+                            <AImage class="avatar" height="32" width="32" :src="userInfo?.picture">
                                 
                             </AImage>
-                            <p class="user-name">{{userInfo.nickname??"未登录"}}</p>
+                            <p class="user-name">{{userInfo?.nickname??"未登录"}}</p>
                         </div>
                         <template #content>
                             <a-doption>
                                 <RouterLink to="">个人信息</RouterLink>
                             </a-doption>
-                            <a-doption>退出登录</a-doption>
+                            <a-doption @click="logout">退出登录</a-doption>
                         </template>
                     </ADropdown>
                 </li>
@@ -74,12 +74,21 @@
     </div>
 </template>
 <script setup>
+import { useRouter } from 'vue-router';
 import useUserStore from '../sotre/user-store';
 import AuthCard from './auth/AuthCard.vue';
 const userStore=useUserStore();
 const userInfo=userStore.userInfo;
+const router=useRouter()
+const logout=()=>{
+    userStore.logOut()
+    router.push({name:"Login"})
+}
 </script>
 <style lang="less" scope>
+:deep(.arco-trigger-popup){
+    padding: 10px;
+}
 .arco-dropdown-open .arco-icon-down {
   transform: rotate(180deg);
 }

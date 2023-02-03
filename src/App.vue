@@ -32,10 +32,10 @@ watch(()=>route.name,()=>{
     headerVisible.value=true;
   }
 
-  if(title){
+  if(title!=undefined){
     title="-"+title;
   }
-  document.title="为考"+title
+  document.title="为考"+(title??"")
   
 })
 </script>

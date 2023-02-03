@@ -150,7 +150,6 @@ const answerLog = ref({})
 const stuTotal = ref(0)
 
 const socketServe = SocketService.Instance;
-socketServe.connect()
 socketServe.registerCallBack('EXAM_CONSOLE_STATISTICS', (data) => {
     console.log(data)
     answerLog.value.total += 1

@@ -1,5 +1,5 @@
 import useUserStore from '../sotre/user-store'
-import { Notification,Button,Avatar} from '@arco-design/web-vue';
+import { Notification,Button,Avatar,Image} from '@arco-design/web-vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
 import noticeUrl from '@/assets/mp3/notice.mp3';
@@ -30,7 +30,7 @@ export default class SocketService {
     store = useUserStore();
     route=useRoute();
     router=useRouter();
-    audio=new Audio(noticeUrl);
+    audio;
  
     //  定义连接服务器的方法
     connect() {
@@ -71,12 +71,15 @@ export default class SocketService {
             const recvData = JSON.parse(msg.data)
             const socketType = recvData.code;
             let notice=true,voice=true;
+            let title=recvData.info.type.info,picture=null;
             switch(socketType){
                 case 'COURSE_CLASSROOM_MESSAGE':
                     //在课堂时，不通知
                     if(this.route.name=="Classroom"){
                         notice=false;
                     }
+                    title=recvData.info.user.nickname
+                    picture=recvData.info.user.picture
                     break;
                 case 'EXAM_CONSOLE_STATISTICS':
                     notice=false
@@ -90,7 +93,7 @@ export default class SocketService {
             if(notice){
                 //消息通知
                 Notification.info({
-                    title: recvData.info.type.info,
+                    title:title,
                     content: h(TextEditor,{modelValue:recvData.info.introduce,style:{
                         "text-overflow": "ellipsis",
                         "white-space": "nowrap",
@@ -100,9 +103,11 @@ export default class SocketService {
                     closable:true,
                     icon:h(Avatar,{
                         shape:"square"
-                    },{ default: () => recvData.info.type.info }),
+                    },{ default: () => picture==null?recvData.info.type.info:h(Image,{
+                        src:picture
+                    }) }),
                     footer: h(Button, { 
-                            type:"primary",
+                            type:"text",
                             onClick: () => {
                                 this.router.push(JSON.parse(recvData.info.path))
                             },
@@ -112,6 +117,7 @@ export default class SocketService {
                 )
             }
             if(voice){
+                this.audio=new Audio(noticeUrl)
                 this.audio.play();
             }
             //注册回调函数 参数2 是需要回调的方法

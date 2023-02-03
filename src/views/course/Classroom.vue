@@ -30,7 +30,7 @@
                         </AAvatar>
                         <div class="message-info">
                             <div class="user-info">
-                                <ATag :color="getUserRole(item.user)?'green':'cyan'">{{ getUserRole(item.user)?"老师":"学生" }}</ATag>
+                                <ATag :color="getUserRole(item.user)?'green':'gray'">{{ getUserRole(item.user)?"老师":"学生" }}</ATag>
                                 <span>{{ item.user.nickname }}</span>
                             </div>
                             <div class="message-info-status">
@@ -177,7 +177,7 @@ nextTick(()=>{
     roomBodyRef.value.addEventListener("scroll",(e)=>{
         const scrollTop=e.srcElement.scrollTop;
         const clientHeight=e.srcElement.clientHeight;
-        const isLoad=(scrollTop<100)&&(page.value<pageTotal.value)&&!loading.value
+        const isLoad=(scrollTop<clientHeight)&&(page.value<pageTotal.value)&&!loading.value
         console.log(!loading.value)
         if(isLoad){
             page.value++;
@@ -289,11 +289,12 @@ const fullScreen = () => {
                 .message-details{
                     margin: 5px;
                     display: flex;
-                    :deep(.card-container){
-                        background-color: var(--color-fill-2);
+                    :deep(.user-message){
+                        color: var(--color-text-1);
+                        background-color: var(--color-fill-1);
                     }
                     .user-avatar{
-                        margin:0 5px;
+                        margin:0 10px;
                         overflow: hidden;
                         flex-shrink:0;
                     }
@@ -313,8 +314,9 @@ const fullScreen = () => {
                 }
                 .my-message{
                     flex-direction: row-reverse;
-                    :deep(.card-container){
-                        background-color: var(--color-primary-light-2);
+                    :deep(.user-message){
+                        background-color:rgb(var(--primary-5));
+                        color: var(--color-white);
                     }
                     .user-info{
                         justify-content: end;
