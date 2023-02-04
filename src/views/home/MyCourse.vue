@@ -199,7 +199,7 @@ const courseOk=()=>{
 const toCourse=(data)=>{
     courseStore.courseInfo=data
     router.push({
-        name:'Course',
+        name:'Classroom',
         params:{
             courseId:data.id
         }

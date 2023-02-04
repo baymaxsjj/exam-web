@@ -42,7 +42,7 @@ const isAuth=userAuthInfo.jobNo!=null;
     color: var(--color-bg-1);
     min-width: 300px;
     padding:20px;
-    border-radius: 10px;
+    border-radius: 5px;
     .card-top{
         margin-bottom: 20px;
         display: flex;

@@ -120,17 +120,17 @@ socketServe.registerCallBack('COURSE_CLASSROOM_MESSAGE', (data) => {
     console.log(data)
     const messageInfo=data.info;
     if(messageInfo.targetId==currClassId.value){
+        const scrollTop=roomBodyRef.value.scrollTop;
+        const scrollHeight=roomBodyRef.value.scrollHeight;
+        const clientHeight=roomBodyRef.value.clientHeight;
         messagelist.value.push(data.info)
         nextTick(()=>{
-            //显示新消息提示，
-            const scrollTop=roomBodyRef.value.scrollTop;
-            const scrollHeight=roomBodyRef.value.scrollHeight;
-            const clientHeight=roomBodyRef.value.clientHeight;
             //直接显示
-            if(scrollHeight-scrollTop-clientHeight<100){
+            if(scrollHeight-scrollTop-clientHeight<150){
                 roomBodyRef.value.scrollTo({ top: roomBodyRef.value.scrollHeight, behavior: "smooth"});
                 return
             }
+            //显示新消息提示，
             if(newMessNum.value==0){
                 newMessId.value=data.info.id;
             }

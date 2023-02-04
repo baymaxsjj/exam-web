@@ -15,7 +15,7 @@
                         </router-link>
                     </li>
                     <li>
-                        <router-link to="/home">
+                        <router-link to="/home/course/student">
                             课程中心
                         </router-link>
                     </li>
@@ -63,7 +63,7 @@
                         </div>
                         <template #content>
                             <a-doption>
-                                <RouterLink to="">个人信息</RouterLink>
+                                <RouterLink to="/user/setting">个人信息</RouterLink>
                             </a-doption>
                             <a-doption @click="logout">退出登录</a-doption>
                         </template>

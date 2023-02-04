@@ -26,7 +26,7 @@ export default class SocketService {
  
     //重连时间 毫秒
     retryTime = 500;
- 
+    handleClose=false;
     store = useUserStore();
     route=useRoute();
     router=useRouter();
@@ -59,6 +59,10 @@ export default class SocketService {
         // 2.当连接成功之后, 服务器关闭的情况
         this.ws.onclose = () => {
             console.log('ws连接服务端失败, url:');
+            if(this.handleClose){
+                this.instance=null;
+                return
+            }
             this.connected = false;
             this.connectRetryCount++;
             setTimeout(() => {
@@ -155,6 +159,7 @@ export default class SocketService {
     }
     //关闭连接
     close(){
+        this.handleClose=true
         this.ws.close();
     }
     wsTimeout(count,time){

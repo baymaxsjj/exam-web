@@ -192,6 +192,7 @@ const submit=()=>{
         loading.value=false;
         router.push("/home")
       })
+      userStore.getBaseUserInfo()
     }).catch(err=>{
       Message.info(err.data.error_description)
       loading.value=false;

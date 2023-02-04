@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import courses from "./course";
 import homes from "./home";
 import exams from './exam'
+import users from './users'
 const base = import.meta.env.VITE_BASE;
 const Empty = () => import("../components/Empty.vue");
 const Login = () => import("../views/login/Index.vue");
@@ -22,7 +23,8 @@ const routes = [
   },
   ...homes,
   ...courses,
-  ...exams
+  ...exams,
+  ...users
 ];
 const router = createRouter({
   // 4. 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。

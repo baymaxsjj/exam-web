@@ -6,16 +6,15 @@
         </div> -->
         <div class="home-function">
             <!-- 侧边栏 -->
-            <a-menu class="home-list home-list-info" mode="pop" show-collapse-button breakpoint="xl">
-                <template v-for="item of navList" :key="item.url">
-                    <router-link :to="item.url" v-if="item.visble">
-                        <a-menu-item >
+            <a-menu class="home-list home-list-info" mode="pop" v-model:selected-keys="selectedKeys"
+                show-collapse-button breakpoint="xl">
+                <template v-for="item of navList" :key="item.key">
+                        <a-menu-item @click="toLink(item)"  v-if="item.visble" :key="item.key">
                             <template #icon>
                                 <component v-if="item.icon" :is="item.icon"></component>
                             </template>
                             {{ item.name }}
                         </a-menu-item>
-                    </router-link>
                 </template>
             </a-menu>
             <!-- 课程 -->
@@ -23,77 +22,94 @@
                 <router-view></router-view>
                 <div style="text-align: center;color:var(--color-text-3);font-size: 16px;">
                     <p>
-                        &copy; 2022 Baymax 版权所有<br/>
+                        &copy; 2022 Baymax 版权所有<br />
                     </p>
                     <p style="font-size:12px;margin:5px 0;">
-                        <a href="" >数据库数据填充由 SqlMock 提供</a>
+                        <a href="https://gitee.com/baymaxsjj/sqlmock">数据填充由 SqlMock 提供</a>
                     </p>
                 </div>
-               
+
             </div>
         </div>
     </div>
 </template>
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import useCourseStore from '../../sotre/course-store';
 import useUserStore from '../../sotre/user-store';
 const route = useRoute()
-const router=useRouter()
-const userStore=useUserStore()
-if(!userStore.token){
+const router = useRouter()
+const userStore = useUserStore()
+const selectedKeys = ref([])
+if (!userStore.token) {
     router.push({
-        name:"Login"
+        name: "Login"
+    })
+}
+const toLink=(item)=>{
+    router.push({
+        name:item.key,
+        params:item.params
     })
 }
 const homeList = [
     {
         name: "我的课程",
         icon: "icon-apps",
-        url: "/home/course/student",
-        visble:true
+        key: "MyCourse",
+        params: {
+            role: 'student'
+        },
+        visble: true
     },
     {
         name: "我的作业",
         icon: "icon-select-all",
-        url: "/home/work",
-        visble:true
+        key: "MyHomeWrok",
+        params: {},
+        visble: true
     },
     {
         name: "我的考试",
         icon: "icon-bookmark",
-        url: "/home/exam",
-        visble:true
+        key: "MyExams",
+        params: {},
+        visble: true
     },
     {
         name: "我的笔记",
         icon: "icon-storage",
-        url: "/home/note",
-        visble:true
+        key: "MyNotes",
+        params: {},
+        visble: true
     }, {
         name: "消息",
         icon: "icon-notification",
-        url: "/home/message",
-        visble:true
+        key: "Message",
+        params: {},
+        visble: true
     },
 ]
 const navList = ref([]);
 let path = route.path;
-const courseStore=useCourseStore()
+const courseStore = useCourseStore()
 const checkNav = () => {
     if (path.startsWith("/home")) {
         navList.value = homeList;
-    } else {
+    } else if(path.startsWith("/course")){
         console.log()
         navList.value = courseStore.menu;
+    }else if(path.startsWith("/user")){
+        navList.value = userStore.menu;
     }
 }
 checkNav();
 console.log(route)
-watch(() => route.path, (newpath, old) => {
-    path = newpath;
+watchEffect(() => {
+    path = route.path;
     checkNav()
+    selectedKeys.value = [route.name]
 })
 
 </script>
@@ -103,12 +119,14 @@ watch(() => route.path, (newpath, old) => {
     height: 32px;
     border-radius: 50%;
 }
-:deep(.arco-page-header){
+
+:deep(.arco-page-header) {
     position: sticky;
     top: -20px;
     background-color: #fff;
     z-index: 1;
 }
+
 :deep(.arco-menu) {
     margin: 0 10px;
     background-color: var(--color-menu-light-bg);
@@ -119,6 +137,7 @@ watch(() => route.path, (newpath, old) => {
 :deep(.arco-menu-collapsed) {
     padding: 0;
 }
+
 .home-wrap {
     padding-top: 72px;
     box-sizing: border-box;
@@ -158,6 +177,7 @@ watch(() => route.path, (newpath, old) => {
         transition: all .3s;
         height: 100%;
         box-sizing: border-box;
+
         .home-list-info {
             overflow-y: auto;
         }
