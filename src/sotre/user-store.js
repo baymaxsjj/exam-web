@@ -9,7 +9,7 @@ const useUserStore = defineStore({
         baseUserInfo:null
     }),
     getters:{
-        isLogin: (state) => state.token!=null&&state.userInfo!=null,
+        isLogin: (state) => state.token!=null,
         menu:()=>{
             return [
                 {

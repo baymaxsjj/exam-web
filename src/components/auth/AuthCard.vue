@@ -7,7 +7,7 @@
         <div class="card-body">
             <div class="user-picture">
                 <AAvatar>
-                    <AImage :src="userAuthInfo.picture"/>
+                    <AImage :src="getImageUrl(userAuthInfo.picture)"/>
                 </AAvatar>
             </div>
             <div>
@@ -25,6 +25,7 @@
 </template>
 <script setup>
 import useUserStore from '../../sotre/user-store';
+import {getImageUrl} from '../../utils/image.js'
 const props=defineProps({
     userAuthInfo:Object|null
 })

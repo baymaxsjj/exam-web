@@ -2,7 +2,7 @@
     <div class="paper">
         <a-page-header title="试卷管理" @back="$router.back" v-if="!selectMode">
             <template #extra>
-                <a-button style="margin-right: 10px;">自动组卷</a-button>
+                <a-button style="margin-right: 10px;" @click="autoPaperVisible=true">自动组卷</a-button>
                 <a-button type="primary" @click="toExamPaper()">创建试卷</a-button>
             </template>
         </a-page-header>
@@ -33,7 +33,34 @@
                 </template>
             </a-table>
         </div>
-
+        <AModal v-model:visible="autoPaperVisible" title="自动组卷">
+            <AForm>
+                <AFormItem label="试卷名称">
+                    <AInput/>
+                </AFormItem>
+            </AForm>
+            <AForm>
+                <AFormItem label="难度">
+                    <a-radio-group type="button">
+                        <a-radio value="none">不限</a-radio>
+                        <a-radio value="simple">简单</a-radio>
+                        <a-radio value="medium">中等</a-radio>
+                        <a-radio value="hard">难</a-radio>
+                    </a-radio-group>
+                </AFormItem>
+            </AForm>
+            <AForm>
+                <AFormItem label="题型">
+                    <a-checkbox-group :default-value="['1']">
+                        <a-checkbox :value="item.enumName" v-for="item of questionType" :key="item.enumName">
+                        <template #checkbox="{ checked }">
+                            <a-tag style="padding:10px" :checked="checked" checkable>{{ item.name }}</a-tag>
+                        </template>
+                        </a-checkbox>
+                </a-checkbox-group>
+                </AFormItem>
+            </AForm>
+        </AModal>
     </div>
 </template>
 <script setup>
@@ -41,6 +68,7 @@ import ExamPaper from './ExamPaper.vue';
 import { getExamPaperListRequest, delExamPaperRequest } from '../../apis/exam-api.js'
 import { useRoute, useRouter } from 'vue-router';
 import { ref, watch } from 'vue';
+import {questionType} from '../../utils/question-config.js'
 const props = defineProps({
     selectMode: {
         type: Boolean,
@@ -51,6 +79,7 @@ const props = defineProps({
         defalut: ()=>[]
     }
 })
+const autoPaperVisible=ref(false)
 const emit = defineEmits(['update:selectKey'])
 const selectKey = ref([])
 watch(() => props.selectKey, (key) => {

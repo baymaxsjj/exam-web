@@ -13,6 +13,11 @@ import SocketService from './utils/web-stocket-service.js'
 const userStore=useUserStore()
 const route=useRoute()
 const headerVisible=ref(true)
+if(userStore.isLogin){
+  userStore.getUserInfo()
+  userStore.getBaseUserInfo()
+}
+
 //登录成功后连接
 watchEffect(()=>{
 console.log(userStore.isLogin)

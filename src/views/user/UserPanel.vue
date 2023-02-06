@@ -7,14 +7,13 @@
         :file-list="fileList"
         :show-upload-button="true"
         :show-file-list="false"
-        @change="uploadChange"
       >
         <template #upload-button>
           <a-avatar :size="100" class="info-avatar">
             <template #trigger-icon>
               <icon-camera />
             </template>
-            <img v-if="fileList.length" :src="fileList[0].url" />
+            <img v-if="fileList.length" :src="getImageUrl(fileList[0].url)" />
           </a-avatar>
         </template>
       </a-upload>
@@ -53,6 +52,8 @@
 <script setup>
   import { ref } from 'vue';
   import useUserStore from '../../sotre/user-store';
+  import {uploadAvatar} from '../../apis/file-api'
+  import {imageUploadHandle,getImageUrl} from '../../utils/image'
   const userStore = useUserStore();
   const file = {
     uid: '-2',
@@ -82,50 +83,13 @@
     },
   ] ;
   const fileList = ref([file]);
-  const uploadChange = (fileItemList, fileItem) => {
-    fileList.value = [fileItem];
-  };
   const customRequest = (options) => {
-    // docs: https://axios-http.com/docs/cancellation
-    const controller = new AbortController();
-
-    (async function requestWrap() {
-      const {
-        onProgress,
-        onError,
-        onSuccess,
-        fileItem,
-        name = 'file',
-      } = options;
-      onProgress(20);
-      const formData = new FormData();
-      formData.append(name  , fileItem.file );
-      const onUploadProgress = (event) => {
-        let percent;
-        if (event.total > 0) {
-          percent = (event.loaded / event.total) * 100;
-        }
-        onProgress(parseInt(String(percent), 10), event);
-      };
-
-      try {
-        // https://github.com/axios/axios/issues/1630
-        // https://github.com/nuysoft/Mock/issues/127
-
-        const res = await userUploadApi(formData, {
-          controller,
-          onUploadProgress,
-        });
-        onSuccess(res);
-      } catch (error) {
-        onError(error);
-      }
-    })();
-    return {
-      abort() {
-        controller.abort();
-      },
-    };
+    return imageUploadHandle(options,uploadAvatar,(res)=>{
+      const path=res.data.data;
+      fileList.value[0].url=path
+      userStore.userInfo.pricture=path
+      userStore.baseUserInfo.picture=path
+    })
   };
 </script>
 

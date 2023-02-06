@@ -11,6 +11,7 @@ import "@arco-themes/vue-mgo-blog/css/arco.css";
 import "./assets/styles/reset.css";
 // 路由
 import router from "./router/index";
+import {imageDirective} from './utils/directive'
 //
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
@@ -24,6 +25,8 @@ app.use(ArcoVue);
 app.use(ArcoVueIcon);
 app.use(router);
 app.use(pinia);
+app.directive("loadImg", imageDirective);
+
 app.mount("#app");
 const courseStore = useCourseStore();
 router.beforeEach(async(to, from) =>  {

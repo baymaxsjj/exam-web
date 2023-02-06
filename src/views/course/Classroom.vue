@@ -25,8 +25,8 @@
                         <a-tag v-if="showMessageTime(index)">{{ item.createdAt }}</a-tag>
                     </div>
                     <div class="message-details" :class="{'my-message':isMyMessage(item.user)}">
-                        <AAvatar shape="square" class="user-avatar" >
-                            <AImage :src="item.user.picture"/>
+                        <AAvatar shape="square" :image-url="getImageUrl(item.user.picture)" class="user-avatar" >
+                            <!-- <AImage :src="getImageUrl(item.user.picture)" fit="cover"/> -->
                         </AAvatar>
                         <div class="message-info">
                             <div class="user-info">
@@ -81,7 +81,7 @@ import {
     exitFullScreen, setFullScreen, hasFullScreenElement
 } from '../../utils/screen';
 import SocketService from '../../utils/web-stocket-service.js'
-
+import {getImageUrl} from '../../utils/image.js'
 
 const userStore=useUserStore()
 const route = useRoute()

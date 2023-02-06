@@ -56,7 +56,7 @@
                 <li>
                     <ADropdown  trigger="hover" :popup-max-height="false">
                         <div class="user-info">
-                            <AImage class="avatar" height="32" width="32" :src="userInfo?.picture">
+                            <AImage class="avatar" height="32" width="32" :src="getImageUrl(userInfo?.picture)">
                                 
                             </AImage>
                             <p class="user-name">{{userInfo?.nickname??"未登录"}}</p>
@@ -77,6 +77,7 @@
 import { useRouter } from 'vue-router';
 import useUserStore from '../sotre/user-store';
 import AuthCard from './auth/AuthCard.vue';
+import {getImageUrl} from '../utils/image.js'
 const userStore=useUserStore();
 const userInfo=userStore.userInfo;
 const router=useRouter()

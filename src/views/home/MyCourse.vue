@@ -34,7 +34,7 @@
                 <li class="course-item" v-for="item of courseList"  @click="toCourse(item)">
                     <!-- <router-link :to="'/course/'+item.id"> -->
                         <div class="course-picture">
-                            <a-image width="100%" height="100%" :src="item.cover" />
+                            <img width="100%" style="object-fit: cover;" height="100%" :src="getImageUrl(item.cover)" />
                             <div class="course-opera" v-if="defaultTag=='teacher'">
                                 <span>{{item.status==0?"结课":"开课"}}</span>
                                 <span @click.stop="showAddModal(2,item)">修改</span>
@@ -69,7 +69,16 @@
                     <a-input v-model="teaAddInfo.introduce" placeholder="输入课程简介" />
                 </a-form-item>
                 <a-form-item field="name" label="课程封面">
-                    <a-upload action="/"  list-type="picture-card">
+                    <a-upload :show-file-list="false" :custom-request="customRequest"  list-type="picture-card">
+                        <template #upload-button>
+                        <a-avatar  :size="100" class="info-avatar" shape="square">
+                            <template #trigger-icon>
+                                <icon-camera />
+                            </template>
+                            <img style="object-fit: cover;" v-if="teaAddInfo.cover" v-loadImg :src="teaAddInfo.cover" />
+                            <icon-upload v-else  style="height: 40px;,width: 40px;,margin:auto"/>
+                        </a-avatar>
+                        </template>
                     </a-upload>
                 </a-form-item>
                 <a-form-item field="name" label="课程公开">
@@ -93,6 +102,8 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { courseListRequest,stuAddCourseRequest,teaCreateCourseRequest } from '@/apis/course-api.js'
 import useCourseStore from '../../sotre/course-store';
+import {uploadCourseCover} from '../../apis/file-api'
+import {imageUploadHandle,getImageUrl} from '../../utils/image'
 const route = useRoute()
 const router = useRouter()
 const courseStore=useCourseStore()
@@ -106,7 +117,7 @@ const stuAddInfo = reactive({
     code: ""
 })
 const teaAddInfoState={
-        cover:"https://pic.616pic.com/bg_w1180/00/01/57/CetpiQ3xVI.jpg!/both/561x313",
+        cover:"",
         id:0,
         introduce:"",
         isPublic:"0",
@@ -134,6 +145,11 @@ const checkRole = () => {
             defaultTag.value = 'student'
     }
 }
+const customRequest = (options) => {
+    return imageUploadHandle(options,uploadCourseCover,(res)=>{
+      teaAddInfo.cover=res.data.data;
+    })
+};
 //标签改变
 const tagChange = () => {
     checkRole();

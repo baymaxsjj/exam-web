@@ -16,6 +16,7 @@ export default ({ mode })=>{
   const exam_path=loadEnv(mode, process.cwd()).VITE_EXAM_API_URL
   const auth_path=loadEnv(mode, process.cwd()).VITE_AUTH_API_URL
   const message_path=loadEnv(mode, process.cwd()).VITE_MESSAGE_API_URL
+  const file_path=loadEnv(mode, process.cwd()).VITE_FILE_API_URL
   return defineConfig({
     plugins: [
       vue(),
@@ -59,6 +60,11 @@ export default ({ mode })=>{
               target: app_host,
               changeOrigin: true,//是否允许跨域
               rewrite: (path) => path.replace(/^\/mapi/, message_path),
+            },
+            '/fapi': {
+              target: app_host,
+              changeOrigin: true,//是否允许跨域
+              rewrite: (path) => path.replace(/^\/fapi/, file_path),
             },
              // 代理websocket请求
             '/mapi-scoket': {
