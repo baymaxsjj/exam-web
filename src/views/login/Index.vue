@@ -23,13 +23,13 @@
                     </a-divider>
                     <!-- 第三方登录 -->
                     <div class="tripa_login">
-                        <a href="/w_api/login/qq/render" class="tripa" style="flex:3" title="QQ">
+                        <a href="/uapi/public/user/login/QQ/render" class="tripa" style="flex:3" title="QQ">
                             <img src="@/assets/img/login_qq.png"/>
                         </a>
-                         <a href="/w_api/login/gitee/render" class="tripa" style="flex:2" title="Gitee">
+                         <a href="/uapi/public/user/login/GITEE/render" class="tripa" style="flex:2" title="Gitee">
                             <img src="@/assets/img/login_gitee.png"/>
                         </a>
-                         <a href="/w_api/login/github/render" class="tripa" style="flex:1" title="GitHub">
+                         <a href="/uapi/public/user/login/GITHUB/render" class="tripa" style="flex:1" title="GitHub">
                             <img src="@/assets/img/login_github.png"/>
                         </a>
                     </div>

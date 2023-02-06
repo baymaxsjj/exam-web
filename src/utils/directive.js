@@ -1,5 +1,7 @@
 
-export const imageDirective=(el, binding)=>{
+
+export const imageDirective=(el, binding,vnode)=>{
+
     let imageEl;
     //不是图片
     if(!(el instanceof HTMLImageElement)){

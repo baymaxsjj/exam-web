@@ -1,4 +1,5 @@
 export const getImageUrl=(src)=>{
+  src=src??""
   const basePath=import.meta.env.VITE_FILE_PATH;
   if(!src.startsWith(basePath)&&!src.startsWith("http")){
       src=basePath+src

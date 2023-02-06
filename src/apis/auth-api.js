@@ -5,14 +5,14 @@ export const loginRequest=(username,password)=>{
 }
 
 ///注册
-export const registerRequest=(params)=>{
-    return axios.post("/uapi/register",params)
+export const registerRequest=(params,code)=>{
+    return axios.post(`/uapi/public/user/register?code=${code}`,params)
 }
 // 找回密码
 export const forgetPassRequest=(params)=>{
-    return axios.post("/uapi/forgetPass",params)
+    return axios.post("/uapi/public/user/forgetPass",params)
 }
 // 发送邮箱验证码
-export const sendEmailCodeRequest=(params)=>{
-    return axios.post("/uapi/sendEmailCode",params)
+export const sendEmailCodeRequest=(type,email)=>{
+    return axios.post(`/uapi/public/user/sendEmailCode?type=${type}&email=${email}`)
 }

@@ -26,7 +26,7 @@ app.use(ArcoVueIcon);
 app.use(router);
 app.use(pinia);
 app.directive("loadImg", imageDirective);
-
+console.log("vue 实例",app._context)
 app.mount("#app");
 const courseStore = useCourseStore();
 router.beforeEach(async(to, from) =>  {

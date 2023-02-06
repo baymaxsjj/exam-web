@@ -11,7 +11,7 @@
           <a-input
             size="large"
             v-model="loginForm.username"
-            placeholder="输入个人博客地址/邮箱地址"
+            placeholder="输入用户名/邮箱地址"
           />
         </a-form-item>
         <a-form-item field="password" :hide-label="true" :rules="form_rules.password">
@@ -56,8 +56,19 @@
             placeholder="输入验证码（4个字符）"
           >
            <template #append>
-              <a-button type="primary" style="height:100%;width:125px" @click="sendEmailCode('registerForm')">{{send_btn_text}}</a-button>
+              <a-button type="primary" :loading="emailLoading" style="height:100%;width:125px" @click="sendEmailCode('registerForm')">{{send_btn_text}}</a-button>
             </template>
+          </a-input>
+        </a-form-item>
+        <a-form-item
+          field="nickname"
+          :hide-label="true"
+        >
+          <a-input
+            size="large"
+            v-model="registerForm.nickname"
+            placeholder="输入昵称"
+          >
           </a-input>
         </a-form-item>
         <a-form-item
@@ -68,12 +79,8 @@
           <a-input
             size="large"
             v-model="registerForm.username"
-            placeholder="输入个人博客地址"
+            placeholder="输入个人用户名/登录名"
           >
-           <template #prepend>
-             <span style="color:var(--color-text-2);box-sizing: border-box; ">&nbsp;&nbsp;blog/&nbsp;&nbsp;</span>
-              <!-- {{app_url}}/ -->
-            </template>
           </a-input>
         </a-form-item>
         <a-form-item field="password" :hide-label="true" :rules="form_rules.password">
@@ -156,6 +163,7 @@ import {loginRequest,registerRequest,forgetPassRequest,sendEmailCodeRequest} fro
 import useUserStore from "../../sotre/user-store";
 import { useRouter } from "vue-router";
 const app_url=location.origin;
+const emailLoading=ref(false)
 const props = defineProps({
   loginType: Number,
   tagList: Array,
@@ -198,14 +206,17 @@ const submit=()=>{
       loading.value=false;
     })
   }else if(loginType==1){
-    registerRequest(registerForm)
+    registerRequest(registerForm,registerForm.verifiCode).catch(res=>{
+      loading.value=false
+    })
   }else{
-    forgetPassRequest(forgetForm)
+    forgetPassRequest(forgetForm,registerForm.verifiCode)
   }
 
 }
 const send_btn_text=ref('获取验证码')
 let interval_time=60;
+
 const sendEmailCode=(refName)=>{
     let form;
     if(refName=="forgetForm"){
@@ -214,15 +225,18 @@ const sendEmailCode=(refName)=>{
       form=register.value
     }
     form.validateField('email',errors=>{
+      emailLoading.value=true
       if(errors==undefined){
         if(interval_time==60){
-          intervalCharge();
-          sendEmailCodeRequest({
-            email:props.loginType==1?registerForm.email:forgetForm.email,
-            type:props.loginType==1?1:2
-          }).then((res)=>{
+          sendEmailCodeRequest(
+            props.loginType==1?"register":"forget",
+            props.loginType==1?registerForm.email:forgetForm.email,
+          ).then((res)=>{
+            emailLoading.value=false
+            intervalCharge();
           }).catch(err=>{
             console.log(err)
+            emailLoading.value=false
           })
         }
       }else{
@@ -248,10 +262,10 @@ const valiPass=(field,callback)=>{
 }
 const form_rules = {
   username: [
-    { required: true, message: "个人博客地址不能为空~" },
-    { maxLength: 16, message: "个人博客地址不能超过16个字符~"},
-    { minLength: 5, message: "个人博客地址至少5个字符~" },
-    { match: /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/, message: "个人博客地址必须以字母开头，只允许字母数字下划线~" },
+    { required: true, message: "用户名不能为空~" },
+    { maxLength: 16, message: "用户名不能超过16个字符~"},
+    { minLength: 5, message: "用户名地址至少5个字符~" },
+    { match: /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/, message: "用户名必须以字母开头，只允许字母数字下划线~" },
   ],
   password: [
     { required: true, message: "密码不能为空~" },
