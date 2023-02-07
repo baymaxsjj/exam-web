@@ -82,9 +82,11 @@ import {
 } from '../../utils/screen';
 import SocketService from '../../utils/web-stocket-service.js'
 import {getImageUrl} from '../../utils/image.js'
+import { Message } from '@arco-design/web-vue';
 
 const userStore=useUserStore()
 const route = useRoute()
+const router=useRouter()
 const courseStore=useCourseStore();
 const courseId = route.params['courseId'];
 const roomBodyRef=ref(null)
@@ -110,7 +112,15 @@ const newMessId=ref(null)
 getClassListRequest(courseId).then(res=>{
     const data=res.data.data
     classList.value=data;
-    getRoomMessage(data[0].id)
+    console.log(data.length)
+    if(data!=null&&data.length!=0){
+        getRoomMessage(data[0].id)
+    }else{
+        Message.info("请先创建班级吧~")
+        router.push({
+            name:'MyClasses'
+        })
+    }
 })
 const socketServe = SocketService.Instance;
 socketServe.registerCallBack('COURSE_CLASSROOM_MESSAGE', (data) => {

@@ -133,7 +133,7 @@
             placeholder="输入验证码（4个字符）"
           >
            <template #append>
-              <a-button type="primary" style="height:100%;width:125px" @click="sendEmailCode('forgetForm')">{{send_btn_text}}</a-button>
+              <a-button type="primary" :loading="emailLoading" style="height:100%;width:125px" @click="sendEmailCode('forgetForm')">{{send_btn_text}}</a-button>
             </template>
           </a-input>
         </a-form-item>
@@ -198,7 +198,12 @@ const submit=()=>{
       userStore.getUserInfo().then(()=>{
         Message.success("登录成功")
         loading.value=false;
-        router.push("/home")
+        router.push({
+          name:"MyCourse",
+          params:{
+            role:"student"
+          }
+        })
       })
       userStore.getBaseUserInfo()
     }).catch(err=>{
@@ -206,11 +211,21 @@ const submit=()=>{
       loading.value=false;
     })
   }else if(loginType==1){
-    registerRequest(registerForm,registerForm.verifiCode).catch(res=>{
+    registerRequest(registerForm,registerForm.verifiCode)
+    .then(res=>{
+      loading.value=false;
+    })
+    .catch(e=>{
       loading.value=false
     })
   }else{
-    forgetPassRequest(forgetForm,registerForm.verifiCode)
+    forgetPassRequest(forgetForm.email,forgetForm.verifiCode,forgetForm.password)
+    .then(res=>{
+      loading.value=false;
+    })
+    .catch(e=>{
+      loading.value=false;
+    })
   }
 
 }

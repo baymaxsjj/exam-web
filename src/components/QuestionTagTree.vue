@@ -5,7 +5,7 @@
           title: 'tag',
           children: 'items',
           icon: 'customIcon'
-        }" :default-expanded-keys="['']" :default-selected-keys="['']" :checkable="props.checkable" size="large" :load-more="getTagList">
+        }" :default-expanded-keys="['']" @check="tagCheck" :checkable="props.checkable" size="large" :load-more="getTagList">
             <template #icon>
                 <icon-folder />
             </template>
@@ -61,7 +61,7 @@ const props = defineProps({
     }
 })
 const tagTreeRef=ref(null)
-const emits=defineEmits(['select'])
+const emits=defineEmits(['select','tagCheck'])
 const visible=ref(false)
 const isUpdate=ref(false)
 const tagTreeList = ref([
@@ -76,6 +76,9 @@ const tagModel=ref({
     tag:"",
     courseId:courseId
 })
+const tagCheck=(checkedKeys,data)=>{
+    emits("tagCheck",checkedKeys,data.checkedNodes);
+}
 const showTagModel=(type,data)=>{
     visible.value=true;
     isUpdate.value=type;
@@ -145,6 +148,11 @@ const getTagParentList=(arr,id)=>{
                 return childrenList
             }
         }
+    }
+}
+const getTagListByIds=(ids)=>{
+    for(let id of ids){
+        
     }
 }
 const getTagList = (nodeData) => {

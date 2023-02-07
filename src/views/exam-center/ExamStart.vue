@@ -41,6 +41,17 @@
                 <a-tag class="exam-stat-time" style="margin:10px 0">开始时间：{{ examInfo.startTime }}</a-tag>
                 <a-tag class="exam-end-time">结束时间：{{ examInfo.endTime }}</a-tag>
             </div>
+            <div class="common-style">
+                <QuestionNumber  :status-visible="true" title="标记区" @numberClick="numberChange"
+                scroll-container=".exam-list" :number-list="markNumberList" group-class="common-style" >
+                <template #title>
+                    <div style="display:flex;align-items: center;">
+                        <h5>标记区</h5>
+                    <p style="margin-left: 10px;font-size:12px;color:var(--color-text-2)">答案不确定，点击题目序号进行标记</p>
+                    </div>
+                </template>
+            </QuestionNumber>
+            </div>
         </div>
         <div class="exam-list">
             <div>
@@ -64,8 +75,10 @@
                     <a-list :data="getExamQuestion" :bordered="false">
                         <template #item="{ item, index }">
                             <a-list-item :id="`question-${item.id}`">
+                                
                                 <BaseQuestionPreview @editorBlur="submitAnswer(item.id)" :key="item.id"
                                     @choiceCorrect="choiceCorrect(item.id, $event)" mode="answer"
+                                    @markQuestion="markQuestion"
                                     :show-area="false" :topic-type="item.type"
                                     :question="item" :number="isPreview ? (index + 1) : (currQuestIndex + 1)"
                                     v-model:options="item.options" :lazy="isPreview">
@@ -110,6 +123,8 @@ import useUserStore from "../../sotre/user-store";
 import { Message, Modal } from "@arco-design/web-vue";
 import QuestionNumber from "../../components/QuestionNumber.vue";
 import QuestionImagePreview from "../../components/QuestionImagePreview.vue";
+import {getImageUrl} from '../../utils/image.js'
+
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter()
@@ -126,7 +141,8 @@ const options = ref([]);
 //考试信息
 const examInfo = ref({});
 const loading = ref(false);
-
+//标记列表
+const markNumberList=ref([{list:[]}])
 const getExamQuestion = computed(() => {
     const list = questionList.value
     if (isPreview.value) {
@@ -155,9 +171,26 @@ examStartRequest(examInfoId).then((res) => {
         name: 'Home'
     })
 });
+const markQuestion=(number,question)=>{
+    const qId=question.id;
+    let i=0;
+    for(let item of markNumberList.value[0].list){
+        if(item.key==qId){
+            markNumberList.value[0].list.splice(i,1)
+            return
+        }
+        i++;
+    }
+    markNumberList.value[0].list.push({
+        key: qId,
+        number: number,
+        href: `question-${qId}`
+    })
+}
+
 const sumbit = () => {
     const submitTime = examInfo.value.submitTime;
-    if (submitTime && dayjs().isAfter(dayjs(submitTime))) {
+    if (submitTime==null || dayjs().isAfter(dayjs(submitTime))) {
         examSubmitRequest(examInfoId).then(res => {
             router.push({
                 name: 'ExamSuccess'

@@ -34,12 +34,20 @@
             </a-table>
         </div>
         <AModal v-model:visible="autoPaperVisible" title="自动组卷">
-            <AForm>
+            <AForm :model="form">
                 <AFormItem label="试卷名称">
                     <AInput/>
                 </AFormItem>
-            </AForm>
-            <AForm>
+                <AFormItem label="分组">
+                    <a-input-tag :max-tag-count="6" v-model="tags" @click="groupVisible = true" placeholder="Please Enter" allow-clear/>
+                </AFormItem>
+                <AFormItem label="题型">
+                    <a-checkbox-group :default-value="['1']">
+                        <a-checkbox :value="item.enumName" v-for="item of questionType" :key="item.enumName">
+                            {{ item.name }}
+                        </a-checkbox>
+                </a-checkbox-group>
+                </AFormItem>
                 <AFormItem label="难度">
                     <a-radio-group type="button">
                         <a-radio value="none">不限</a-radio>
@@ -48,18 +56,15 @@
                         <a-radio value="hard">难</a-radio>
                     </a-radio-group>
                 </AFormItem>
-            </AForm>
-            <AForm>
-                <AFormItem label="题型">
-                    <a-checkbox-group :default-value="['1']">
-                        <a-checkbox :value="item.enumName" v-for="item of questionType" :key="item.enumName">
-                        <template #checkbox="{ checked }">
-                            <a-tag style="padding:10px" :checked="checked" checkable>{{ item.name }}</a-tag>
-                        </template>
-                        </a-checkbox>
-                </a-checkbox-group>
+                
+                <AFormItem label="题量">
+                    <AInputNumber :parser="(value)=>parseInt(value)+''" :min="1" mode="button" style="width: 200px;"/>
                 </AFormItem>
+                
             </AForm>
+        </AModal>
+        <AModal v-model:visible="groupVisible" title="选择分组">
+            <QuestionTagTree @tagCheck="tagCheck" :checkable="true"/>
         </AModal>
     </div>
 </template>
@@ -69,6 +74,7 @@ import { getExamPaperListRequest, delExamPaperRequest } from '../../apis/exam-ap
 import { useRoute, useRouter } from 'vue-router';
 import { ref, watch } from 'vue';
 import {questionType} from '../../utils/question-config.js'
+import QuestionTagTree from '../../components/QuestionTagTree.vue'
 const props = defineProps({
     selectMode: {
         type: Boolean,
@@ -79,15 +85,46 @@ const props = defineProps({
         defalut: ()=>[]
     }
 })
+const form=ref({})
+const groupVisible=ref(false)
 const autoPaperVisible=ref(false)
 const emit = defineEmits(['update:selectKey'])
 const selectKey = ref([])
+const tags=ref([])
 watch(() => props.selectKey, (key) => {
     selectKey.value = key
 })
 const rowSelection = {
     type: props.selectMode ? 'radio' : 'checkbox'
 };
+const tagCheck=(keys,data)=>{
+    console.log(keys,data)
+    const tagData=[]
+    const ignoreIds=new Set()
+    for(let item of data){
+        //如果存在父元素，删了他
+        const parentId=item.parentId;
+        if(keys.includes(parentId)){
+            ignoreIds.add(parentId)
+        }
+        tagData.push({
+            value:item.id,
+            label:item.tag
+        })
+    }
+    // 删除忽略结点
+    console.log("忽略",ignoreIds)
+    let i;
+    for(let id of ignoreIds){
+        for(i=0;i<tagData.length;i++){
+            if(id==tagData[i].value){
+                tagData.splice(i,1)
+                break;
+            }
+        }
+    }
+    tags.value=tagData
+}
 const selectChange = (data) => {
     console.log(data)
     emit('update:selectKey', data)

@@ -1,14 +1,16 @@
 <template>
     <div v-if="props.statusVisible">
-        <h5 style="margin-bottom: 10px;">{{props.title}}</h5>
+        <slot name="title">
+            <h5 style="margin-bottom: 10px;">{{props.title}}</h5>
+        </slot>
         <ul class="status-desc">
             <li v-for="item of props.statusList">{{item.status}}<span class="status-color" :style="item.style"></span></li>
         </ul>
-        <hr style="background-color:var(--color-fill-1)"/>
+        <a-divider/>
     </div>
     <a-anchor line-less :change-hash="false" :scroll-container="scrollContainer" class="group-number">
         <li v-for="item of numberList" :key="item.title" :class="groupClass">
-            <h5 style="margin: 10px 0;">{{ item.title }}</h5>
+            <h5 v-if="item.title" style="margin: 10px 0;">{{ item.title }}</h5>
             <ul style="display:flex;flex-wrap:wrap">
                 <a-anchor-link @click="$emit('numberClick',info)" :style="getStuatsItem(info.statusKey)?.style"
                     :href="`#${info.href}`" :key="info.key" v-for="info of item.list">{{ info.number }}</a-anchor-link>

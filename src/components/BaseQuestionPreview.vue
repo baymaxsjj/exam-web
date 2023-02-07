@@ -4,7 +4,8 @@
     <div class="preview" :class="props.mode">
         <!-- 题目区 -->
         <div class="question-info">
-            <div class="info">
+            <div class="info" @click="$emit('markQuestion',props.number,question)">
+                <slot name="number"></slot>
                 <span class="number" v-if="props.number">{{ props.number }}. </span>
                 <span class="type-name"> ({{ type.simpleName }} {{ question.score }}分)：</span>
             </div>
@@ -171,7 +172,7 @@ const props = defineProps({
     }
 })
 const emit = defineEmits(
-    ['choiceCorrect', 'editorBlur', 'update:question', 'update:options']
+    ['choiceCorrect','markQuestion', 'editorBlur', 'update:question', 'update:options']
 )
 const question = computed({
     get() {
@@ -396,6 +397,13 @@ const getCorrect = computed(() => {
                 float: none;
                 line-height: normal;
             }
+        }
+    }
+}
+.answer{
+    .question-info {
+        .info {
+            cursor: pointer;
         }
     }
 }
