@@ -11,8 +11,7 @@
         <div class="exam-info">
             <div class=" common-style">
                 <div class="user-info">
-                    <a-avatar shape="square" class="avatar">
-                        <img alt="avatar" :src="userStore.userInfo.picture" />
+                    <a-avatar shape="square" class="avatar" v-loadImg :image-url="userStore.userInfo.picture">
                     </a-avatar>
                     <div class="desc">
                         <div>
@@ -51,6 +50,7 @@
                     </div>
                 </template>
             </QuestionNumber>
+            <AEmpty v-if="markNumberList[0].list.length==0" description="暂无标记题目"/>
             </div>
         </div>
         <div class="exam-list">
@@ -123,7 +123,6 @@ import useUserStore from "../../sotre/user-store";
 import { Message, Modal } from "@arco-design/web-vue";
 import QuestionNumber from "../../components/QuestionNumber.vue";
 import QuestionImagePreview from "../../components/QuestionImagePreview.vue";
-import {getImageUrl} from '../../utils/image.js'
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -167,9 +166,7 @@ examStartRequest(examInfoId).then((res) => {
         monitorAction();
     }
 }).catch(() => {
-    router.push({
-        name: 'Home'
-    })
+    router.back()
 });
 const markQuestion=(number,question)=>{
     const qId=question.id;
@@ -192,9 +189,12 @@ const sumbit = () => {
     const submitTime = examInfo.value.submitTime;
     if (submitTime==null || dayjs().isAfter(dayjs(submitTime))) {
         examSubmitRequest(examInfoId).then(res => {
+            Message.success("提交成功~")
             router.push({
                 name: 'ExamSuccess'
             })
+        }).catch(e=>{
+            Message.success("提交失败，请联系老师")
         })
     } else {
         Modal.info({
@@ -503,6 +503,7 @@ const answerStatus = [
         padding: 10px;
         padding-top: 0;
         overflow-y: auto;
+        overflow-y: overlay;
 
         .exam-name {
             text-align: center;
@@ -620,6 +621,7 @@ const answerStatus = [
     .exam-number {
         width: 320px;
         height: 100%;
+        overflow-y: auto;
         overflow-y: overlay;
         box-sizing: border-box;
         margin: 10px;

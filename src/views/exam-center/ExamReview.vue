@@ -1,6 +1,6 @@
 <template>
-     <a-page-header title="考试批阅" @back="$router.back" class="page-header">
-        <template #extra>
+     <a-page-header :title="isReivew?'考试批阅':'考试详情'" @back="$router.back" class="page-header">
+        <template #extra v-if="isReivew">
             <a-button type="primary" @click="submitReview">提交批阅</a-button>
         </template>
     </a-page-header>
@@ -8,8 +8,7 @@
         <div class="left">
             <div class="result_desc common-style">
                 <div class="user-info">
-                    <a-avatar shape="square" class="avatar">
-                        <img alt="avatar" :src="userAuthInfo.picture" />
+                    <a-avatar shape="square" class="avatar" v-loadImg :image-url="userAuthInfo.picture">
                     </a-avatar>
                     <div class="desc">
                         <div>
@@ -30,7 +29,7 @@
             </div>
 
             <div class="numbers common-style">
-                <QuestionNumber title="批阅状态" :statusList="reviewStatus" :status-visible="statusVisible"
+                <QuestionNumber title="批阅状态" :statusList="reviewStatus" :status-visible="isReivew"
                     scroll-container=".question-list" :number-list="getNumberInfo" group-class="common-style" />
             </div>
         </div>
@@ -40,7 +39,7 @@
                 :options="item.questionInfo.options" :my-options="item.answerResult">
                 <template #body>
                     <div v-if="item.answerResult.length != 0">
-                        <div class="result-info" v-if="statusVisible">
+                        <div class="result-info" v-if="isReivew">
                             <a-tag color="blue" style="margin-top: 5px" class="title">评分：</a-tag>
                             <a-input-number v-model="reviewList[item.scoreRecord.id]" mode="button"
                                 :default-value="item.scoreRecord.score" :min="0" :max="item.questionInfo.score"
@@ -54,7 +53,7 @@
                             <a-tag color="blue" class="title">结果：</a-tag>
                             <a-tag color="red">{{ getResultType(item.scoreRecord.score==item.questionInfo.score?'CORRECT':item.scoreRecord.resultType).label }}</a-tag>
                         </div>
-                        <div class="result-info" v-if="statusVisible">
+                        <div class="result-info" v-if="isReivew">
                             <a-tag color="blue" class="title">批阅类型：</a-tag>
                             <a-tag color="#ff7d00">{{ getReviewType(item.scoreRecord.reviewType).label }}</a-tag>
                         </div>
@@ -80,17 +79,20 @@ import BaseQuestionPreview from '../../components/BaseQuestionPreview.vue'
 import { getResultType, getReviewType } from '../../utils/review-info.js'
 import QuestionImagePreview from '../../components/QuestionImagePreview.vue';
 import { Message }  from '@arco-design/web-vue'
+import useUserStore from '../../sotre/user-store';
 
 const route = useRoute()
+const userStore=useUserStore()
 const examInfoId = route.params['examInfoId']
-const studentId = route.params['studentId']
+const isReivew=route.name=='ExamReview'
+
+const studentId = isReivew?route.params['studentId']:userStore.userInfo.userId
 
 const userAuthInfo = ref({})
 const score = ref(0)
 const correctNumber = ref(0)
 const numberGroup = ref({})
 const answerResults = shallowRef([]);
-const statusVisible = ref(true)
 const loading = ref(true)
 const reviewList = ref({})
 
@@ -134,7 +136,7 @@ const getNumberInfo = computed(() => {
         for (; i < length; i++) {
             let color = 'NONE'
             const result = results[i];
-            if (statusVisible.value && result.scoreRecord) {
+            if (isReivew && result.scoreRecord) {
                 color = result.scoreRecord.reviewType
             }
             info.push({

@@ -41,6 +41,7 @@
             </li>
         </ul>
         <a-empty v-if="list.length == 0"></a-empty>
+        <a-pagination style="justify-content: center;margin:10px 0"  v-model:current="currpage"  @change="getExamInfoList"  :total="total" :page-size="pageSize" />
     <a-modal v-model:visible="examVisible" @ok="updateExamInfo" :footer="false" title="创建考试" simple width="600px"
         :body-style="{ overflow: 'hidden' }">
         <a-form :model="form" ref="formRef" @submit-success="updateExamInfo">

@@ -22,17 +22,23 @@
         </div>
         <!-- 课程列表 -->
         <div class="course-list" v-if="loading">
-            <a-skeleton class="course-item" style="flex:1" :animation="true" v-for="item of 3" :key="item">
-                <a-space direction="vertical" size="large" style="width:100%">
-                    <a-skeleton-shape class="course-picture" style="width:100%"/>
-                    <a-skeleton-line :rows="2" />
-                </a-space>
-            </a-skeleton>
+            <a-row :gutter="[15, 15]" class="course-list">
+                <a-col :xs="24" :sm="12" :xl="8" :xxl="6"  v-for="item of 3" :key="item">
+                    <a-skeleton class="course-item">
+                        <a-space direction="vertical" size="large" style="width:100%">
+                            <a-skeleton-shape class="course-picture" style="width:100%"/>
+                            <a-skeleton-line :rows="2" />
+                        </a-space>
+                    </a-skeleton>
+                </a-col>
+            </a-row>
+            
         </div>
         <div v-else-if="courseList.length != 0">
-            <ul class="course-list">
-                <li class="course-item" v-for="item of courseList"  @click="toCourse(item)">
+            <a-row :gutter="[15, 15]" class="course-list" :class="{'course-end':isEnd=='1'}">
+                <a-col :xs="24" :sm="12" :xl="8" :xxl="6" v-for="item of courseList" :key="item.id"  @click="toCourse(item)">
                     <!-- <router-link :to="'/course/'+item.id"> -->
+                        <div  class="course-item">
                         <div class="course-picture">
                             <img width="100%" style="object-fit: cover;" height="100%" :src="getImageUrl(item.cover)" />
                             <div class="course-opera" v-if="defaultTag=='teacher'">
@@ -48,10 +54,11 @@
                             <h3 class="title">{{ item.name }}</h3>
                             <p class="author">{{ item.teacher.nickname }}</p>
                         </div>
+                    </div>
                     <!-- </router-link> -->
-                </li>
-            </ul>
-            <a-pagination style="justify-content: center;" :total="total" :current="currPage" :page-size="9" />
+                </a-col>
+            </a-row>
+            <a-pagination style="justify-content: center;margin:10px 0"  v-model:current="currPage"  @change="getCourseList"  :total="total" :current="currPage" :page-size="10" />
         </div>
         <a-empty v-else />
         <!-- 邀请码添加课程 -->
@@ -231,30 +238,24 @@ getCourseList()
     .course-operation {
         display: flex;
         justify-content: space-between;
-        padding: 0 10px;
+        padding-bottom: 20px;
     }
 
     .course-list {
-        display: flex;
-        flex-wrap: wrap;
         .course-item {
-            flex-grow:1;
-            flex-shrink:1;
-            margin: 10px;
-            border-radius: 10px;
+            border-radius: 6px;
             overflow: hidden;
             cursor: pointer;
-            min-width: 160px;
-            max-width: 300px;
             box-sizing: border-box;
             border: 1px solid var(--color-border-2);
             transition: all .3s;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             .course-picture{
                 img{
                     transition: all .3s;
                     width: 100%;
                     height: 100%;
+                    aspect-ratio: 2 / 1; 
                 }
             }
             &:hover {
@@ -318,6 +319,11 @@ getCourseList()
             }
 
            
+        }
+    }
+    .course-end{
+        .course-item{
+            filter: grayscale(1);
         }
     }
 }

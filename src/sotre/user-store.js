@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia' 
 import { userAuthInfoRequest,baseUserInfoRequest } from '../apis/user-api'
 import SocketService from '../utils/web-stocket-service.js'
+import {getImageUrl} from '../utils/image'
 const useUserStore = defineStore({ 
     id: 'user', 
     state: () => ({ 
@@ -46,11 +47,15 @@ const useUserStore = defineStore({
     actions:{
         async getUserInfo(){
             const resp=await userAuthInfoRequest()
-            this.userInfo=resp.data.data
+            const data=resp.data.data;
+            data.picture=getImageUrl(data.picture)
+            this.userInfo=data
         },
         async getBaseUserInfo(){
             const resp=await baseUserInfoRequest()
-            this.baseUserInfo=resp.data.data
+            const data=resp.data.data;
+            data.picture=getImageUrl(data.picture)
+            this.baseUserInfo=data
         },
         logOut(){
             this.userInfo=null

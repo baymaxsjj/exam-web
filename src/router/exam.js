@@ -41,6 +41,24 @@ const courses = [
         },
       },
       {
+        path: "view",
+        component: ExamReview,
+        name: "ExamView",
+        meta: {
+          title: "查看考试",
+          header:false
+        },
+      },
+      {
+        path: "success",
+        component: ExamSuccess,
+        name: "ExamSuccess",
+        meta: {
+          title: "考试提交成功",
+          header:false
+        },
+      },
+      {
         path: "console",
         component: ExamConsole,
         name: "ExamConsole",

@@ -4,7 +4,7 @@
         <template #userInfo="{ record }">
             <div class="user-info">
                 <a-avatar shape="square" class="avatar">
-                    <img alt="avatar" :src="record.userAuthInfo.picture" />
+                    <img v-loadImg alt="avatar" :src="record.userAuthInfo.picture" />
                 </a-avatar>
                 <div>
                     <h3 style="text-overflow: ellipsis;white-space: nowrap;max-width: 120px;overflow: hidden;">{{

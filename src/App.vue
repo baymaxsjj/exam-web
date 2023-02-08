@@ -61,6 +61,9 @@ watch(()=>route.name,()=>{
 .arco-modal-simple .arco-modal-body {
   overflow: hidden;
 }
+.arco-avatar-image img{
+  object-fit: cover;
+}
 
 div::-webkit-scrollbar,body::-webkit-scrollbar,ul::-webkit-scrollbar  {
   /*滚动条整体样式*/

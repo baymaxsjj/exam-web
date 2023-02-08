@@ -207,7 +207,6 @@ const submit=()=>{
       })
       userStore.getBaseUserInfo()
     }).catch(err=>{
-      Message.info(err.data.error_description)
       loading.value=false;
     })
   }else if(loginType==1){

@@ -53,7 +53,6 @@ const startExam = () => {
 const handleClick = () => {
     switch (status.value) {
         case 'start':
-
             visible.value = true
             break;
         case 'not-start':
@@ -62,6 +61,14 @@ const handleClick = () => {
         case 'end':
             Message.warning('考试已结束，禁止查看')
             break
+        case 'view':
+            router.push({
+                name:'ExamView',
+                params:{
+                    examInfoId: props.item.id
+                }
+            })
+            break;
     }
 }
 //未开始
@@ -75,7 +82,7 @@ const initData = () => {
         if (props.item.endVisible) {
             btnText.value = "查看"
             btnStatus.value = 'success'
-            status.value = 'end-look'
+            status.value = 'view'
         } else {
             btnText.value = "已结束"
             disabled.value = true;
