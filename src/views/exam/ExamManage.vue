@@ -11,50 +11,51 @@
             <a-button type="primary" v-if="isTeacher" @click="examVisible = true">创建考试</a-button>
         </template>
     </a-page-header>
-        <ul class="exam-list">
-            <li class="exam-item ebutton-hover" v-for="item in list" :key="item.id">
-                <div class="exam-info-wrap">
-                    <a-avatar class="avatar" shape="square">考试</a-avatar>
-                    <div class="exam-info">
-                        <p class="title">{{ item.title }}</p>
-                        <p class="date">{{ item.startTime }} ~ {{ item.endTime }}</p>
-                    </div>
+    <ul class="exam-list">
+        <li class="exam-item ebutton-hover" v-for="item in list" :key="item.id">
+            <div class="exam-info-wrap">
+                <a-avatar class="avatar" shape="square">考试</a-avatar>
+                <div class="exam-info">
+                    <p class="title">{{ item.title }}</p>
+                    <p class="date">{{ item.startTime }} ~ {{ item.endTime }}</p>
                 </div>
-                <div class="table-edit" v-if="isTeacher">
-                    <a-button status="danger" @click="delExamInfo(item.id)" style="margin-right: 10px;">
-                        <template #icon>
-                            <icon-delete />
-                        </template>
+            </div>
+            <div class="table-edit" v-if="isTeacher">
+                <a-button status="danger" @click="delExamInfo(item.id)" style="margin-right: 10px;">
+                    <template #icon>
+                        <icon-delete />
+                    </template>
+                </a-button>
+                <a-button type="primary" @click="getExamInfoDetail(item.id)" style="margin-right: 10px;">
+                    <template #icon>
+                        <icon-edit />
+                    </template>
+                </a-button>
+                <router-link :to="`/exam/${item.id}/console/outline`">
+                    <a-button type="primary">
+                        控制台
                     </a-button>
-                    <a-button type="primary" @click="getExamInfoDetail(item.id)" style="margin-right: 10px;">
-                        <template #icon>
-                            <icon-edit />
-                        </template>
-                    </a-button>
-                    <router-link :to="`/exam/${item.id}/console/outline`">
-                        <a-button type="primary">
-                            控制台
-                        </a-button>
-                    </router-link>
-                </div>
-                <ExamInfoButton v-else :item="item"></ExamInfoButton>
-            </li>
-        </ul>
-        <a-empty v-if="list.length == 0"></a-empty>
-        <a-pagination style="justify-content: center;margin:10px 0"  v-model:current="currpage"  @change="getExamInfoList"  :total="total" :page-size="pageSize" />
+                </router-link>
+            </div>
+            <ExamInfoButton v-else :item="item"></ExamInfoButton>
+        </li>
+    </ul>
+    <a-empty v-if="list.length == 0"></a-empty>
+    <a-pagination style="justify-content: center;margin:10px 0" v-model:current="currpage" @change="getExamInfoList"
+        :total="total" :page-size="pageSize" />
     <a-modal v-model:visible="examVisible" @ok="updateExamInfo" :footer="false" title="创建考试" simple width="600px"
         :body-style="{ overflow: 'hidden' }">
         <a-form :model="form" ref="formRef" @submit-success="updateExamInfo">
             <a-form-item field="title" label="考试标题" label-col-flex="80px" :rules="[{ required: true, message: '必填' }]">
                 <a-input v-model="form.title" placeholder="输入考试标题" />
             </a-form-item>
-            <a-form-item field="paper" label="考试试卷" label-col-flex="80px" :rules="[{ required: true, message: '必填' }]">
-                <a-input-tag v-model:model-value="form.paper" :max-tag-count="1" @click="examPaperVisible = true"
+            <a-form-item field="paper" label="考试试卷" label-col-flex="80px">
+                <a-input-tag v-model:model-value="paperList" :max-tag-count="1" @click="examPaperVisible = true"
                     placeholder="选择考试试卷" allow-clear />
             </a-form-item>
             <a-form-item field="classList" label="考试班级" label-col-flex="80px"
-                :rules="[{ required: true, message: '必填' }]">
-                <a-input-tag v-model:model-value="form.classList" @click="classesVisible = true" placeholder="选择考试班级"
+                >
+                <a-input-tag v-model:model-value="classList" @click="classesVisible = true" placeholder="选择考试班级"
                     allow-clear />
             </a-form-item>
             <a-row>
@@ -121,14 +122,14 @@
         </a-form>
     </a-modal>
     <a-modal v-model:visible="classesVisible" simple title="选择班级">
-        <MyClasses v-model:select-key="form.classList" :select-mode="true"></MyClasses>
+        <MyClasses :select-key="getClassIds" @select-data="classChange" :select-mode="true"></MyClasses>
     </a-modal>
     <a-modal v-model:visible="examPaperVisible" title="选择试卷" simple>
-        <ExamPaperManger v-model:select-key="form.paper" :select-mode="true"></ExamPaperManger>
+        <ExamPaperManger :select-key="getPaperIds" @select-data="paperChange" :select-mode="true"></ExamPaperManger>
     </a-modal>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ExamPaperManger from './ExamPaperManger.vue';
 import MyClasses from '../course/MyClasses.vue';
 import { updateExamInfoRequest, getExamInfoListRequest, delExamInfoRequest, getExamInfoDetailRequest } from '../../apis/exam-api.js'
@@ -146,7 +147,7 @@ const examVisible = ref(false)
 const classesVisible = ref(false)
 const examPaperVisible = ref(false)
 const formRef = ref()
-const loading=ref(false)
+const loading = ref(false)
 const form = ref({
     startTime: "",
     endTime: 90,
@@ -157,9 +158,23 @@ const form = ref({
     isMonitor: false,
     isCopyPaste: false,
     title: '',
-    classList: [],
-    paper: []
 })
+const classList = ref([])
+const paperList = ref([])
+const getClassIds = computed(() => {
+    return classList.value.map(item => item.value)
+})
+const getPaperIds = computed(() => {
+    return paperList.value.map(item => item.value)
+})
+const classChange = (keys, data) => {
+    classList.value=formatTagInputList(data,'id','name')
+    console.log("班级改变", keys, data)
+}
+const paperChange = (keys, data) => {
+    console.log("试卷改变", keys, data)
+    paperList.value=formatTagInputList(data,'id','title')
+}
 /** */
 const currpage = ref(1);
 const total = ref(1)
@@ -168,7 +183,7 @@ const status = ref(0)
 const list = ref([])
 const updateExamInfo = () => {
     const info = { ...form.value }
-    info['examId'] = info.paper[0]
+    info['examId'] = getPaperIds.value[0]
     console.log(form.value.endTime)
     info.endTime = dayjs(info.startTime).add(info.endTime, 'minute').format('YYYY-MM-DD HH:mm:ss')
     if (info.submitTime) {
@@ -177,33 +192,31 @@ const updateExamInfo = () => {
     info.startTime = dayjs(info.startTime).format('YYYY-MM-DD HH:mm:ss')
     info['courseId'] = courseId;
     console.log(info)
-    delete info.paper
-    delete info.classList
-    updateExamInfoRequest(info, form.value.classList).then(res => {
+    updateExamInfoRequest(info, getClassIds.value).then(res => {
         examVisible.value = false
         getExamInfoList()
     })
 }
 const getExamInfoList = () => {
-    loading.value=true
+    loading.value = true
     getExamInfoListRequest(courseId, status.value, currpage.value, pageSize.value).then(res => {
         const data = res.data.data
         list.value = data.list
         currpage.value = data.current
         total.value = data.total
-        loading.value=false
+        loading.value = false
     })
 }
 const getExamInfoDetail = (id) => {
     getExamInfoDetailRequest(id).then(res => {
         const data = res.data.data
-        form.value = data['examInfo']
-        form.value.paper = [form.value['examId']]
+        form.value = data.examInfo
         form.value.endTime = dayjs(form.value.endTime).diff(dayjs(form.value.startTime), "minute")
         if (form.value.submitTime) {
             form.value.submitTime = dayjs(form.value.submitTime).diff(dayjs(form.value.startTime), "minute")
         }
-        form.value.classList = data['classList']
+        classList.value=formatTagInputList(data.classList,'id','name')
+        paperList.value = [{ value: data.paper.id, label: data.paper.title }]
         examVisible.value = true;
     })
 }
@@ -212,7 +225,11 @@ const delExamInfo = (examInfoId) => {
         getExamInfoList()
     })
 }
-
+const formatTagInputList=(arr,value,label)=>{
+    return arr.map(item => {
+            return { value: item[value],label:item[label]}
+        });
+}
 
 const range = (start, end) => {
     const result = [];

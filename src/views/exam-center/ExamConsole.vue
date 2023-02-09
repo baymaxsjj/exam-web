@@ -53,7 +53,6 @@
 import { computed, ref,provide  } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getExamInfoDetailRequest } from '@/apis/exam-api';
-import { getPartClassListRequest } from '@/apis/course-api';
 import { examAnswerReviewExportRequest } from '../../apis/exam-center-api.js';
 import HaederOutline from './console/HaederOutline.vue';
 import {examConsoleInfoKey} from '@/utils/keys.js'
@@ -63,7 +62,10 @@ const pageKey = ref("Outline")
 const examInfo = ref({})
 
 const classList = ref([])
-const classIds = ref([])
+const classIds = computed(()=>{
+    return classList.value.map(item=>item.id)
+})
+
 
 //考试学生
 const currClassId = ref(-1);
@@ -75,16 +77,10 @@ const examInfoId = route.params['examInfoId']
 const getExamInfo = () => {
     getExamInfoDetailRequest(examInfoId).then(res => {
         examInfo.value = res.data.data['examInfo']
-        classIds.value = res.data.data['classList']
-        getClassList()
+        classList.value = res.data.data['classList']
     })
 }
 
-const getClassList = () => {
-    getPartClassListRequest(examInfo.value?.courseId,classIds.value).then(res => {
-        classList.value = res.data.data
-    })
-}
 getExamInfo()
 const toView=()=>{
     router.replace({

@@ -128,15 +128,14 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import dayjs from 'dayjs'
-import { getExamPaperStatisticsRequest } from '../../../apis/exam-api';
-import { examAnswerLogRequest } from '../../../apis/exam-center-api';
+import { getExamPaperStatisticsRequest} from '../../../apis/exam-api';
+import { examAnswerLogRequest,getExamStudentNumber } from '../../../apis/exam-center-api';
 import SocketService from '../../../utils/web-stocket-service.js'
 
 const props = defineProps({
     examInfo: Object,
     classList: Array,
 })
-
 
 const route = useRoute();
 const examInfoId = route.params['examInfoId']
@@ -185,6 +184,11 @@ const getAnswerLog = () => {
         answerLog.value = res.data.data
     })
 }
+const getStudentNumber=()=>{
+    getExamStudentNumber(examInfoId).then(res=>[
+        stuTotal.value=res.data.data
+    ])
+}
 
 const getExamProgress = computed(() => {
     const sysTime = dayjs()
@@ -217,6 +221,8 @@ const countdownFinish = () => {
     }, 100);
 }
 getAnswerLog()
+getStudentNumber()
+
 watch(() => props.examInfo, (examInfo) => {
     getExamPaperStatistics(examInfo.examId)
     startTime.value = examInfo.startTime;

@@ -190,9 +190,7 @@ const sumbit = () => {
     if (submitTime==null || dayjs().isAfter(dayjs(submitTime))) {
         examSubmitRequest(examInfoId).then(res => {
             Message.success("提交成功~")
-            router.push({
-                name: 'ExamSuccess'
-            })
+            router.back()
         }).catch(e=>{
             Message.success("提交失败，请联系老师")
         })

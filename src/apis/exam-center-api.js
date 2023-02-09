@@ -30,6 +30,9 @@ export const examStudentAnswerResultRequest=(examInfoId,studentId)=>{
 export const examStudentLogRequest=(examInfoId,studentId,page=1,pageSize=10)=>{
     return axios.get(`/eapi/exam-answer-log/student/${examInfoId}/${studentId}?page=${page}&pageSize=${pageSize}`)
 }
+export const getExamStudentNumber=(examInfoId)=>{
+    return axios.get(`/eapi/exam-console/${examInfoId}/student-number`)
+}
 /**---------------------考试批阅~相关-----------------------------*/
 export const examAnswerReviewRequest=(examInfoId,classids,reviewType,page=1,pageSize=10)=>{
     const pageParam={page,pageSize}

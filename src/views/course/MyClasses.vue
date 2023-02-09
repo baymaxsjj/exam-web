@@ -66,7 +66,7 @@ const props = defineProps({
         defalut: ()=>[]
     }
 })
-const emit = defineEmits(['update:selectKey'])
+const emit = defineEmits(['selectData'])
 const selectKey = ref([])
 watch(() => props.selectKey, (key) => {
     selectKey.value = key
@@ -77,9 +77,10 @@ if (props.selectMode) {
         type: 'checkbox'
     }
 }
-const selectChange = (data) => {
+const selectChange = (keys) => {
+    const data=list.value.filter(item=>keys.includes(item.id))
     console.log(data)
-    emit('update:selectKey', data)
+    emit('selectData', keys,data)
 }
 
 const isUpdate = ref(false);

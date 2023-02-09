@@ -6,12 +6,13 @@
 </template>
 <script setup>
 import { computed, watch,watchEffect ,ref} from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import HeaderNav from './components/HeaderNav.vue';
 import useUserStore from './sotre/user-store';
 import SocketService from './utils/web-stocket-service.js'
 const userStore=useUserStore()
 const route=useRoute()
+const router=useRouter()
 const headerVisible=ref(true)
 if(userStore.isLogin){
   userStore.getUserInfo()
@@ -23,6 +24,8 @@ watchEffect(()=>{
 console.log(userStore.isLogin)
   if(userStore.isLogin){
     const socketServe = SocketService.Instance;
+    socketServe.route=route
+    socketServe.router=router;
     socketServe.connect()
     console.log("已登录：连接webstock")
   }

@@ -27,10 +27,10 @@ export const getExamPaperStatisticsRequest=(examId)=>{
 export const delExamInfoRequest=(examInfoId)=>{
     return axios.post(`/eapi/exam-info/delete/${examInfoId}`)
 }
-export const updateExamInfoRequest=(examInfo,classList)=>{
+export const updateExamInfoRequest=(examInfo,classIds)=>{
     return axios.post(`/eapi/exam-info/update`,{
         examInfo,
-        classList
+        classIds
     })
 }
 export const getExamInfoListRequest=(courseId,status=0,page=1,pageSize=10)=>{

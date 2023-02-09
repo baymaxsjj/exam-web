@@ -15,9 +15,7 @@ export const teaCreateCourseRequest=(params)=>{
 export const getClassListRequest=(courseId)=>{
     return axios.get(`/uapi/classes/${courseId}/list`)
 }
-export const getPartClassListRequest=(courseId,classIds)=>{
-    return axios.post(`/uapi/classes/${courseId}/part/list`,classIds)
-}
+
 // 添加/修改编辑
 export const teaAddClassRequest=(params)=>{
     return axios.post(`/uapi/classes/update`,params)

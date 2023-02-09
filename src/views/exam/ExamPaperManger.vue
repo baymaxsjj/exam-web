@@ -88,7 +88,7 @@ const props = defineProps({
 const form=ref({})
 const groupVisible=ref(false)
 const autoPaperVisible=ref(false)
-const emit = defineEmits(['update:selectKey'])
+const emit = defineEmits(['selectData'])
 const selectKey = ref([])
 const tags=ref([])
 watch(() => props.selectKey, (key) => {
@@ -125,9 +125,10 @@ const tagCheck=(keys,data)=>{
     }
     tags.value=tagData
 }
-const selectChange = (data) => {
+const selectChange = (keys) => {
+    const data=examList.value.filter(item=>keys.includes(item.id))
     console.log(data)
-    emit('update:selectKey', data)
+    emit('selectData', keys,data)
 }
 
 const route = useRoute();
