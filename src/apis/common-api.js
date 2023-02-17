@@ -6,3 +6,6 @@ import axios from '../utils/http'
 // export const uploadAvatar=(image,config)=>{
 //     return axios.post(`/fapi/files/upload-avatar`,image,config)
 // }
+export const uploadQuestionImage=(image,config)=>{
+    return axios.post(`/fapi/files/upload-avatar`,image,config)
+}

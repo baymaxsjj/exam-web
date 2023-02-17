@@ -83,7 +83,7 @@
                                 <icon-camera />
                             </template>
                             <img style="object-fit: cover;" v-if="teaAddInfo.cover" v-loadImg :src="teaAddInfo.cover" />
-                            <icon-upload v-else  style="height: 40px;,width: 40px;,margin:auto"/>
+                            <icon-plus v-else  style="height: 50px;,width: 50px;margin:auto;transform: scale(0.6);"/>
                         </a-avatar>
                         </template>
                     </a-upload>
@@ -297,7 +297,7 @@ getCourseList()
                         line-height: 50px;
                         border-radius: 30px;
                         color: var(--color-text-1);
-                        background-color: #fff;
+                        background-color: var(--color-bg-1);
                         font-weight: bold;
                         margin: 0 5px;
                         &:hover{

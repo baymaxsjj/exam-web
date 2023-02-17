@@ -1,11 +1,11 @@
 import { defineConfig,loadEnv  } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-import OptimizationPersist from 'vite-plugin-optimize-persist'
-import PkgConfig from 'vite-plugin-package-config'
+// import OptimizationPersist from 'vite-plugin-optimize-persist'
+// import PkgConfig from 'vite-plugin-package-config'
 // import Components from 'unplugin-vue-components/vite';
 // import { ArcoResolver } from 'unplugin-vue-components/resolvers';
-// import vitePluginForArco from '@arco-plugins/vite-vue'
+import vitePluginForArco from '@arco-plugins/vite-vue'
 // import svgLoader from 'vite-svg-loader'
 const { resolve } = require('path')
 // https://vitejs.dev/config/
@@ -20,19 +20,14 @@ export default ({ mode })=>{
   return defineConfig({
     plugins: [
       vue(),
-      PkgConfig(),
-      OptimizationPersist()
+      // PkgConfig(),
+      // OptimizationPersist()
       // svgLoader(),
-      // vitePluginForArco({
-      //   theme:'@arco-themes/vue-mgo-blog',
-      // }),
-      // Components({
-      //   resolvers: [
-      //     ArcoResolver({
-      //       importStyle:"less"
-      //     })
-      //   ]
-      // })
+      vitePluginForArco({
+        theme:'@arco-themes/vue-mgo-blog',
+        style: 'css',
+        // iconPrefix:'icon'
+      }),
     ],
     server: {
       open: '/',

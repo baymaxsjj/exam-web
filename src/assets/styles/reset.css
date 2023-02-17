@@ -19,6 +19,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 }
 body {
 	line-height: 1;
+	background-color: var(--color-bg-1);
 }
 ol, ul {
 	list-style: none;

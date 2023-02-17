@@ -6,8 +6,7 @@
         </div>
         <div class="card-body">
             <div class="user-picture">
-                <AAvatar>
-                    <AImage :src="getImageUrl(userAuthInfo.picture)"/>
+                <AAvatar :image-url="getImageUrl(userAuthInfo.picture)">
                 </AAvatar>
             </div>
             <div>

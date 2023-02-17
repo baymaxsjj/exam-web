@@ -6,7 +6,7 @@
             </div>
             <!-- 课程通知/超链接 -->
             <div class="card-message" @click="toLink" v-else-if="cardType==1">
-                <AAvatar :size="50"  shape="square">{{ props.messageInfo.type.info }}</AAvatar>
+                <AAvatar :size="50" style="background-color: var(--color-primary-light-4) "  shape="square">{{ props.messageInfo.type.info }}</AAvatar>
                 <div class="voice-warp">
                     <h1 style="margin-bottom: 5px;">{{ props.messageInfo.title }}</h1>
                     <p>{{ props.messageInfo.introduce }}</p>

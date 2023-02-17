@@ -5,8 +5,8 @@ const ExamReview = () => import("../views/exam-center/ExamReview.vue");
 const ExamConsole = () => import("../views/exam-center/ExamConsole.vue");
 const ConsoleReview = () => import("../views/exam-center/console/Review.vue");
 const ConsoleOutline = () => import("../views/exam-center/console/Outline.vue");
-const ConsoleStatistic = () =>
-  import("../views/exam-center/console/Statistic.vue");
+const ConsoleStatistic = () =>import("../views/exam-center/console/Statistic.vue");
+const ConsoleMonitor = () =>import("../views/exam-center/console/Monitor.vue");
 const courses = [
   {
     path: "/exam/:examInfoId(\\d+)",
@@ -88,6 +88,15 @@ const courses = [
             name: "ConsoleStatistic",
             meta: {
               title: "数据统计",
+              header: false,
+            },
+          },
+          {
+            path: "monitor",
+            component: ConsoleMonitor,
+            name: "ConsoleMonitor",
+            meta: {
+              title: "考试监控",
               header: false,
             },
           },

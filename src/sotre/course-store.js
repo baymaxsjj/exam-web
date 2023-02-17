@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { getCourseInfoRequest, getClassListRequest } from "../apis/course-api";
 import useUserStore from "./user-store";
+
 const useCourseStore = defineStore({
   id: "course",
   state: () => ({
     courseInfo: {},
+    classList:[]
   }),
   getters: {
     isTeacher(state) {
@@ -61,17 +63,15 @@ const useCourseStore = defineStore({
         },
       ];
     },
-    getClassList() {
-      return this.classList;
-    },
   },
   actions: {
     async getCourseInfo(courseId) {
       const resp = await getCourseInfoRequest(courseId);
-      if (resp.status == 200) {
         this.courseInfo = resp.data.data;
-        console.log(this.courseInfo);
-      }
+    },
+    async getClassList(courseId) {
+      const resp = await getClassListRequest(courseId);
+      this.classList = resp.data.data;
     },
   },
 });

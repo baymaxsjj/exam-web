@@ -10,8 +10,8 @@
                 show-collapse-button breakpoint="xl">
                 <template v-for="item of navList" :key="item.key">
                         <a-menu-item @click="toLink(item)"  v-if="item.visble" :key="item.key">
-                            <template #icon>
-                                <component v-if="item.icon" :is="item.icon"></component>
+                            <template #icon  v-if="item.icon">
+                                <component :is="item.icon"/>
                             </template>
                             {{ item.name }}
                         </a-menu-item>
@@ -22,7 +22,7 @@
                 <router-view></router-view>
                 <div style="text-align: center;color:var(--color-text-3);font-size: 16px;">
                     <p>
-                        &copy; 2022 Baymax 版权所有<br />
+                        <a href="https://gitee.com/baymaxsjj">&copy; 2022 Baymax 版权所有<br /></a>
                     </p>
                     <p style="font-size:12px;margin:5px 0;">
                         <a href="https://gitee.com/baymaxsjj/sqlmock">数据填充由 SqlMock 提供</a>
@@ -34,10 +34,12 @@
     </div>
 </template>
 <script setup>
-import { ref, watch, watchEffect } from 'vue';
+import { ref, watchEffect,h} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import useCourseStore from '../../sotre/course-store';
 import useUserStore from '../../sotre/user-store';
+import {IconApps,IconSelectAll,IconAt,IconBookmark,IconCommand} from "@arco-design/web-vue/es/icon";
+
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
@@ -123,7 +125,7 @@ watchEffect(() => {
 :deep(.arco-page-header) {
     position: sticky;
     top: -20px;
-    background-color: #fff;
+    background-color: var(--color-menu-light-bg);
     z-index: 1;
 }
 
@@ -186,6 +188,7 @@ watchEffect(() => {
     .home-content {
         overflow-y: auto;
         width: 100%;
+        margin-left: 0;
     }
 
 }

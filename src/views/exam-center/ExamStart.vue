@@ -1,6 +1,6 @@
 <template>
     <div class="exam-header">
-        <a-button type="primary" class="exam-preview" v-if="isPreview" @click="sumbit">交卷</a-button>
+        <a-button type="primary" class="exam-preview" v-if="isPreview" @click="checkSumit">交卷</a-button>
         <a-button type="primary" class="exam-preview" @click="isPreview = true" v-else>整卷预览</a-button>
         <a-button v-if="isPreview" class="back-preview" shape="round" @click="isPreview = false">
             <template #icon><icon-left /></template>
@@ -9,7 +9,7 @@
     </div>
     <div class="exam-start">
         <div class="exam-info">
-            <div class=" common-style">
+            <div class=" common-style" style="position:sticky;top:0px">
                 <div class="user-info">
                     <a-avatar shape="square" class="avatar" v-loadImg :image-url="userStore.userInfo.picture">
                     </a-avatar>
@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="number-desc ">
-                    <span class="number"> 已答：<a-tag color="green">{{ 10 }}</a-tag></span>
+                    <span class="number"> 已答：<a-tag color="green">{{ answerNumber }}</a-tag></span>
                     <span class="number"> 题数：<a-tag color="orangered">{{ questionList.length }}</a-tag></span>
                 </div>
             </div>
@@ -142,6 +142,9 @@ const examInfo = ref({});
 const loading = ref(false);
 //标记列表
 const markNumberList=ref([{list:[]}])
+
+const answerNumber=ref(0)
+
 const getExamQuestion = computed(() => {
     const list = questionList.value
     if (isPreview.value) {
@@ -151,7 +154,6 @@ const getExamQuestion = computed(() => {
         return [list[currQuestIndex.value]]
     }
 })
-
 
 
 examStartRequest(examInfoId).then((res) => {
@@ -164,6 +166,9 @@ examStartRequest(examInfoId).then((res) => {
     switchQuestion(0);
     if (examInfo.value.isMonitor) {
         monitorAction();
+    }
+    if(!examInfo.value.isCopyPaste){
+        prohibitCopy()
     }
 }).catch(() => {
     router.back()
@@ -184,17 +189,9 @@ const markQuestion=(number,question)=>{
         href: `question-${qId}`
     })
 }
-
-const sumbit = () => {
+const checkSumit=()=>{
     const submitTime = examInfo.value.submitTime;
-    if (submitTime==null || dayjs().isAfter(dayjs(submitTime))) {
-        examSubmitRequest(examInfoId).then(res => {
-            Message.success("提交成功~")
-            router.back()
-        }).catch(e=>{
-            Message.success("提交失败，请联系老师")
-        })
-    } else {
+    if(submitTime!=null && dayjs().isBefore(dayjs(submitTime))){
         Modal.info({
             title: '未到提交时间',
             content: h('h1', [
@@ -204,6 +201,34 @@ const sumbit = () => {
             ])
         });
     }
+
+    if(answerNumber.value!=questionList.value.length){
+        const number=questionList.value.length-answerNumber.value;
+        Modal.info({
+            title: `交卷提示`,
+            content: `你还有${number}题目没有完成，确定提交吗？`,
+            onOk:()=>{
+                sumbit()
+            }
+        });
+    }else{
+        Modal.success({
+            title: `确认提交`,
+            content: `确认提交吗？提交后将不能修改答案`,
+            onOk:()=>{
+                sumbit()
+            }
+        });
+    }
+}
+
+const sumbit = () => {
+    examSubmitRequest(examInfoId).then(res => {
+        Message.success("提交成功~")
+        router.back()
+    }).catch(e=>{
+        Message.success("提交失败，请联系老师")
+    })
 }
 
 const getQuestionList = (qList) => {
@@ -218,17 +243,22 @@ const getNumberInfo = computed(() => {
     const numberInfo = []
     const questions = questionList.value
     let i = 0;
+    let number=0,status,question,name,info,length
     for (const key in numberGroup.value) {
-        const name = getQuestionType(key).simpleName
-        const info = []
-        const length = (i + numberGroup.value[key]);
+         name = getQuestionType(key).simpleName
+         info = []
+         length = (i + numberGroup.value[key]);
         for (; i < length; i++) {
-            const question = questions[i]
+            question = questions[i]
+            status=getQuestionAnswerStatus(question);
+            if(status=='end'){
+                number++;
+            }
             info.push({
                 key: question.id,
                 number: i + 1,
                 href: `question-${question.id}`,
-                statusKey: getQuestionAnswerStatus(question)
+                statusKey: status
             })
         }
         numberInfo.push({
@@ -236,6 +266,7 @@ const getNumberInfo = computed(() => {
             list: info
         })
     }
+    answerNumber.value=number;
     return numberInfo
 })
 //获取题目作答情况
@@ -370,9 +401,9 @@ const switchQuestion = (index) => {
 // 上传该题的所有答案
 const saveAnswer = (option) => { };
 const monitorAction = () => {
-    if (import.meta.env.DEV) {
-        return
-    }
+    // if (import.meta.env.DEV) {
+    //     return
+    // }
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState != "visible") {
             answerAction({
@@ -388,8 +419,12 @@ const monitorAction = () => {
             info: "",
         });
     });
+   
 };
-if (import.meta.env.PROD) {
+const prohibitCopy=()=>{
+    // if (import.meta.env.DEV) {
+    //     return
+    // }
     document.addEventListener("contextmenu", function (e) {
         e.preventDefault(); // 阻止默认事件
     });
@@ -402,6 +437,7 @@ if (import.meta.env.PROD) {
         }
     });
 }
+
 
 
 const answerAction = (actions) => {
@@ -439,7 +475,7 @@ const answerStatus = [
 
 .exam-header {
     height: 40px;
-    background-color: var(--color-text-2);
+    background-color: #4e5969;
     text-align: center;
     line-height: 40px;
     position: fixed;
@@ -480,7 +516,7 @@ const answerStatus = [
 }
 
 .common-style {
-    background-color: #fff;
+    background-color: var(--color-menu-light-bg);
     border-radius: 10px;
     padding: 20px;
     margin: 15px 0;
@@ -494,7 +530,6 @@ const answerStatus = [
     padding: 0px;
     padding-top: 40px;
     background-color: var(--color-fill-1);
-
     .exam-info {
         width: 300px;
         height: 100%;
@@ -568,11 +603,11 @@ const answerStatus = [
         flex: 1;
         height: 100%;
         border-radius: 10px;
-        background-color: #fff;
+        // background-color: var(--color-bg-1);
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
-
+        background-color: var(--color-menu-light-bg);
         .nextquestBtn {
             :deep(.arco-btn-icon) {
                 order: 1;

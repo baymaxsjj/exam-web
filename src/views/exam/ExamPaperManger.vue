@@ -201,15 +201,16 @@ if (!props.selectMode) {
         dataIndex: 'createdAt',
         slotName: 'createdAt',
     },
-        {
-            title: '修改时间',
-            dataIndex: 'updatedAt',
-            slotName: 'updatedAt',
-        },
-        {
-            title: '编辑',
-            slotName: 'edit',
-        })
+    {
+        title: '修改时间',
+        dataIndex: 'updatedAt',
+        slotName: 'updatedAt',
+    },
+    {
+        title: '编辑',
+        slotName: 'edit',
+        width:250
+    })
 }
 </script>
 <style lang="less" scoped>

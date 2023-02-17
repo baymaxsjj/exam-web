@@ -34,10 +34,17 @@ const initConfig = {
     branding: false,
     elementpath: false,
     promotion: false,
-    plugins: 'table',
+    plugins: ['table'],
     toolbar_mode: 'floating',
     skin_url: "/tinymce/skins/ui/oxide",
     content_css: '/tinymce/skins/content/default/content.css',
+    images_upload_handler: function (blobInfo, succFun, failFun) {
+        var xhr, formData;
+        var file = blobInfo.blob();//转化为易于理解的file对象
+        formData = new FormData();
+        formData.append('file', file, file.name );//此处与源文档不一样
+        
+    },
     ...props.config
 }
 onBeforeUnmount(()=>{

@@ -177,15 +177,17 @@ console.log(app_name)
                 width: 350px;
                 // min-width: 300px;
                 .title{
-                    font-size: 35px;
-                    margin-bottom: 40px;
-                    color: var(--color-text-1);
-                    font-family: SourceHanSansCN_Bold
+                    font-size: 22px;
+                    font-weight: 500;
+                    line-height: 30px;
+                    text-align: center;
+                    color: var(--color-text-2);
+                    margin-bottom: 28px;
                 }
                 .protocol{
                     text-align: center;
                     margin-top: 20px;
-                    color: rgba(35, 48, 65, 0.7);
+                    color: var(--color-text-3);
                     font-size: 14px;
                 }
                 .half-divider{

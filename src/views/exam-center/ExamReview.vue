@@ -187,14 +187,16 @@ const reviewStatus = [
 </script>
 <style lang="less" scoped>
 .common-style {
-    background-color: #fff;
+    background-color: var(--color-menu-light-bg);
     border-radius: 10px;
     padding: 20px;
     margin: 15px 0;
 }
 .page-header{
-    position: fixed;top:0;left:0;right: 0;
-    background-color: var(--color-white);
+    position: fixed;
+    top:0;
+    left:0;
+    right: 0;
     padding: 16px 20px;
     z-index: 99;
 }

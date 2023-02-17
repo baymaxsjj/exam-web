@@ -14,7 +14,9 @@
     <ul class="exam-list">
         <li class="exam-item ebutton-hover" v-for="item in list" :key="item.id">
             <div class="exam-info-wrap">
-                <a-avatar class="avatar" shape="square">考试</a-avatar>
+                <a-avatar class="avatar" :size="40" :style="{'background-color': getExamStatus(item).color }" shape="square">
+                    {{ getExamStatus(item).info }}
+                </a-avatar>
                 <div class="exam-info">
                     <p class="title">{{ item.title }}</p>
                     <p class="date">{{ item.startTime }} ~ {{ item.endTime }}</p>
@@ -230,6 +232,24 @@ const formatTagInputList=(arr,value,label)=>{
             return { value: item[value],label:item[label]}
         });
 }
+const getExamStatus=(examInfo)=>{
+    const startTime=examInfo.startTime;
+    const endTime=examInfo.endTime;
+    const now=dayjs()
+    let status={
+        info:'进行中',
+        color:'rgb(var(--primary-6))'
+    }
+    if(now.isAfter(endTime)){
+        status.info='已结束'
+        status.color='rgb(var(--danger-6))'
+    }else if(now.isBefore(startTime)){
+        status.info='未开始'
+        status.color='var(--color-fill-4)'
+    }
+    return status
+}
+
 
 const range = (start, end) => {
     const result = [];

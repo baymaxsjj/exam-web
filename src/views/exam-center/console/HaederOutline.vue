@@ -232,7 +232,7 @@ watch(() => props.examInfo, (examInfo) => {
 .header-outline {
     padding: 10px;
     overflow: hidden;
-
+    color: #000;
     .statistic-card {
         margin: 5px;
         height: 100%;
@@ -312,18 +312,13 @@ watch(() => props.examInfo, (examInfo) => {
         &::before {
             // background-image: url(@/assets/img/console/console_gradient_bg4.svg);
             background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(255, 201, 93) 59.21%, rgba(248, 212, 140, 1) 100%);
-
-
         }
     }
 
     .statistic-info {
         &::before {
             // background-image: url(@/assets/img/console/console_gradient_bg3.svg);
-
             background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(163, 211, 255) 59.21%, rgba(201, 229, 255, 1) 100%);
-
-
         }
 
     }
@@ -332,7 +327,19 @@ watch(() => props.examInfo, (examInfo) => {
         &::before {
             // background-image: url(@/assets/img/console/console_gradient_bg2.svg);
             background: linear-gradient(148.48deg, rgba(239, 240, 251, 1) 0%, rgb(161, 223, 241) 59.21%, rgba(200, 225, 232, 1) 100%);
-
+        }
+    }
+}
+body[arco-theme="dark"]{
+    .statistic-card{
+        :deep(span){
+            color:rgba(0,0,0,.9)!important;
+        }
+        :deep(div){
+            color:rgba(0,0,0,.9)!important;
+        }
+        :deep(p){
+            color:rgba(0,0,0,.9)!important;
         }
     }
 }

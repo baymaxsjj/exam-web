@@ -7,7 +7,8 @@ const useUserStore = defineStore({
     state: () => ({ 
         token:null,
         userInfo:null,
-        baseUserInfo:null
+        baseUserInfo:null,
+        theme:'light'
     }),
     getters:{
         isLogin: (state) => state.token!=null,
@@ -56,6 +57,15 @@ const useUserStore = defineStore({
             const data=resp.data.data;
             data.picture=getImageUrl(data.picture)
             this.baseUserInfo=data
+        },
+        toggleTheme(dark){
+            if (dark) {
+                this.theme = 'dark';
+                document.body.setAttribute('arco-theme', 'dark');
+              } else {
+                this.theme = 'light';
+                document.body.removeAttribute('arco-theme');
+              }
         },
         logOut(){
             this.userInfo=null

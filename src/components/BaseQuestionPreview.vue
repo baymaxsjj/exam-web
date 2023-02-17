@@ -347,6 +347,7 @@ const getCorrect = computed(() => {
             transition: all .3s;
             margin: 0 5px;
             float: left;
+            color: var(--color-text-1);
         }
 
         .letter-active {

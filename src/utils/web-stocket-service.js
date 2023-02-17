@@ -73,57 +73,10 @@ export default class SocketService {
         this.ws.onmessage = msg => {
             console.log(msg.data, '从服务端获取到了数据');
             const recvData = JSON.parse(msg.data)
+            if(!recvData.data){
+                this.message(recvData)
+            }
             const socketType = recvData.code;
-            let notice=true,voice=true;
-            let title=recvData.info.type.info,picture=null;
-            switch(socketType){
-                case 'COURSE_CLASSROOM_MESSAGE':
-                    //在课堂时，不通知
-                    if(this.route.name=="Classroom"){
-                        notice=false;
-                    }
-                    title=recvData.info.user.nickname
-                    picture=recvData.info.user.picture
-                    break;
-                case 'EXAM_CONSOLE_STATISTICS':
-                    notice=false
-                    voice=false
-            }
-            //考试期间不通知
-            if(this.route.name=="ExamStart"){
-                notice=false;
-                voice=false;
-            }
-            if(notice){
-                //消息通知
-                Notification.info({
-                    title:title,
-                    content: h(TextEditor,{modelValue:recvData.info.introduce,style:{
-                        "text-overflow": "ellipsis",
-                        "white-space": "nowrap",
-                        width: "200px",
-                        overflow: "hidden"}}),
-                    position: 'bottomRight',
-                    closable:true,
-                    icon:h(Avatar,{
-                        shape:"square"
-                    },{ default: () => picture==null?recvData.info.type.info:h(Image,{
-                        src:picture
-                    }) }),
-                    footer: h(Button, { 
-                            type:"text",
-                            onClick: () => {
-                                this.router.push(JSON.parse(recvData.info.path))
-                            },
-                        },{ default: () => "点击查看" }
-                    )
-                    }
-                )
-            }
-            if(voice){
-                this.audio=new Audio(noticeUrl)
-                this.audio.play();
-            }
             //注册回调函数 参数2 是需要回调的方法
             if (this.callBackMapping[socketType]) {
                 // const realData = msg.data // 得到该图表的数据
@@ -164,6 +117,59 @@ export default class SocketService {
     }
     wsTimeout(count,time){
         return count*time;
+    }
+    message(recvData){
+        const socketType = recvData.code;
+        let notice=true,voice=true;
+        let title=recvData.info.type.info,picture=null;
+        switch(socketType){
+            case 'COURSE_CLASSROOM_MESSAGE':
+                //在课堂时，不通知
+                if(this.route.name=="Classroom"){
+                    notice=false;
+                }
+                title=recvData.info.user.nickname
+                picture=recvData.info.user.picture
+                break;
+            case 'EXAM_CONSOLE_STATISTICS':
+                notice=false
+                voice=false
+        }
+        //考试期间不通知
+        if(this.route.name=="ExamStart"){
+            notice=false;
+            voice=false;
+        }
+        if(notice){
+            //消息通知
+            Notification.info({
+                title:title,
+                content: h(TextEditor,{modelValue:recvData.info.introduce,style:{
+                    "text-overflow": "ellipsis",
+                    "white-space": "nowrap",
+                    width: "200px",
+                    overflow: "hidden"}}),
+                position: 'bottomRight',
+                closable:true,
+                icon:h(Avatar,{
+                    shape:"square"
+                },{ default: () => picture==null?recvData.info.type.info:h(Image,{
+                    src:picture
+                }) }),
+                footer: h(Button, { 
+                        type:"text",
+                        onClick: () => {
+                            this.router.push(JSON.parse(recvData.info.path))
+                        },
+                    },{ default: () => "点击查看" }
+                )
+                }
+            )
+        }
+        if(voice){
+            this.audio=new Audio(noticeUrl)
+            this.audio.play();
+        }
     }
 }
 

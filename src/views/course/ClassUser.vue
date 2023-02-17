@@ -5,7 +5,7 @@
         <div v-if="userList.length!=0">
             <ul>
                 <li v-for="item in userList" class="ebutton-hover user-item">
-                    <Avatar shape="square" :image-url="item.picture" />
+                    <Avatar v-loadImg shape="square" :image-url="item.picture" />
                     <span class="user-item-name">{{item.nickname}}</span>
                 </li>
             </ul>

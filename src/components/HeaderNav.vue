@@ -31,18 +31,47 @@
                 <li class="header-search">
                     <a-input-search :style="{width:'320px'}" placeholder="搜索一下吧~~~" search-button />
                 </li>
-
                 <li>
-                    <a-button type="text">
+                    <a-tooltip
+                    :content="
+                        theme === 'light'
+                        ? '点击切换为暗黑模式'
+                        :'点击切换为亮色模式'
+                    "
+                    >
+                    <a-button
+                        class="nav-btn"
+                        type="outline"
+                        :shape="'circle'"
+                        @click="handleToggleTheme"
+                    >
                         <template #icon>
-                            <icon-plus />
+                        <icon-moon-fill v-if="theme === 'dark'" />
+                        <icon-sun-fill v-else />
                         </template>
                     </a-button>
+                    </a-tooltip>
                 </li>
-                <li v-if="!$route.path.startsWith('/home/')">
-                    <RouterLink to="/home">
-                        <AButton type="text">个人空间</AButton>
-                    </RouterLink>
+                <li>
+                    <a-tooltip
+                    :content="
+                        isFullscreen
+                        ? '点击退出全屏模式'
+                            :'点击切换全屏模式'
+                        "
+                        >
+                        <a-button
+                            class="nav-btn"
+                            type="outline"
+                            :shape="'circle'"
+                            @click="toggleFullScreen"
+                        >
+                            <template #icon>
+                            <icon-fullscreen-exit v-if="isFullscreen" />
+                            <icon-fullscreen v-else />
+                            </template>
+                        </a-button>
+                        </a-tooltip>
                 </li>
                 <li>
                     <a-trigger>
@@ -54,7 +83,7 @@
                 </li>
 
                 <li>
-                    <ADropdown  trigger="hover" :popup-max-height="false">
+                    <a-dropdown trigger="hover">
                         <div class="user-info">
                             <AAvatar class="avatar" :image-url="userInfo?.picture">
                                 
@@ -63,11 +92,23 @@
                         </div>
                         <template #content>
                             <a-doption>
-                                <RouterLink to="/user/setting">个人信息</RouterLink>
+                            <a-space @click="$router.push({ name: 'SettingIndex' })">
+                                <icon-user />
+                                <span>
+                                    用户中心
+                                </span>
+                            </a-space>
                             </a-doption>
-                            <a-doption @click="logout">退出登录</a-doption>
+                            <a-doption>
+                            <a-space @click="logout">
+                                <icon-export />
+                                <span>
+                                    退出登录
+                                </span>
+                            </a-space>
+                            </a-doption>
                         </template>
-                    </ADropdown>
+                        </a-dropdown>
                 </li>
             </ul>
         </div>
@@ -77,13 +118,36 @@
 import { useRouter } from 'vue-router';
 import useUserStore from '../sotre/user-store';
 import AuthCard from './auth/AuthCard.vue';
+import {computed} from 'vue'
+import { useDark, useToggle, useFullscreen} from '@vueuse/core';
+const { isFullscreen,  toggle:toggleFullScreen } = useFullscreen();
+
 const userStore=useUserStore();
 const userInfo=userStore.userInfo;
 const router=useRouter()
+
+const theme = computed(() => {
+    return userStore.theme;
+});
 const logout=()=>{
     userStore.logOut()
     router.push({name:"Login"})
 }
+const isDark = useDark({
+    selector: 'body',
+    attribute: 'arco-theme',
+    valueDark: 'dark',
+    valueLight: 'light',
+    storageKey: 'arco-theme',
+    onChanged(dark) {
+      // overridden default behavior
+      userStore.toggleTheme(dark)
+    },
+  });
+const toggleTheme = useToggle(isDark);
+const handleToggleTheme = () => {
+    toggleTheme();
+};
 </script>
 <style lang="less" scope>
 :deep(.arco-trigger-popup){
@@ -131,7 +195,7 @@ a {
         .header-nav {
             display: flex;
             align-items: center;
-
+            
             li {
                 padding: 10px 15px;
                 margin: 0 2px;
@@ -150,15 +214,17 @@ a {
         .header-info {
             display: flex;
             align-items: center;
-
+            .nav-btn {
+                border-color: rgb(var(--gray-2));
+                color: rgb(var(--gray-8));
+                font-size: 16px;
+                }
             li {
-                margin: 0 2px;
+                margin: 0 10px;
             }
             .user-info{
                 display: flex;
                 align-items: center;
-                margin-left: 20px;
-                max-width: 120px;
                 .avatar{
                     flex-shrink: 0;
                 }

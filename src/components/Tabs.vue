@@ -59,11 +59,10 @@ const bgStyle = computed(() => {
 </script>
 <style lang="less" scoped>
 .tags {
-  height: 48px;
-  background: var(--color-secondary-disabled);
+  height: 40px;
+  background: var(--color-fill-1);
   border-radius: 6px;
   padding: 4px;
-  box-sizing: border-box;
   font-size: 16px;
 
   .tags-wrap {
@@ -90,7 +89,7 @@ const bgStyle = computed(() => {
       display: flex;
       justify-content: center;
       align-items: center;
-      color: var(--color-text-3);
+      color: var(--color-text-2);
       cursor: pointer;
       &:hover {
         color: rgb(var(--primary-6));

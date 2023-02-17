@@ -1,6 +1,7 @@
 /*! wysiwyg.css v0.0.3 | MIT License | github.com/jgthms/wysiwyg.css */
 .wysiwyg {
   line-height: 1.2;
+  color:var(--color-text-1)
 }
 .wysiwyg a {
   text-decoration: none;
@@ -16,7 +17,7 @@
   font-style: italic;
 }
 .wysiwyg hr {
-  background: #e6e6e6;
+  background: var(--color-fill-1);
   border: none;
   display: block;
   height: 1px;
