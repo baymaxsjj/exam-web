@@ -1,6 +1,6 @@
 <template>
    <router-link to="/" class="header-logo">
-        <img src="../../assets/svg/logo.svg" style="height: 40px;"/>
+        <img class="logo" src="../../assets/svg/logo.svg"/>
         <h1 class="name">为考</h1>
     </router-link>
     <div class="login">
@@ -123,13 +123,16 @@ console.log(app_name)
     display: flex;
     align-items: center;
     margin-right: 20px;
-    img{
-    animation: loading 3s infinite linear;
+    .logo{
+        height: 30px;
+        width: 30px;
+        padding: 5px;
+        background-color: var(--color-bg-1);
+        border-radius: 5px;
     }
     .name{
         text-align: center;
         font-weight: bold;
-        opacity: 0.8;
         font-size: 24px;
         font-weight: bold;
         margin-left: 10px;

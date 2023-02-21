@@ -19,9 +19,8 @@ export const answerActionRequestion=(examInfoId,action)=>{
 export const examAnswerLogRequest=(examInfoId)=>{
     return axios.get(`/eapi/exam-answer-log/statistics/${examInfoId}`)
 }
-export const examAnswerInfoRequest=(examInfoId,classids,status,page=1,pageSize=10)=>{
-    const pageParam={page,pageSize}
-    return axios.post(`/eapi/exam-console/${examInfoId}/outline-monitor?status=${status}&page=${page}&pageSize=${pageSize}`,classids)
+export const examAnswerInfoRequest=(examInfoId,classId,status,page=1,pageSize=10)=>{
+    return axios.post(`/eapi/exam-console/${examInfoId}/outline-monitor?status=${status}&page=${page}&pageSize=${pageSize}&classId=${classId}`)
 }
 
 export const examStudentAnswerResultRequest=(examInfoId,studentId)=>{
@@ -34,15 +33,18 @@ export const getExamStudentNumber=(examInfoId)=>{
     return axios.get(`/eapi/exam-console/${examInfoId}/student-number`)
 }
 /**---------------------考试批阅~相关-----------------------------*/
-export const examAnswerReviewRequest=(examInfoId,classids,reviewType,page=1,pageSize=10)=>{
-    const pageParam={page,pageSize}
-    return axios.post(`/eapi/exam-console/${examInfoId}/review/list?reviewType=${reviewType}&page=${page}&pageSize=${pageSize}`,classids)
+export const examAnswerReviewRequest=(examInfoId,classId,reviewType,page=1,pageSize=10)=>{
+    return axios.post(`/eapi/exam-console/${examInfoId}/review/list?reviewType=${reviewType}&page=${page}&pageSize=${pageSize}&classId=${classId}`)
 }
-export const examAnswerReviewExportRequest=(examInfoId,classids,reviewType)=>{
-    return axios.post(`/eapi/exam-console/${examInfoId}/review/list/export?reviewType=${reviewType}`,classids,{
+export const examAnswerReviewExportRequest=(examInfoId,classId,reviewType)=>{
+    return axios.post(`/eapi/exam-console/${examInfoId}/review/list/export?reviewType=${reviewType}&classId=${classId}`,null,{
         responseType:'blob'
     })
 }
 export const examSubmitReviewRequest=(examInfoId,scoreList)=>{
     return axios.post(`/eapi/exam-score-record/${examInfoId}/update/score`,scoreList)
+}
+/**---------------------考试统计~相关-----------------------------*/
+export const examResultStatisticRequest=(examInfoId,classId)=>{
+    return axios.get(`/eapi/exam-console/${examInfoId}/exam/result-statistical?classId=${classId}`)
 }

@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./assets/styles/reset.css";
-import ArcoVueIcon from "@arco-design/web-vue/es/icon";
+// import ArcoVueIcon from "@arco-design/web-vue/es/icon";
 // 路由
 import router from "./router/index";
 //路由守卫
@@ -19,7 +19,10 @@ pinia.use(piniaPluginPersistedstate);
 router.beforeEach(courseGuard);
 
 const app = createApp(App);
-app.use(ArcoVueIcon);
+// 仅在浏览器内编译时才会工作
+// 如果使用了构建工具，请看下面的配置示例
+
+// app.use(ArcoVueIcon);
 app.use(router);
 app.use(pinia);
 app.directive("loadImg", imageDirective);

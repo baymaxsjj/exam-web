@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { userAuthInfoRequest,baseUserInfoRequest } from '../apis/user-api'
 import SocketService from '../utils/web-stocket-service.js'
 import {getImageUrl} from '../utils/image'
+import {IconApps} from "@arco-design/web-vue/es/icon";
+
 const useUserStore = defineStore({ 
     id: 'user', 
     state: () => ({ 
@@ -16,28 +18,28 @@ const useUserStore = defineStore({
             return [
                 {
                     name: "个人信息",
-                    icon: "icon-apps",
+                    icon: IconApps,
                     key: "UserInfo",
                     params: {},
                     visble: true,
                 },
                 {
                     name: "学校认证",
-                    icon: "icon-apps",
+                    icon: IconApps,
                     key: "SchoolAuth",
                     params: {},
                     visble: true,
                 },
                 {
                     name: "安全设置",
-                    icon: "icon-apps",
+                    icon: IconApps,
                     key: "LoginManagement",
                     params: {},
                     visble: true,
                 },
                 {
                     name: "系统设置",
-                    icon: "icon-apps",
+                    icon: IconApps,
                     key: "SystemSetting",
                     params: {},
                     visble: true,

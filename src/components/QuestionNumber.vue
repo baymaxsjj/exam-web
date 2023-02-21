@@ -8,7 +8,7 @@
         </ul>
         <a-divider/>
     </div>
-    <a-anchor line-less :change-hash="false" :scroll-container="scrollContainer" class="group-number">
+    <a-anchor ref="anchorRef" line-less :change-hash="false" :scroll-container="scrollContainer" class="group-number">
         <li v-for="item of numberList" :key="item.title" :class="groupClass">
             <h5 v-if="item.title" style="margin: 10px 0;color:var(--color-text-1)">{{ item.title }}</h5>
             <ul style="display:flex;flex-wrap:wrap">
@@ -61,6 +61,9 @@ const props = defineProps({
     }
 })
 defineEmits(["numberClick"])
+const anchorRef=ref(null)
+
+
 const getStuatsItem=(key)=>{
     for (const item of props.statusList) {
         if(item.key==key){

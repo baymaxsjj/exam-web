@@ -51,12 +51,13 @@
 import { ref } from 'vue';
 import Question from '../course/Question.vue'
 import { updateExamPaperRequest, getExamPaperDetailRequest } from '../../apis/exam-api'
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 const form = ref({
     introduce: "",
     title: ""
 })
 const route = useRoute()
+const router=useRouter()
 const examId = route.params['examId']
 const courseId = route.params['courseId']
 const visible = ref(false)
@@ -67,7 +68,7 @@ const save = () => {
     }
     form.value['courseId'] = courseId
     updateExamPaperRequest(form.value, questionKey.value).then(() => {
-
+        router.back()
     })
 }
 if (examId) {

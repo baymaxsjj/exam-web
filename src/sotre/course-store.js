@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { getCourseInfoRequest, getClassListRequest } from "../apis/course-api";
 import useUserStore from "./user-store";
+import {IconApps,IconSelectAll,IconAt,IconBookmark,IconCommand} from "@arco-design/web-vue/es/icon";
 
 const useCourseStore = defineStore({
   id: "course",
@@ -21,42 +22,42 @@ const useCourseStore = defineStore({
       return [
         {
           name: "课堂",
-          icon: "icon-apps",
+          icon: IconApps,
           key: "Classroom",
           params: params,
           visble: true,
         },
         {
           name: "作业",
-          icon: "icon-select-all",
+          icon: IconSelectAll,
           key: "Homework",
           params: params,
           visble: true,
         },
         {
           name: "考试",
-          icon: "icon-at",
+          icon: IconAt,
           key: "ExamManage",
           params: params,
           visble: true,
         },
         {
           name: "试卷",
-          icon: "icon-at",
+          icon: IconAt,
           key: "ExamPaperManger",
           params: params,
           visble: this.isTeacher,
         },
         {
           name: "题库",
-          icon: "icon-bookmark",
+          icon: IconBookmark,
           key: "Question",
           params: params,
           visble: true,
         },
         {
           name: "班级",
-          icon: "icon-command",
+          icon: IconCommand,
           key: "MyClasses",
           params: params,
           visble: true,

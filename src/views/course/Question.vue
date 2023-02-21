@@ -4,7 +4,7 @@
         <template #breadcrumb>
             <a-breadcrumb>
                 <a-breadcrumb-item>
-                    <img src="../../assets/svg/logo.svg" style="margin-right: 8px;height: 24px;vertical-align: middle;" />{{ courseStore.courseInfo.name }}
+                    <img src="../../assets/svg/logo.svg" style="margin-right: 8px;height: 10px;vertical-align: middle;" />{{ courseStore.courseInfo.name }}
                 </a-breadcrumb-item>
                 <template v-for="item of navList">
                     <a-breadcrumb-item v-if="item.id != ''">{{ item.name }}</a-breadcrumb-item>

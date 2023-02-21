@@ -19,45 +19,18 @@
         overflow: hidden;
       }
       .loading-wrap .loading {
-        width: 250px;
-        height: 250px;
-        transform: translate(-50%, -50%);
-        animation: loading 3s infinite;
-        animation-timing-function: linear;
-        transform-origin: center;
+        width: 150px;
+        height: 150px;
       }
       .loading-wrap .info,
       .loading-wrap .author {
         text-align: center;
         font-weight: bold;
-        opacity: 0.4;
         font-size: 16px;
-        margin-top: 40px;
-        color: #06D4D4;
+        color: grey;
       }
       .loading-wrap .author {
-        opacity: 0.3;
         font-size: 14px;
-        margin-top: 10px;
-      }
-      @keyframes loading {
-        0% {
-          transform: rotate(0deg);
-          opacity: 0.6;
-          filter:contrast(100%);
-        }
-        50% {
-          transform: rotate(180deg);
-          opacity: 1;
-          filter:   contrast(130%);
-
-        }
-        100% {
-          transform: rotate(360deg);
-          opacity: 0.6;
-          filter:  contrast(100%);
-
-        }
       }
     </style>
   </head>

@@ -8,7 +8,7 @@
             <!-- 侧边栏 -->
             <a-menu class="home-list home-list-info" mode="pop" v-model:selected-keys="selectedKeys"
                 show-collapse-button breakpoint="xl">
-                <template v-for="item of navList" :key="item.key">
+                <template v-for="(item,index) in navList" :key="item.key">
                         <a-menu-item @click="toLink(item)"  v-if="item.visble" :key="item.key">
                             <template #icon  v-if="item.icon">
                                 <component :is="item.icon"/>
@@ -34,11 +34,11 @@
     </div>
 </template>
 <script setup>
-import { ref, watchEffect,h} from 'vue';
+import { ref,shallowRef, watchEffect} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import useCourseStore from '../../sotre/course-store';
 import useUserStore from '../../sotre/user-store';
-import {IconApps,IconSelectAll,IconAt,IconBookmark,IconCommand} from "@arco-design/web-vue/es/icon";
+import {IconApps,IconSelectAll,IconStorage,IconBookmark,IconNotification} from "@arco-design/web-vue/es/icon";
 
 const route = useRoute()
 const router = useRouter()
@@ -58,7 +58,7 @@ const toLink=(item)=>{
 const homeList = [
     {
         name: "我的课程",
-        icon: "icon-apps",
+        icon: IconApps,
         key: "MyCourse",
         params: {
             role: 'student'
@@ -67,33 +67,33 @@ const homeList = [
     },
     {
         name: "我的作业",
-        icon: "icon-select-all",
+        icon: IconSelectAll,
         key: "MyHomeWrok",
         params: {},
         visble: true
     },
     {
         name: "我的考试",
-        icon: "icon-bookmark",
+        icon: IconBookmark,
         key: "MyExams",
         params: {},
         visble: true
     },
     {
         name: "我的笔记",
-        icon: "icon-storage",
+        icon: IconStorage,
         key: "MyNotes",
         params: {},
         visble: true
     }, {
         name: "消息",
-        icon: "icon-notification",
+        icon: IconNotification,
         key: "Message",
         params: {},
         visble: true
     },
 ]
-const navList = ref([]);
+const navList = shallowRef([]);
 let path = route.path;
 const courseStore = useCourseStore()
 const checkNav = () => {
@@ -117,8 +117,6 @@ watchEffect(() => {
 </script>
 <style lang="less" scoped>
 :deep(.arco-menu .arco-menu-collapse-button) {
-    width: 32px;
-    height: 32px;
     border-radius: 50%;
 }
 
@@ -176,7 +174,7 @@ watchEffect(() => {
 
     .home-list {
         max-width: 200px;
-        transition: all .3s;
+        transition: width .2s;
         height: 100%;
         box-sizing: border-box;
 

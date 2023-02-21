@@ -44,6 +44,7 @@ getUsreList()
     margin: 5px;
     .user-item-name{
         margin-left: 10px;
+        color: var(--color-text-1);
     }
 }
 </style>

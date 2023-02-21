@@ -120,14 +120,9 @@ const stuLogPage = ref(1)
 const stuLogTotal = ref(1)
 const logLoading = ref(true)
 const getOutlineUser = () => {
-    let claIds = [];
-    if (currClassId.value > 0) {
-        claIds.push(currClassId.value)
-    } else {
-        claIds = classIds.value;
-    }
+
     stuLoading.value = true
-    examAnswerInfoRequest(examInfoId, claIds, answerStatus.value, stuPage.value).then(res => {
+    examAnswerInfoRequest(examInfoId, currClassId.value, answerStatus.value, stuPage.value).then(res => {
         const data = res.data.data
         studentList.value = data.list;
         stuTotal.value = data.total

@@ -22,7 +22,7 @@
                 </a-select>
                 <a-select v-model="currClassId" style="width:150px;margin-right: 5px;" :default-value="-1"
                     placeholder="选择班级">
-                    <a-option :value="-1">全部班级</a-option>
+                    <a-option value="">全部班级</a-option>
                     <a-option v-for="item in classList" :value="item.id" :key="item.id">{{ item.name }}</a-option>
                 </a-select>
                 <a-button type="primary" v-if="pageKey =='ConsoleOutline'" style="margin-right: 5px;">
@@ -68,7 +68,7 @@ const classIds = computed(()=>{
 
 
 //考试学生
-const currClassId = ref(-1);
+const currClassId = ref("");
 const answerStatus = ref("ALL")
 const reviewType=ref("all")
 const route = useRoute();
@@ -89,7 +89,7 @@ const toView=()=>{
 }
 //导出文档
 const exportExecl=()=>{
-    examAnswerReviewExportRequest(examInfoId,classIds.value,reviewType.value).then(res=>{
+    examAnswerReviewExportRequest(examInfoId,currClassId.value,reviewType.value).then(res=>{
         if (!res.data) {
         return
       }

@@ -95,14 +95,8 @@ const pageChange = (current) => {
     getReviewList()
 }
 const getReviewList = () => {
-    let claIds = [];
-    if (currClassId.value > 0) {
-        claIds.push(currClassId.value)
-    } else {
-        claIds = classIds.value;
-    }
     loading.value = true
-    examAnswerReviewRequest(examInfoId, claIds, reviewType.value, page.value).then(res => {
+    examAnswerReviewRequest(examInfoId, currClassId.value , reviewType.value, page.value).then(res => {
         const data = res.data.data;
         studentList.value = data.list;
         total.value = data.total;
