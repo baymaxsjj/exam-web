@@ -6,7 +6,7 @@
                 <v-chart class="chart" :loading="loading" :option="scoreChartoption" autoresize />
             </ACol>
             <ACol :xs="24" :sm="12">
-                <ASpin :loading="loading">
+                <ASpin :loading="loading" style="width:100%;">
                     <a-list :max-height="750">
                         <template #header>
                             <h1>答题详情</h1>
@@ -37,7 +37,6 @@ import {
     ToolboxComponent,
     GridComponent,
     MarkPointComponent,
-    MarkLineComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { ref, provide, inject, watch, computed } from "vue";
@@ -50,6 +49,7 @@ import {
 import { useRoute } from "vue-router";
 import { getImageUrl } from "../../../utils/image.js";
 import TextEditor from '../../../components/TextEditor.vue'
+import { Message } from "@arco-design/web-vue";
 
 const { examInfo, currClassId } = inject(examConsoleInfoKey);
 const isStart = ref(false);
@@ -57,7 +57,7 @@ const route = useRoute();
 const userStore = useUserStore();
 const loading = ref(true);
 const examId = route.params["examInfoId"];
-const statisticData = ref({
+const initStatisticData={
     maxScoreInfo: {
         score: 55,
         user: {},
@@ -69,7 +69,8 @@ const statisticData = ref({
         score: 0,
         user: {},
     },
-});
+}
+const statisticData = ref(initStatisticData);
 
 use([
     CanvasRenderer,
@@ -81,7 +82,6 @@ use([
     ToolboxComponent,
     GridComponent,
     MarkPointComponent,
-    MarkLineComponent,
 ]);
 watch(
     () => currClassId.value,
@@ -94,7 +94,13 @@ const getStatistic = () => {
     loading.value = true;
     examResultStatisticRequest(examId, currClassId.value).then((res) => {
         loading.value = false;
-        statisticData.value = res.data.data;
+        const data=res.data.data;
+        if(data!=null){
+            statisticData.value = data
+        }else{
+            statisticData.value=initStatisticData
+            Message.info("暂无考试结果")
+        }
     });
 };
 getStatistic();
@@ -178,9 +184,6 @@ const scoreChartoption = computed(() => {
                             symbolOffset: [0, "-100%"]
                         },
                     ],
-                },
-                markLine: {
-                    data: [{ name: "平均分", yAxis: data.averageScore }],
                 },
             },
         ],

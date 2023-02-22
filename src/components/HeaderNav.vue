@@ -29,7 +29,7 @@
             <!-- 信息区 -->
             <ul class="header-info">
                 <li class="header-search">
-                    <a-input-search :style="{width:'320px'}" placeholder="搜索一下吧~~~" search-button />
+                    <!-- <a-input-search :style="{width:'320px'}" placeholder="搜索一下吧~~~" search-button /> -->
                 </li>
                 <li>
                     <a-tooltip

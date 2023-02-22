@@ -35,13 +35,15 @@
     <a-spin dot :loading="loading" style="display:block">
         <div class="batch-import">
         <BaseTextEditor :config="editorConfig" v-model:model-value="text" :edit-hight="300" class="editor"></BaseTextEditor>
-        <ul v-if="list.length != 0" class="preview">
-            <li v-for="(item, index) in list" :key="index">
+        <AList :max-height="400" class="preview">
+            <template #header>
+                <h1>预览区</h1>
+            </template>
+            <AListItem v-for="(item, index) in list" :key="index">
                 <BaseQuestionPreview :number="index + 1" :topic-type="item['type']" :question="item"
                     :options="item['options']"></BaseQuestionPreview>
-            </li>
-        </ul>
-        <a-empty class="empty" v-else />
+            </AListItem>
+        </AList>
     </div>
     </a-spin>
    

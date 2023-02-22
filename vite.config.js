@@ -23,6 +23,7 @@ export default ({ mode })=>{
       // PkgConfig(),
       // OptimizationPersist()
       // svgLoader(),
+      //按需加载
       vitePluginForArco({
         theme:'@arco-themes/vue-mgo-blog',
         style: 'css',
