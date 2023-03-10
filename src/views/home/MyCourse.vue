@@ -78,13 +78,13 @@
                 <a-form-item field="name" label="课程封面">
                     <a-upload :show-file-list="false" :custom-request="customRequest"  list-type="picture-card">
                         <template #upload-button>
-                        <a-avatar  :size="100" class="info-avatar" shape="square">
-                            <template #trigger-icon>
-                                <icon-camera />
-                            </template>
-                            <img style="object-fit: cover;" v-if="teaAddInfo.cover" v-loadImg :src="teaAddInfo.cover" />
-                            <icon-plus v-else  style="height: 50px;,width: 50px;margin:auto;transform: scale(0.6);"/>
-                        </a-avatar>
+                            <a-avatar class="info-avatar" shape="square">
+                                <template #trigger-icon>
+                                    <icon-camera />
+                                </template>
+                                <img style="object-fit: cover;" v-if="teaAddInfo.cover" v-loadImg :src="teaAddInfo.cover" />
+                                <icon-plus v-else  style="font-size: 25px;"/>
+                            </a-avatar>
                         </template>
                     </a-upload>
                 </a-form-item>
@@ -327,4 +327,26 @@ getCourseList()
         }
     }
 }
+.info-avatar{
+        height:100px;
+        width:150px;
+        .arco-avatar-text{
+            overflow: hidden;
+            border-radius: var(--border-radius-medium);
+            width: 100%;
+            height: 100%;
+            position: relative;
+            text-align: center;
+            line-height: 100%;
+            transform:none!important;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        img{
+            width: 100%;
+            height: 100%;
+        }
+    }
 </style>

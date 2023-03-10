@@ -6,15 +6,41 @@
         </div> -->
         <div class="home-function">
             <!-- 侧边栏 -->
-            <a-menu class="home-list home-list-info" mode="pop" v-model:selected-keys="selectedKeys"
-                show-collapse-button breakpoint="xl">
-                <template v-for="(item,index) in navList" :key="item.key">
-                        <a-menu-item @click="toLink(item)"  v-if="item.visble" :key="item.key">
-                            <template #icon  v-if="item.icon">
-                                <component :is="item.icon"/>
-                            </template>
-                            {{ item.name }}
-                        </a-menu-item>
+            <a-menu class="home-list home-list-info" mode="pop" v-model:selected-keys="selectedKeys" show-collapse-button
+                breakpoint="xl">
+                <a-menu-item style="padding:0px" class="collapsed-hidden" v-if="currPage == 'course'">
+                    <div class="course-wrap" v-if="courseStore.courseInfo">
+                        <div class="course-detail">
+                            <a-image fit="cover" width="100%" height="100%" v-loadImg :src="courseStore.courseInfo.cover"
+                                class="cover" />
+                            <p type="text" class="btn">
+                                课程详情
+                                <icon-right-circle style="margin:0" />
+                            </p>
+                            <!-- <span class="name">{{ courseStore.courseInfo.name }}</span> -->
+                        </div>
+                        <h1 class="course-name">{{ courseStore.courseInfo.name }}</h1>
+                    </div>
+                    <div class="course-wrap" v-else>
+                        <div class="course-detail">
+                            <a-skeleton-shape animation width="100%" height="100%" v-loadImg
+                                :src="courseStore.courseInfo.cover" class="cover" />
+                            <p type="text" class="btn">
+                                课程详情
+                                <icon-right-circle style="margin:0" />
+                            </p>
+                            <!-- <span class="name">{{ courseStore.courseInfo.name }}</span> -->
+                        </div>
+                        <h1 class="course-name">{{ courseStore.courseInfo.name }}</h1>
+                    </div>
+                </a-menu-item>
+                <template v-for="(item, index) in navList" :key="item.key">
+                    <a-menu-item @click="toLink(item)" v-if="item.visble" :key="item.key">
+                        <template #icon v-if="item.icon">
+                            <component :is="item.icon" />
+                        </template>
+                        {{ item.name }}
+                    </a-menu-item>
                 </template>
             </a-menu>
             <!-- 课程 -->
@@ -34,11 +60,12 @@
     </div>
 </template>
 <script setup>
-import { ref,shallowRef, watchEffect} from 'vue';
+import { ref, shallowRef, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import useCourseStore from '../../sotre/course-store';
 import useUserStore from '../../sotre/user-store';
-import {IconApps,IconSelectAll,IconStorage,IconBookmark,IconNotification} from "@arco-design/web-vue/es/icon";
+import { IconApps, IconSelectAll, IconStorage, IconBookmark, IconNotification } from "@arco-design/web-vue/es/icon";
+
 
 const route = useRoute()
 const router = useRouter()
@@ -49,10 +76,10 @@ if (!userStore.token) {
         name: "Login"
     })
 }
-const toLink=(item)=>{
+const toLink = (item) => {
     router.push({
-        name:item.key,
-        params:item.params
+        name: item.key,
+        params: item.params
     })
 }
 const homeList = [
@@ -94,16 +121,20 @@ const homeList = [
     },
 ]
 const navList = shallowRef([]);
+const currPage = ref("")
 let path = route.path;
 const courseStore = useCourseStore()
 const checkNav = () => {
     if (path.startsWith("/home")) {
+        currPage.value = 'home'
         navList.value = homeList;
-    } else if(path.startsWith("/course")){
+    } else if (path.startsWith("/course")) {
         console.log()
+        currPage.value = 'course'
         navList.value = courseStore.menu;
-    }else if(path.startsWith("/user")){
+    } else if (path.startsWith("/user")) {
         navList.value = userStore.menu;
+        currPage.value = 'user'
     }
 }
 checkNav();
@@ -136,6 +167,10 @@ watchEffect(() => {
 
 :deep(.arco-menu-collapsed) {
     padding: 0;
+
+    .collapsed-hidden {
+        display: none;
+    }
 }
 
 .home-wrap {
@@ -178,6 +213,44 @@ watchEffect(() => {
         height: 100%;
         box-sizing: border-box;
 
+        .course-wrap {
+            .course-detail {
+                height: 80px;
+                position: relative;
+                overflow: hidden;
+
+                .cover {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .btn {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    text-align: center;
+                    color: #fff;
+                    background-color: rgba(0, 0, 0, .2);
+                    height: 25px;
+                    line-height: 25px;
+                    font-size: 12px;
+                }
+            }
+
+            .course-name {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                word-wrap: normal;
+            }
+        }
+
+
         .home-list-info {
             overflow-y: auto;
         }
@@ -189,5 +262,4 @@ watchEffect(() => {
         margin-left: 0;
     }
 
-}
-</style>
+}</style>
