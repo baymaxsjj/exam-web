@@ -46,7 +46,7 @@
             <!-- 课程 -->
             <div class="home-content home-common">
                 <router-view></router-view>
-                <div style="text-align: center;color:var(--color-text-3);font-size: 16px;">
+                <div class="footer">
                     <p>
                         <a href="https://gitee.com/baymaxsjj">&copy; 2022 Baymax 版权所有<br /></a>
                     </p>
@@ -260,6 +260,10 @@ watchEffect(() => {
         overflow-y: auto;
         width: 100%;
         margin-left: 0;
+    }
+    .footer{
+        text-align: center;color:var(--color-text-3);font-size: 16px;
+        padding: 10px;
     }
 
 }</style>

@@ -7,6 +7,7 @@ const BatchImportQuestion=()=>import("../views/course/BatchImportQuestion.vue")
 
 const ExamPaper=()=>import("../views/exam/ExamPaper.vue")
 const ExamPaperManger=()=>import("../views/exam/ExamPaperManger.vue")
+const AutomaticPaper=()=>import("../views/exam/AutomaticPaper.vue")
 const ExamPaperPreView=()=>import("../views/exam/ExamPaperPreView.vue")
 
 const ExamManage=()=>import("../views/exam/ExamManage.vue")
@@ -54,6 +55,14 @@ const courses = [
                 name:'ExamPaperManger',
                 meta:{
                     title:'试卷管理'
+                }
+            },
+            {
+                path:"exam/paper/automatic",
+                component:AutomaticPaper,
+                name:'AutomaticPaper',
+                meta:{
+                    title:'自动组卷'
                 }
             },
             {

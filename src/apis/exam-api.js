@@ -13,11 +13,14 @@ export const updateExamPaperRequest=(examPaper,questions)=>{
 export const getExamPaperListRequest=(courseId,page=1,pageSize=10)=>{
     return axios.get(`/eapi/exam-paper/list/${courseId}?page=${page}&pageSize=${pageSize}`)
 }
+export const automaticPaperRequest=(courseId,config)=>{
+    return axios.post(`/eapi/exam-paper/${courseId}/automatic`,config)
+}
 export const getExamPaperDetailRequest=(examId)=>{
     return axios.get(`/eapi/exam-paper/detail/${examId}`)
 }
 export const getExamPaperQuestionRequest=(examId)=>{
-    return axios.get(`/eapi/exam-paper/quesiton/${examId}`)
+    return axios.get(`/eapi/exam-paper/question/${examId}`)
 }
 //试卷数据统计
 export const getExamPaperStatisticsRequest=(examId)=>{

@@ -1,10 +1,5 @@
 <template>
     <div class="exam-paper">
-        <a-page-header title="试卷管理" @back="$router.back">
-            <template #extra>
-                <a-button type="primary" @click="save">保存试卷</a-button>
-            </template>
-        </a-page-header>
         <div>
             <a-form :model="form">
                 <a-form-item field="name" label="试卷名称" label-col-flex="80px">
@@ -36,8 +31,14 @@
                             已选择:<span class="count">{{ questionKey.length }}</span>
                         </span>
                     </template>
-                    <a-button long @click="visible = true">添加题目</a-button>
-
+                    <ARow style="width:100%" :gutter="10">
+                        <ACol :span="12">
+                            <a-button long @click="visible = true">添加题目</a-button>
+                        </ACol>
+                        <ACol :span="12">
+                            <a-button long type="primary" @click="save">保存试卷</a-button>
+                        </ACol>
+                    </ARow>
                 </a-form-item>
             </a-form>
         </div>
@@ -45,10 +46,9 @@
             <Question v-model:select-kes="questionKey" :select-mode="true"></Question>
         </a-modal>
     </div>
-
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref ,watch} from 'vue';
 import Question from '../course/Question.vue'
 import { updateExamPaperRequest, getExamPaperDetailRequest } from '../../apis/exam-api'
 import { useRoute, useRouter } from 'vue-router';
@@ -56,8 +56,14 @@ const form = ref({
     introduce: "",
     title: ""
 })
+const props = defineProps({
+    keys: {
+        type: Array,
+        default: () => []
+    }
+})
 const route = useRoute()
-const router=useRouter()
+const router = useRouter()
 const examId = route.params['examId']
 const courseId = route.params['courseId']
 const visible = ref(false)
@@ -78,10 +84,11 @@ if (examId) {
         questionKey.value = res.data.data['questions'];
     })
 }
-
+watch(()=>props.keys,(value)=>{
+ questionKey.value=value
+})
 </script>
 <style lang="less" scoped>
-
 .operate {
     display: flex;
     align-items: center;
