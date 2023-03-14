@@ -4,9 +4,9 @@
 
 ###  项目地址
 
-[为考-考试系统-前端-gitee](https://gitee.com/for-the-exam/exam-web)
+为考-考试系统-前端：[https://gitee.com/for-the-exam/exam-web](https://gitee.com/for-the-exam/exam-web)
 
-[为考-考试系统-后端-gitee](https://gitee.com/for-the-exam/exam)
+为考-考试系统-后端：[https://gitee.com/for-the-exam/exam](https://gitee.com/for-the-exam/exam)
 
 ### 系统截图
 
