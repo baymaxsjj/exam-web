@@ -239,6 +239,7 @@ console.log(app_name)
 
                         &:hover {
                             box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.1);
+                            transform: scale(.95);
                         }
                     }
                 }
