@@ -40,7 +40,7 @@
                     <!-- <router-link :to="'/course/'+item.id"> -->
                         <div  class="course-item">
                         <div class="course-picture">
-                            <img width="100%" style="object-fit: cover;" height="100%" :src="getImageUrl(item.cover)" />
+                            <a-image width="100%" style="object-fit: cover;" height="100%" :src="getImageUrl(item.cover)"  show-loader/>
                             <div class="course-opera" v-if="defaultTag=='teacher'">
                                 <span>{{item.status==0?"结课":"开课"}}</span>
                                 <span @click.stop="showAddModal(2,item)">修改</span>
