@@ -8,6 +8,7 @@ import 'tinymce/themes/silver/theme'
 import 'tinymce/icons/default'; //引入编辑器图标icon，不引入则不显示对应图标
 import 'tinymce/models/dom' // 这里是个坑 一定要引入
 import 'tinymce/plugins/table'; //表格
+import 'tinymce/plugins/image'; //表格
 
 import Editor from '@tinymce/tinymce-vue';
 import { onBeforeUnmount, ref, shallowRef, onMounted, computed, watch } from 'vue'
@@ -34,7 +35,7 @@ const initConfig = {
     branding: false,
     elementpath: false,
     promotion: false,
-    plugins: ['table'],
+    plugins: ['table','image'],
     toolbar_mode: 'floating',
     skin_url: "/tinymce/skins/ui/oxide",
     content_css: '/tinymce/skins/content/default/content.css',
