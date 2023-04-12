@@ -104,7 +104,7 @@ Github：[https://gitee.com/baymaxsjj/sqlmock](https://gitee.com/baymaxsjj/sqlmo
 ```text
 用户名：baymax  密码：s123456
 用户名：Steven 密码：s123456
-用户名：Scott等 ：密码：s123456
+用户名：Scott ：密码：s123456
 ```
 
 ### 课程中心
