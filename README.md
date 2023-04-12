@@ -96,6 +96,7 @@ Github：[https://gitee.com/baymaxsjj/sqlmock](https://gitee.com/baymaxsjj/sqlmo
 - [x] 考生数据统计分析
 
 # 为考-前端
+## 功能说明
 ### 课程中心
 
 主页面只有我的课程是完成的，我的作业 我的考试 我的笔记 消息那些功能都没写
