@@ -97,6 +97,16 @@ Github：[https://gitee.com/baymaxsjj/sqlmock](https://gitee.com/baymaxsjj/sqlmo
 
 # 为考-前端
 ## 功能说明
+### 登录
+
+由于注册功能使用的是邮箱注册登录，在本地测试下如果没有配置邮箱功能，就不能注册，如需测试使用，请使用：
+
+```text
+用户名：baymax  密码：s123456
+用户名：Steven 密码：s123456
+用户名：Scott等 ：密码：s123456
+```
+
 ### 课程中心
 
 主页面只有我的课程是完成的，我的作业 我的考试 我的笔记 消息那些功能都没写
